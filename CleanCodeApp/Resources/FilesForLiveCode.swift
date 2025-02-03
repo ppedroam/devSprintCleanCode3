@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 class WebViewContent {
@@ -39,3 +40,45 @@ enum RealmFilesNames: String {
     case imagesFatherPath = ""
 }
 
+class FAQViewController: UIViewController {
+    let type: FaqTypes
+    
+    init(type: FaqTypes) {
+        self.type = type
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+enum FaqTypes {
+    case lastUpdates
+}
+
+
+class LastLaunchingsService {
+    
+}
+
+class LastLaunchingsViewModel {
+    let service: LastLaunchingsService
+    
+    init(service: LastLaunchingsService) {
+        self.service = service
+    }
+}
+
+class LastLaunchingsViewController: UIViewController {
+    let viewModel: LastLaunchingsViewModel
+    
+    init(viewModel: LastLaunchingsViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}

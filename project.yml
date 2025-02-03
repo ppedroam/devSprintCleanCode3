@@ -1,0 +1,30 @@
+name: CleanCodeApp
+options:
+  bundleIdPrefix: cleancodeapp.com
+targets:
+  CleanCode:
+    settings:
+      ENABLE_BITCODE: NO
+    type: application
+    platform: iOS
+    deploymentTarget: "16.4"
+    sources: [CleanCodeApp]
+    info:
+      path: CleanCodeApp/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: CleanCodeApp
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UILaunchStoryboardName: LaunchScreen
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+                - UISceneConfigurationName: 
+                  UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+  CleanCodeAppTests:
+       templates: Default
+       type: bundle.unit-test
+       platform: iOS
+       dependencies:
+           - target: CleanCode
+       sources: [CleanCodeAppTests]

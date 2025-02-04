@@ -11,37 +11,49 @@ class RumContactUsViewController: LoadingInheritageController {
     var model: ContactUsModel?
     let textView = UITextView()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        view.backgroundColor = .systemGray6
-        let titleLabel = UILabel()
-        titleLabel.textColor = .black
-        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        titleLabel.text = "Escolha o canal para contato"
-        
-        // Criar botões
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
+        label.text = "Escolha o canal para contato"
+        return label
+    }()
+    
+    private lazy var phoneButton: UIButton = {
         let phoneButton = UIButton()
         phoneButton.backgroundColor = .systemGray4
         phoneButton.layer.cornerRadius = 10
         phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        return phoneButton
+    }()
+    
+    private lazy var emailButton: UIButton = {
         let emailButton = UIButton()
         emailButton.backgroundColor = .systemGray4
         emailButton.layer.cornerRadius = 10
         emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
-
+        return emailButton
+    }()
+    
+    private lazy var chatButton: UIButton = {
         let chatButton = UIButton()
         chatButton.backgroundColor = .systemGray4
         chatButton.layer.cornerRadius = 10
         chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
-        
+        return chatButton
+    }()
+    
+    private lazy var messageLabel: UILabel = {
         let messageLabel = UILabel()
         messageLabel.textColor = .black
         messageLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         messageLabel.text = "Ou envie uma mensagem"
         messageLabel.numberOfLines = 2
         messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        
+        return messageLabel
+    }()
+    
+    private lazy var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
         sendMessageButton.backgroundColor = .blue
         sendMessageButton.setTitle("  Enviar ", for: .normal)
@@ -49,8 +61,10 @@ class RumContactUsViewController: LoadingInheritageController {
         sendMessageButton.layer.cornerRadius = 10
         sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
         sendMessageButton.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
-        
-        textView.text = "Escreva sua mensagem aqui"
+        return sendMessageButton
+    }()
+    
+    private lazy var closeButton: UIButton = {
         let closeButton = UIButton()
         closeButton.setTitle("Voltar", for: .normal)
         closeButton.setTitleColor(.blue, for: .normal)
@@ -59,7 +73,15 @@ class RumContactUsViewController: LoadingInheritageController {
         closeButton.layer.borderColor = UIColor.blue.cgColor
         closeButton.layer.cornerRadius = 10
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
-
+        return closeButton
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = .systemGray6
+        
+        textView.text = "Escreva sua mensagem aqui"
         
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
         phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfiguration), for: .normal)

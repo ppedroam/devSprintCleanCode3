@@ -7,11 +7,11 @@ class CeuResetPasswordViewController: UIViewController {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
-    
+
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var viewSuccess: UIView!
     @IBOutlet weak var emailLabel: UILabel!
-    
+
     var email = ""
     var recoveryEmail = false
 
@@ -19,7 +19,7 @@ class CeuResetPasswordViewController: UIViewController {
         super.viewDidLoad()
         setupView()
     }
-    
+
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -42,11 +42,11 @@ class CeuResetPasswordViewController: UIViewController {
             }
 
             let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
-            
+
             let parameters = [
                 "email": emailUser
             ]
-            
+
             BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
                 if success {
                     self.recoveryEmail = true
@@ -65,44 +65,44 @@ class CeuResetPasswordViewController: UIViewController {
             }
         }
     }
-    
+
     @IBAction func loginButton(_ sender: Any) {
         dismiss(animated: true)
     }
-    
+
     @IBAction func helpButton(_ sender: Any) {
         let vc = CeuContactUsViewController()
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .coverVertical
         self.present(vc, animated: true, completion: nil)
     }
-    
+
     @IBAction func createAccountButton(_ sender: Any) {
         let newVc = CeuCreateAccountViewController()
         newVc.modalPresentationStyle = .fullScreen
         present(newVc, animated: true)
     }
-    
+
     func validateForm() -> Bool {
         let status = emailTextfield.text!.isEmpty ||
-            !emailTextfield.text!.contains(".") ||
-            !emailTextfield.text!.contains("@") ||
-            emailTextfield.text!.count <= 5
-        
+        !emailTextfield.text!.contains(".") ||
+        !emailTextfield.text!.contains("@") ||
+        emailTextfield.text!.count <= 5
+
         if status {
             emailTextfield.setErrorColor()
             textLabel.textColor = .red
             textLabel.text = "Verifique o e-mail informado"
             return false
         }
-        
+
         return true
     }
 }
 
 // MARK: - Comportamentos de layout
 extension CeuResetPasswordViewController {
-    
+
     func setupView() {
         recoverPasswordButton.layer.cornerRadius = recoverPasswordButton.bounds.height / 2
         recoverPasswordButton.backgroundColor = .blue
@@ -113,45 +113,45 @@ extension CeuResetPasswordViewController {
         loginButton.layer.borderColor = UIColor.blue.cgColor
         loginButton.setTitleColor(.blue, for: .normal)
         loginButton.backgroundColor = .white
-        
+
         helpButton.layer.cornerRadius = createAccountButton.frame.height / 2
         helpButton.layer.borderWidth = 1
         helpButton.layer.borderColor = UIColor.blue.cgColor
         helpButton.setTitleColor(.blue, for: .normal)
         helpButton.backgroundColor = .white
-        
+
         createAccountButton.layer.cornerRadius = createAccountButton.frame.height / 2
         createAccountButton.layer.borderWidth = 1
         createAccountButton.layer.borderColor = UIColor.blue.cgColor
         createAccountButton.setTitleColor(.blue, for: .normal)
         createAccountButton.backgroundColor = .white
-        
+
         emailTextfield.setDefaultColor()
-        
+
         if !email.isEmpty {
             emailTextfield.text = email
             emailTextfield.isEnabled = false
         }
         validateButton()
     }
-    
+
     //email
     @IBAction func emailBeginEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
     }
-    
+
     @IBAction func emailEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
         validateButton()
     }
-    
+
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextfield.setDefaultColor()
     }
 }
 
 extension CeuResetPasswordViewController {
-    
+
     func validateButton() {
         if !emailTextfield.text!.isEmpty {
             enableCreateButton()
@@ -159,16 +159,17 @@ extension CeuResetPasswordViewController {
             disableCreateButton()
         }
     }
-    
+
     func disableCreateButton() {
         recoverPasswordButton.backgroundColor = .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = false
     }
-    
+
     func enableCreateButton() {
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = true
     }
 }
+

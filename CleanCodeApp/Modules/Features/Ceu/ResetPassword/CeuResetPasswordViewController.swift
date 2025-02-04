@@ -103,39 +103,57 @@ class CeuResetPasswordViewController: UIViewController {
 // MARK: - Comportamentos de layout
 extension CeuResetPasswordViewController {
 
+    // MARK: - Setup Views
     func setupView() {
+        setupRecoverPasswordButton()
+        setupLoginButton()
+        setupHelpButton()
+        setupCreateAccountButton()
+        setupEmailTextfield()
+
+        validateButton()
+    }
+
+    private func setupRecoverPasswordButton() {
         recoverPasswordButton.layer.cornerRadius = recoverPasswordButton.bounds.height / 2
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
+    }
 
+    private func setupLoginButton() {
         loginButton.layer.cornerRadius = createAccountButton.frame.height / 2
         loginButton.layer.borderWidth = 1
         loginButton.layer.borderColor = UIColor.blue.cgColor
         loginButton.setTitleColor(.blue, for: .normal)
         loginButton.backgroundColor = .white
+    }
 
+    private func setupHelpButton() {
         helpButton.layer.cornerRadius = createAccountButton.frame.height / 2
         helpButton.layer.borderWidth = 1
         helpButton.layer.borderColor = UIColor.blue.cgColor
         helpButton.setTitleColor(.blue, for: .normal)
         helpButton.backgroundColor = .white
+    }
 
+    private func setupCreateAccountButton() {
         createAccountButton.layer.cornerRadius = createAccountButton.frame.height / 2
         createAccountButton.layer.borderWidth = 1
         createAccountButton.layer.borderColor = UIColor.blue.cgColor
         createAccountButton.setTitleColor(.blue, for: .normal)
         createAccountButton.backgroundColor = .white
+    }
 
+    private func setupEmailTextfield() {
         emailTextfield.setDefaultColor()
 
         if !email.isEmpty {
             emailTextfield.text = email
             emailTextfield.isEnabled = false
         }
-        validateButton()
     }
 
-    //email
+    // MARK: - Email TextField Editing Functions
     @IBAction func emailBeginEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
     }

@@ -11,37 +11,49 @@ class SolContactUsViewController: LoadingInheritageController {
     var model: ContactUsModel?
     let textView = UITextView()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        view.backgroundColor = .systemGray6
-        let titleLabel = UILabel()
-        titleLabel.textColor = .black
-        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        titleLabel.text = "Escolha o canal para contato"
-        
-        // Criar botões
+    lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
+        label.text = "Escolha o canal para contato"
+        return label
+    }()
+    
+    // Criar botões
+    lazy var phoneButton: UIButton = {
         let phoneButton = UIButton()
         phoneButton.backgroundColor = .systemGray4
         phoneButton.layer.cornerRadius = 10
         phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
-        let emailButton = UIButton()
-        emailButton.backgroundColor = .systemGray4
-        emailButton.layer.cornerRadius = 10
-        emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
-
+        return phoneButton
+    }()
+    lazy var emailButton: UIButton = {
+    let emailButton = UIButton()
+    emailButton.backgroundColor = .systemGray4
+    emailButton.layer.cornerRadius = 10
+    emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        return emailButton
+    }()
+    
+    lazy var chatButton: UIButton = {
         let chatButton = UIButton()
         chatButton.backgroundColor = .systemGray4
         chatButton.layer.cornerRadius = 10
         chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
-        
+        return chatButton
+    }()
+    
+    lazy var messageLabel: UILabel = {
         let messageLabel = UILabel()
         messageLabel.textColor = .black
         messageLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         messageLabel.text = "Ou envie uma mensagem"
         messageLabel.numberOfLines = 2
         messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        
+        return messageLabel
+    }()
+    
+    lazy var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
         sendMessageButton.backgroundColor = .blue
         sendMessageButton.setTitle("  Enviar ", for: .normal)
@@ -49,8 +61,10 @@ class SolContactUsViewController: LoadingInheritageController {
         sendMessageButton.layer.cornerRadius = 10
         sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
         sendMessageButton.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
-        
-        textView.text = "Escreva sua mensagem aqui"
+        return sendMessageButton
+    }()
+    
+    lazy var closeButton: UIButton = {
         let closeButton = UIButton()
         closeButton.setTitle("Voltar", for: .normal)
         closeButton.setTitleColor(.blue, for: .normal)
@@ -59,30 +73,42 @@ class SolContactUsViewController: LoadingInheritageController {
         closeButton.layer.borderColor = UIColor.blue.cgColor
         closeButton.layer.cornerRadius = 10
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
-
-        
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
+        return closeButton
+    }()
+    
+    let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
+    
+    private let viewModel: SolContactUsViewModel
+    
+    init (viewModel: SolContactUsViewModel){
+        self.viewModel = viewModel
+        super.init(nibName: "SolContactUsViewController", bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemGray6
+        textView.text = "Escreva sua mensagem aqui"
+        setButtonImages()
+        setupConstraints()
+        pegarDados()
+    }
+    
+    func setButtonImages() {
         phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfiguration), for: .normal)
         emailButton.setImage(UIImage.init(systemName: "envelope")?.withConfiguration(symbolConfiguration), for: .normal)
         chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfiguration), for: .normal)
-        
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        phoneButton.translatesAutoresizingMaskIntoConstraints = false
-        emailButton.translatesAutoresizingMaskIntoConstraints = false
-        chatButton.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(titleLabel)
-        view.addSubview(phoneButton)
-        view.addSubview(emailButton)
-        view.addSubview(chatButton)
-        view.addSubview(messageLabel)
-        view.addSubview(textView)
-        view.addSubview(sendMessageButton)
-        view.addSubview(closeButton)
+    }
+    
+    func setupConstraints() {
+        [titleLabel, phoneButton, emailButton, chatButton, messageLabel, textView, sendMessageButton, closeButton].forEach { uiView in
+            uiView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(uiView)
+        }
         
         NSLayoutConstraint.activate([
 
@@ -127,8 +153,6 @@ class SolContactUsViewController: LoadingInheritageController {
             closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
-        
-        pegarDados()
     }
     
     @objc
@@ -169,24 +193,26 @@ class SolContactUsViewController: LoadingInheritageController {
     func pegarDados() {
         showLoadingView()
         let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            self.removeLoadingView()
+        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
+            self?.removeLoadingView()
             switch result {
             case .success(let data):
                 let decoder = JSONDecoder()
                 if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self.model = returned
+                    self?.model = returned
                 } else {
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
+                    self?.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
                 }
             case .failure(let error):
                 print("error api: \(error.localizedDescription)")
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                    self.dismiss(animated: true)
-                }
+                self?.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
             }
+        }
+    }
+    
+    func showAlertMessage(title: String, message: String, dissmiss: Bool) {
+        Globals.alertMessage(title: title, message: message, targetVC: self) {
+            self.dismiss(animated: dissmiss)
         }
     }
     
@@ -201,13 +227,11 @@ class SolContactUsViewController: LoadingInheritageController {
             ]
             showLoadingView()
             let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) {  result in
                 self.removeLoadingView()
                 switch result {
                 case .success:
-                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
+                    self.showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", dissmiss: true)
                 case .failure:
                     Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
                 }

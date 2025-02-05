@@ -40,3 +40,6 @@ class LoadingInheritageController: UIViewController {
     }
     
 }
+
+
+

@@ -45,7 +45,11 @@ func getRootViewController(forUser user: Users) -> UIViewController {
         userIdentifier = "Rio"
     case .rayanaPrata:
         userIdentifier = "Rum"
+<<<<<<< HEAD
     case .elyAssuncao:
+=======
+    case .elyAssumpcao:
+>>>>>>> 5d781b2 (feat tratar funções)
         userIdentifier = "Sol"
     }
     let storyboard = UIStoryboard(name: "\(userIdentifier)User", bundle: nil)
@@ -63,5 +67,9 @@ enum Users {
     case giuliaKetlin
     case thaisaAmanda
     case rayanaPrata
+<<<<<<< HEAD
     case elyAssuncao
+=======
+    case elyAssumpcao
+>>>>>>> 5d781b2 (feat tratar funções)
 }

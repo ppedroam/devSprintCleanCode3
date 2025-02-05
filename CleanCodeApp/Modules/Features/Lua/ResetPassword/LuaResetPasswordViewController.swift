@@ -9,7 +9,7 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var createAccountButton: UIButton!
     
     @IBOutlet weak var emailTextFieldLabel: UILabel!
-    @IBOutlet weak var viewSuccess: UIView!
+    @IBOutlet weak var passwordRecoverySuccessView: UIView!
     @IBOutlet weak var emailLabel: UILabel!
     
     var emailInput: String {
@@ -83,7 +83,7 @@ class LuaResetPasswordViewController: UIViewController {
         self.hasRequestedRecovery = true
         self.emailTextField.isHidden = true
         self.emailTextFieldLabel.isHidden = true
-        self.viewSuccess.isHidden = false
+        self.passwordRecoverySuccessView.isHidden = false
         self.emailLabel.text = emailInput
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
@@ -95,18 +95,18 @@ class LuaResetPasswordViewController: UIViewController {
         self.present(alertController, animated: true)
     }
     
-    @IBAction func loginButton(_ sender: Any) {
+    @IBAction func onLoginButtonTapped(_ sender: Any) {
         dismiss(animated: true)
     }
     
-    @IBAction func helpButton(_ sender: Any) {
+    @IBAction func onHelpButtonTapped(_ sender: Any) {
         let vc = LuaContactUsViewController()
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .coverVertical
         self.present(vc, animated: true, completion: nil)
     }
     
-    @IBAction func createAccountButton(_ sender: Any) {
+    @IBAction func onCreateAccountButtonTapped(_ sender: Any) {
         let newVc = LuaCreateAccountViewController()
         newVc.modalPresentationStyle = .fullScreen
         present(newVc, animated: true)
@@ -139,69 +139,84 @@ class LuaResetPasswordViewController: UIViewController {
 extension LuaResetPasswordViewController {
     
     func setupView() {
+        setupRecoverPasswordButton()
+        setupLoginButton()
+        setupHelpButton()
+        setupAccountButton()
+        emailTextField.setDefaultColor()
+        validateExistingEmailInput()
+        validatePasswordRecoveryButton()
+    }
+    
+    func setupRecoverPasswordButton() {
         recoverPasswordButton.layer.cornerRadius = recoverPasswordButton.bounds.height / 2
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        
+    }
+    
+    func setupLoginButton() {
         loginButton.layer.cornerRadius = createAccountButton.frame.height / 2
         loginButton.layer.borderWidth = 1
         loginButton.layer.borderColor = UIColor.blue.cgColor
         loginButton.setTitleColor(.blue, for: .normal)
         loginButton.backgroundColor = .white
-        
+    }
+    
+    func setupHelpButton() {
         helpButton.layer.cornerRadius = createAccountButton.frame.height / 2
         helpButton.layer.borderWidth = 1
         helpButton.layer.borderColor = UIColor.blue.cgColor
         helpButton.setTitleColor(.blue, for: .normal)
         helpButton.backgroundColor = .white
-        
+    }
+    
+    func setupAccountButton() {
         createAccountButton.layer.cornerRadius = createAccountButton.frame.height / 2
         createAccountButton.layer.borderWidth = 1
         createAccountButton.layer.borderColor = UIColor.blue.cgColor
         createAccountButton.setTitleColor(.blue, for: .normal)
         createAccountButton.backgroundColor = .white
-        
-        emailTextField.setDefaultColor()
-        
-        if !emailInput.isEmpty {
-            emailTextField.text = emailInput
-            emailTextField.isEnabled = false
-        }
-        validateButton()
     }
     
     //email
-    @IBAction func emailBeginEditing(_ sender: Any) {
+    @IBAction func emailTextFieldDidBeginEditing(_ sender: Any) {
         emailTextField.setEditingColor()
     }
     
-    @IBAction func emailEditing(_ sender: Any) {
+    @IBAction func onEmailTextFieldEdit(_ sender: Any) {
         emailTextField.setEditingColor()
-        validateButton()
+        validatePasswordRecoveryButton()
     }
     
-    @IBAction func emailEndEditing(_ sender: Any) {
+    @IBAction func emailTextFieldDidEndEditing(_ sender: Any) {
         emailTextField.setDefaultColor()
     }
 }
 
 extension LuaResetPasswordViewController {
     
-    func validateButton() {
+    func validateExistingEmailInput(){
         if !emailInput.isEmpty {
-            enableCreateButton()
-        } else {
-            disableCreateButton()
+            emailTextField.text = emailInput
+            emailTextField.isEnabled = false
         }
     }
     
-    func disableCreateButton() {
+    func validatePasswordRecoveryButton() {
+        if !emailInput.isEmpty {
+            enablePasswordRecoveryButton()
+        } else {
+            disablePasswordRecoveryButtonTap()
+        }
+    }
+    
+    func disablePasswordRecoveryButtonTap() {
         recoverPasswordButton.backgroundColor = .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = false
     }
     
-    func enableCreateButton() {
+    func enablePasswordRecoveryButton() {
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = true

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="uHU-dp-7pV">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="uHU-dp-7pV">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -290,7 +290,6 @@ E-mail enviado para:</string>
                                         <fontDescription key="fontDescription" name="SourceSansPro-Regular" family="Source Sans Pro" pointSize="12"/>
                                         <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" textContentType="email"/>
                                         <connections>
-                                            <action selector="emailBeginEditing:" destination="oem-ln-Nx6" eventType="editingDidBegin" id="mq5-ht-gLv"/>
                                             <action selector="emailEditing:" destination="oem-ln-Nx6" eventType="editingChanged" id="cbg-mc-k8A"/>
                                             <action selector="emailEndEditing:" destination="oem-ln-Nx6" eventType="editingDidEnd" id="aOs-EF-vkl"/>
                                         </connections>
@@ -412,12 +411,12 @@ E-mail enviado para:</string>
                     </view>
                     <connections>
                         <outlet property="createAccountButton" destination="gjm-W7-qgQ" id="Cig-i1-uOl"/>
+                        <outlet property="emailErrorLabel" destination="29q-Kk-Ndf" id="I7f-zp-h2m"/>
                         <outlet property="emailLabel" destination="bfO-Kx-DZX" id="ST2-fq-Poc"/>
-                        <outlet property="emailTextfield" destination="Vzh-no-Lvd" id="gfB-rd-Pt6"/>
+                        <outlet property="emailTextField" destination="Vzh-no-Lvd" id="zIB-B6-Iz5"/>
                         <outlet property="helpButton" destination="CW8-GQ-2y2" id="bqU-Vt-77Q"/>
                         <outlet property="loginButton" destination="gTs-DZ-zBa" id="YPm-Wk-cgI"/>
                         <outlet property="recoverPasswordButton" destination="cPO-xo-Goh" id="SPx-Hz-Cno"/>
-                        <outlet property="textLabel" destination="29q-Kk-Ndf" id="1WS-AR-w4A"/>
                         <outlet property="viewSuccess" destination="Ygz-WZ-Pxh" id="Vo3-aG-fbU"/>
                     </connections>
                 </viewController>

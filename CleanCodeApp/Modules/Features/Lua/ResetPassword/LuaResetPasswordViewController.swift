@@ -7,7 +7,7 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
-    @IBOutlet weak var emailTextFieldLabel: UILabel!
+    @IBOutlet weak var emailErrorLabel: UILabel!
     @IBOutlet weak var passwordRecoverySuccessView: UIView!
     @IBOutlet weak var emailLabel: UILabel!
     
@@ -81,7 +81,7 @@ class LuaResetPasswordViewController: UIViewController {
     func handlePasswordResetRequestSuccess() {
         self.hasRequestedRecovery = true
         self.emailTextField.isHidden = true
-        self.emailTextFieldLabel.isHidden = true
+        self.emailErrorLabel.isHidden = true
         self.passwordRecoverySuccessView.isHidden = false
         self.emailLabel.text = emailInput
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
@@ -116,7 +116,7 @@ class LuaResetPasswordViewController: UIViewController {
         if isEmailFormatValid {
             return true
         }
-        displayFormError(textField: emailTextField, label: emailTextFieldLabel, errorText: "Verifique o e-mail informado")
+        displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
         return false
     }
     

@@ -45,6 +45,8 @@ func getRootViewController(forUser user: Users) -> UIViewController {
         userIdentifier = "Rio"
     case .rayanaPrata:
         userIdentifier = "Rum"
+    case .elyAssumpcao:
+        userIdentifier = "Sol"
     }
     let storyboard = UIStoryboard(name: "\(userIdentifier)User", bundle: nil)
     let vc = storyboard.instantiateViewController(withIdentifier: "\(userIdentifier)LoginViewController")
@@ -61,4 +63,5 @@ enum Users {
     case giuliaKetlin
     case thaisaAmanda
     case rayanaPrata
+    case elyAssumpcao
 }

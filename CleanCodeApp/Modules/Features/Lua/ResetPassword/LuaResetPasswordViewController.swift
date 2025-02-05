@@ -138,7 +138,6 @@ class LuaResetPasswordViewController: UIViewController {
 extension LuaResetPasswordViewController {
     
     func setupView() {
-        
         setupRecoverPasswordButton()
         setupLoginButton()
         setupHelpButton()
@@ -146,7 +145,6 @@ extension LuaResetPasswordViewController {
         emailTextField.setDefaultColor()
         validateExistingEmailInput()
         validatePasswordRecoveryButton()
-       
     }
     
     func setupRecoverPasswordButton() {

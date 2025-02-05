@@ -8,15 +8,24 @@
 import UIKit
 
 class RumContactUsViewController: LoadingInheritageController {
+    // MARK: - Model
     var model: ContactUsModel?
-    let textView = UITextView()
+    
+    // MARK: - UI Components
+    private lazy var textView: UITextView = {
+        let textView = UITextView()
+        textView.text = "Escreva sua mensagem aqui"
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }()
     
     private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .black
-        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        label.text = "Escolha o canal para contato"
-        return label
+        let titleLabel = UILabel()
+        titleLabel.textColor = .black
+        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
+        titleLabel.text = "Escolha o canal para contato"
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        return titleLabel
     }()
     
     private lazy var phoneButton: UIButton = {
@@ -24,6 +33,7 @@ class RumContactUsViewController: LoadingInheritageController {
         phoneButton.backgroundColor = .systemGray4
         phoneButton.layer.cornerRadius = 10
         phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        phoneButton.translatesAutoresizingMaskIntoConstraints = false
         return phoneButton
     }()
     
@@ -32,6 +42,7 @@ class RumContactUsViewController: LoadingInheritageController {
         emailButton.backgroundColor = .systemGray4
         emailButton.layer.cornerRadius = 10
         emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        emailButton.translatesAutoresizingMaskIntoConstraints = false
         return emailButton
     }()
     
@@ -40,6 +51,7 @@ class RumContactUsViewController: LoadingInheritageController {
         chatButton.backgroundColor = .systemGray4
         chatButton.layer.cornerRadius = 10
         chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+        chatButton.translatesAutoresizingMaskIntoConstraints = false
         return chatButton
     }()
     
@@ -50,6 +62,8 @@ class RumContactUsViewController: LoadingInheritageController {
         messageLabel.text = "Ou envie uma mensagem"
         messageLabel.numberOfLines = 2
         messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         return messageLabel
     }()
     
@@ -61,6 +75,7 @@ class RumContactUsViewController: LoadingInheritageController {
         sendMessageButton.layer.cornerRadius = 10
         sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
         sendMessageButton.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
+        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
     }()
     
@@ -73,30 +88,33 @@ class RumContactUsViewController: LoadingInheritageController {
         closeButton.layer.borderColor = UIColor.blue.cgColor
         closeButton.layer.cornerRadius = 10
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
         return closeButton
     }()
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupView()
+        pegarDados()
+    }
+    
+    // MARK: - Setup Methods
+    private func setupView() {
         view.backgroundColor = .systemGray6
-        
-        textView.text = "Escreva sua mensagem aqui"
-        
+        setupButtonImages()
+        setupHierarchy()
+        setupConstraints()
+    }
+    
+    private func setupButtonImages() {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
         phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfiguration), for: .normal)
         emailButton.setImage(UIImage.init(systemName: "envelope")?.withConfiguration(symbolConfiguration), for: .normal)
         chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfiguration), for: .normal)
-        
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        phoneButton.translatesAutoresizingMaskIntoConstraints = false
-        emailButton.translatesAutoresizingMaskIntoConstraints = false
-        chatButton.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        
+    }
+    
+    private func setupHierarchy() {
         view.addSubview(titleLabel)
         view.addSubview(phoneButton)
         view.addSubview(emailButton)
@@ -105,9 +123,10 @@ class RumContactUsViewController: LoadingInheritageController {
         view.addSubview(textView)
         view.addSubview(sendMessageButton)
         view.addSubview(closeButton)
-        
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
-
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -131,13 +150,12 @@ class RumContactUsViewController: LoadingInheritageController {
             messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
             messageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             messageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-//            stackView.heightAnchor.constraint(equalToConstant: 30),
+            //            stackView.heightAnchor.constraint(equalToConstant: 30),
             
             textView.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 20),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             textView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
-            
             
             sendMessageButton.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
             sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
@@ -149,28 +167,24 @@ class RumContactUsViewController: LoadingInheritageController {
             closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
-        
-        pegarDados()
     }
     
-    @objc
-    func phoneClick() {
+    // MARK: - Actions
+    @objc func phoneClick() {
         if let tel = model?.phone,
            let url = URL(string: "tel://\(tel)") {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
     
-    @objc
-    func emailClick() {
+    @objc func emailClick() {
         if let mail = model?.mail,
            let url = URL(string: "mailto:\(mail)") {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
     
-    @objc
-    func chatClicked() {
+    @objc func chatClicked() {
         if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
             if UIApplication.shared.canOpenURL(whatsappURL) {
                 UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
@@ -182,8 +196,7 @@ class RumContactUsViewController: LoadingInheritageController {
         }
     }
     
-    @objc
-    func close() {
+    @objc func close() {
         dismiss(animated: true)
     }
     
@@ -212,8 +225,7 @@ class RumContactUsViewController: LoadingInheritageController {
         }
     }
     
-    @objc
-    func messageSend() {
+    @objc func messageSend() {
         view.endEditing(true)
         let email = model?.mail ?? ""
         if let message = textView.text, textView.text.count > 0 {

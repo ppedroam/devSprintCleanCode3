@@ -7,7 +7,6 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
-    
     @IBOutlet weak var emailTextFieldLabel: UILabel!
     @IBOutlet weak var passwordRecoverySuccessView: UIView!
     @IBOutlet weak var emailLabel: UILabel!
@@ -139,6 +138,7 @@ class LuaResetPasswordViewController: UIViewController {
 extension LuaResetPasswordViewController {
     
     func setupView() {
+        
         setupRecoverPasswordButton()
         setupLoginButton()
         setupHelpButton()
@@ -146,6 +146,7 @@ extension LuaResetPasswordViewController {
         emailTextField.setDefaultColor()
         validateExistingEmailInput()
         validatePasswordRecoveryButton()
+       
     }
     
     func setupRecoverPasswordButton() {

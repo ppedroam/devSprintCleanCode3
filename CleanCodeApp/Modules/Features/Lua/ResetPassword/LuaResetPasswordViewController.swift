@@ -12,7 +12,14 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var viewSuccess: UIView!
     @IBOutlet weak var emailLabel: UILabel!
     
-    var email = ""
+    var emailInput: String {
+        get {
+            guard let emailInput = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
+                return ""
+            }
+            return emailInput
+        }
+    }
     var hasRequestedRecovery = false
     
     override func viewDidLoad() {
@@ -56,7 +63,6 @@ class LuaResetPasswordViewController: UIViewController {
     }
     
     func getPasswordResetRequestParameters() -> [String : String] {
-        let emailInput = emailTextField.text!.trimmingCharacters(in: .whitespaces)
         let passwordResetParameters = [
             "email": emailInput
         ]
@@ -78,7 +84,6 @@ class LuaResetPasswordViewController: UIViewController {
         self.emailTextField.isHidden = true
         self.emailTextFieldLabel.isHidden = true
         self.viewSuccess.isHidden = false
-        let emailInput = self.emailTextField.text?.trimmingCharacters(in: .whitespaces)
         self.emailLabel.text = emailInput
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
@@ -117,12 +122,9 @@ class LuaResetPasswordViewController: UIViewController {
     }
     
     func validateEmailFormat() -> Bool {
-        guard let emailTextifieldText = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
-            return false
-        }
-        let isEmailFormatValid = emailTextifieldText.contains(".") &&
-        emailTextifieldText.contains("@") &&
-        emailTextifieldText.count > 5
+        let isEmailFormatValid = emailInput.contains(".") &&
+        emailInput.contains("@") &&
+        emailInput.count > 5
         return isEmailFormatValid
     }
     
@@ -161,8 +163,8 @@ extension LuaResetPasswordViewController {
         
         emailTextField.setDefaultColor()
         
-        if !email.isEmpty {
-            emailTextField.text = email
+        if !emailInput.isEmpty {
+            emailTextField.text = emailInput
             emailTextField.isEnabled = false
         }
         validateButton()
@@ -186,7 +188,7 @@ extension LuaResetPasswordViewController {
 extension LuaResetPasswordViewController {
     
     func validateButton() {
-        if !emailTextField.text!.isEmpty {
+        if !emailInput.isEmpty {
             enableCreateButton()
         } else {
             disableCreateButton()

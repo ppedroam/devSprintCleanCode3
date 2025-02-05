@@ -34,7 +34,7 @@ class LuaResetPasswordViewController: UIViewController {
             return
         }
 
-        if isEmailFormValid() {
+        if validateEmailTextField() {
             self.view.endEditing(true)
             if !ConnectivityManager.shared.isConnected {
                 Globals.showNoInternetCOnnection(controller: self)
@@ -83,34 +83,26 @@ class LuaResetPasswordViewController: UIViewController {
         present(newVc, animated: true)
     }
     
- 
-    func isEmailFormValid() -> Bool {
-        
+    func validateEmailTextField() -> Bool {
         let isEmailFormatValid = validateEmailFormat()
-        
         if isEmailFormatValid {
             return true
         }
-        
         displayFormError(textField: emailTextField, label: emailTextFieldLabel, errorText: "Verifique o e-mail informado")
-        
         return false
     }
     
     func validateEmailFormat() -> Bool {
-        
         guard let emailTextifieldText = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
              return false
         }
-        
         let isEmailFormatValid = emailTextifieldText.contains(".") &&
                                  emailTextifieldText.contains("@") &&
                                  emailTextifieldText.count > 5
-        
         return isEmailFormatValid
     }
     
-    func displayFormError(textField: UITextField, label: UILabel, errorText: String){
+    func displayFormError(textField: UITextField, label: UILabel, errorText: String) {
         textField.setErrorColor()
         label.textColor = .red
         label.text = errorText

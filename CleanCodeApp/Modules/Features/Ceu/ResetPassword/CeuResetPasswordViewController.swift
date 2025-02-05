@@ -24,6 +24,44 @@ class CeuResetPasswordViewController: UIViewController {
         return .lightContent
     }
 
+    // MARK: - Reset Password Request functions
+
+    private func handleResetPasswordRequestSuccess() {
+        self.recoveryEmail = true
+        self.emailTextfield.isHidden = true
+        self.textLabel.isHidden = true
+        self.viewSuccess.isHidden = false
+        self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
+        self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
+        self.recoverPasswordButton.setTitle("Voltar", for: .normal)
+    }
+
+    private func handleResetPasswordRequestError() {
+        let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default)
+        alertController.addAction(action)
+        self.present(alertController, animated: true)
+    }
+
+    private func makeResetPasswordRequest(parameters: [String : String]) {
+        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
+            if success {
+                return self.handleResetPasswordRequestSuccess()
+            }
+            self.handleResetPasswordRequestError()
+        }
+    }
+
+    private func setupResetPasswordRequestParameters() -> [String: String] {
+        let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
+        let parameters = [
+            "email": emailUser
+        ]
+
+        return parameters
+    }
+
+    // MARK: - IBAction functions
     @IBAction func closeButtonAction(_ sender: Any) {
         dismiss(animated: true)
     }
@@ -41,28 +79,8 @@ class CeuResetPasswordViewController: UIViewController {
                 return
             }
 
-            let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
-
-            let parameters = [
-                "email": emailUser
-            ]
-
-            BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-                if success {
-                    self.recoveryEmail = true
-                    self.emailTextfield.isHidden = true
-                    self.textLabel.isHidden = true
-                    self.viewSuccess.isHidden = false
-                    self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
-                    self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
-                    self.recoverPasswordButton.setTitle("Voltar", for: .normal)
-                } else {
-                    let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "OK", style: .default)
-                    alertController.addAction(action)
-                    self.present(alertController, animated: true)
-                }
-            }
+            let parameters = setupResetPasswordRequestParameters()
+            makeResetPasswordRequest(parameters: parameters)
         }
     }
 
@@ -71,23 +89,41 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        let vc = CeuContactUsViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        self.present(vc, animated: true, completion: nil)
+        let viewController = setupContactUsViewController()
+        self.present(viewController, animated: true, completion: nil)
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        let newVc = CeuCreateAccountViewController()
-        newVc.modalPresentationStyle = .fullScreen
-        present(newVc, animated: true)
+        let viewController = setupCreateAccountViewController()
+        present(viewController, animated: true)
     }
 
-    func validateForm() -> Bool {
+    private func setupContactUsViewController() -> UIViewController {
+        let viewController = CeuContactUsViewController()
+        viewController.modalPresentationStyle = .fullScreen
+        viewController.modalTransitionStyle = .coverVertical
+
+        return viewController
+    }
+
+    private func setupCreateAccountViewController() -> UIViewController {
+        let viewController = CeuCreateAccountViewController()
+        viewController.modalPresentationStyle = .fullScreen
+
+        return viewController
+    }
+
+    private func setupStatus() -> Bool {
         let status = emailTextfield.text!.isEmpty ||
         !emailTextfield.text!.contains(".") ||
         !emailTextfield.text!.contains("@") ||
         emailTextfield.text!.count <= 5
+
+        return status
+    }
+
+    func validateForm() -> Bool {
+        let status = setupStatus()
 
         if status {
             emailTextfield.setErrorColor()
@@ -171,11 +207,10 @@ extension CeuResetPasswordViewController {
 extension CeuResetPasswordViewController {
 
     func validateButton() {
-        if !emailTextfield.text!.isEmpty {
-            enableCreateButton()
-        } else {
-            disableCreateButton()
+        if emailTextfield.text!.isEmpty {
+            return disableCreateButton()
         }
+        return enableCreateButton()
     }
 
     func disableCreateButton() {

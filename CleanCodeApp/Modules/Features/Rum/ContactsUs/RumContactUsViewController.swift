@@ -96,7 +96,7 @@ class RumContactUsViewController: LoadingInheritageController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        pegarDados()
+        fetchData()
     }
     
     // MARK: - Setup Methods
@@ -171,57 +171,55 @@ class RumContactUsViewController: LoadingInheritageController {
     
     // MARK: - Actions
     @objc func phoneClick() {
-        if let tel = model?.phone,
-           let url = URL(string: "tel://\(tel)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
+        guard let tel = model?.phone, let url = URL(string: "tel://\(tel)") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
     @objc func emailClick() {
-        if let mail = model?.mail,
-           let url = URL(string: "mailto:\(mail)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
+        guard let mail = model?.mail, let url = URL(string: "mailto:\(mail)") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
     @objc func chatClicked() {
-        if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
-            if UIApplication.shared.canOpenURL(whatsappURL) {
-                UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-            } else {
-                if let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") {
-                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-                }
-            }
-        }
+        guard let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { return }
+        UIApplication.shared.canOpenURL(whatsappURL) ? openWhatsapp(whatsappURL) : openAppStore()
+    }
+    
+    private func openWhatsapp(_ whatsappURL: URL) {
+        UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
+    }
+    
+    private func openAppStore() {
+        guard let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { return }
+        UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
     }
     
     @objc func close() {
         dismiss(animated: true)
     }
     
-    
-    func pegarDados() {
+    func fetchData() {
         showLoadingView()
         let url = Endpoints.contactUs
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
             self.removeLoadingView()
             switch result {
             case .success(let data):
-                let decoder = JSONDecoder()
-                if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self.model = returned
-                } else {
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                }
+                self.decodeData(data)
             case .failure(let error):
                 print("error api: \(error.localizedDescription)")
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                    self.dismiss(animated: true)
-                }
+                self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
             }
+        }
+    }
+    
+    private func decodeData(_ data: Data) {
+        do {
+            let decoder = JSONDecoder()
+            let returned = try decoder.decode(ContactUsModel.self, from: data)
+            self.model = returned
+        } catch {
+            self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
     
@@ -233,19 +231,27 @@ class RumContactUsViewController: LoadingInheritageController {
                 "email": email,
                 "mensagem": message
             ]
-            showLoadingView()
-            let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-                self.removeLoadingView()
-                switch result {
-                case .success:
-                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                case .failure:
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-                }
+            sendMessage(parameters: parameters)
+        }
+    }
+    
+    private func sendMessage(parameters: [String: String]) {
+        showLoadingView()
+        let url = Endpoints.sendMessage
+        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+            self.removeLoadingView()
+            switch result {
+            case .success:
+                self.handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
+            case .failure:
+                self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
             }
+        }
+    }
+    
+    private func handleAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
+        Globals.alertMessage(title: title, message: message, targetVC: self) {
+            shouldDismiss ? self.dismiss(animated: true) : nil
         }
     }
 }

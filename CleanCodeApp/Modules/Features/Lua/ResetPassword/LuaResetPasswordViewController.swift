@@ -7,7 +7,6 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
-    
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var viewSuccess: UIView!
     @IBOutlet weak var emailLabel: UILabel!
@@ -172,3 +171,5 @@ extension LuaResetPasswordViewController {
         recoverPasswordButton.isEnabled = true
     }
 }
+
+

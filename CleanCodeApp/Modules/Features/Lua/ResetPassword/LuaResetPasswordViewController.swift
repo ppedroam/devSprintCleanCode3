@@ -179,7 +179,6 @@ extension LuaResetPasswordViewController {
         createAccountButton.backgroundColor = .white
     }
     
-    //email
     @IBAction func emailTextFieldDidBeginEditing(_ sender: Any) {
         emailTextField.setEditingColor()
     }

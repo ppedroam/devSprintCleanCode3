@@ -290,8 +290,9 @@ E-mail enviado para:</string>
                                         <fontDescription key="fontDescription" name="SourceSansPro-Regular" family="Source Sans Pro" pointSize="12"/>
                                         <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" textContentType="email"/>
                                         <connections>
-                                            <action selector="emailEditing:" destination="oem-ln-Nx6" eventType="editingChanged" id="cbg-mc-k8A"/>
-                                            <action selector="emailEndEditing:" destination="oem-ln-Nx6" eventType="editingDidEnd" id="aOs-EF-vkl"/>
+                                            <action selector="emailTextFieldDidBeginEditing:" destination="oem-ln-Nx6" eventType="editingDidBegin" id="XVK-bt-f5F"/>
+                                            <action selector="emailTextFieldDidEndEditing:" destination="oem-ln-Nx6" eventType="editingDidEnd" id="fei-Vb-WcD"/>
+                                            <action selector="onEmailTextFieldEdit:" destination="oem-ln-Nx6" eventType="editingChanged" id="y0F-Su-zGL"/>
                                         </connections>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cPO-xo-Goh">
@@ -305,7 +306,7 @@ E-mail enviado para:</string>
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
-                                            <action selector="recoverPasswordButton:" destination="oem-ln-Nx6" eventType="touchUpInside" id="4PF-JN-sI5"/>
+                                            <action selector="onPasswordRecoveryButtonTapped:" destination="oem-ln-Nx6" eventType="touchUpInside" id="ekl-Du-oYf"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gjm-W7-qgQ">
@@ -319,7 +320,7 @@ E-mail enviado para:</string>
                                             <color key="titleColor" name="primary base"/>
                                         </state>
                                         <connections>
-                                            <action selector="createAccountButton:" destination="oem-ln-Nx6" eventType="touchUpInside" id="H9P-tR-Zrf"/>
+                                            <action selector="onCreateAccountButtonTapped:" destination="oem-ln-Nx6" eventType="touchUpInside" id="d4N-CF-Pot"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CW8-GQ-2y2">
@@ -333,7 +334,7 @@ E-mail enviado para:</string>
                                             <color key="titleColor" name="primary base"/>
                                         </state>
                                         <connections>
-                                            <action selector="helpButton:" destination="oem-ln-Nx6" eventType="touchUpInside" id="mp5-2I-x6i"/>
+                                            <action selector="onHelpButtonTapped:" destination="oem-ln-Nx6" eventType="touchUpInside" id="ORK-a7-vnt"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gTs-DZ-zBa">
@@ -347,7 +348,7 @@ E-mail enviado para:</string>
                                             <color key="titleColor" name="primary base"/>
                                         </state>
                                         <connections>
-                                            <action selector="loginButton:" destination="oem-ln-Nx6" eventType="touchUpInside" id="MpA-be-DPQ"/>
+                                            <action selector="onLoginButtonTapped:" destination="oem-ln-Nx6" eventType="touchUpInside" id="ABp-57-Six"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UoQ-Gf-Ehd">
@@ -416,8 +417,8 @@ E-mail enviado para:</string>
                         <outlet property="emailTextField" destination="Vzh-no-Lvd" id="zIB-B6-Iz5"/>
                         <outlet property="helpButton" destination="CW8-GQ-2y2" id="bqU-Vt-77Q"/>
                         <outlet property="loginButton" destination="gTs-DZ-zBa" id="YPm-Wk-cgI"/>
+                        <outlet property="passwordRecoverySuccessView" destination="Ygz-WZ-Pxh" id="GFb-8i-NEa"/>
                         <outlet property="recoverPasswordButton" destination="cPO-xo-Goh" id="SPx-Hz-Cno"/>
-                        <outlet property="viewSuccess" destination="Ygz-WZ-Pxh" id="Vo3-aG-fbU"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UBU-bC-5gd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

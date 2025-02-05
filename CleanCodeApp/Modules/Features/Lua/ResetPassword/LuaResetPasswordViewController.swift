@@ -1,7 +1,7 @@
 import UIKit
 
 class LuaResetPasswordViewController: UIViewController {
-
+    
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var recoverPasswordButton: UIButton!
     @IBOutlet weak var loginButton: UIButton!
@@ -13,8 +13,8 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var emailLabel: UILabel!
     
     var email = ""
-    var recoveryEmail = false
-
+    var hasRequestedRecovery = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -23,47 +23,71 @@ class LuaResetPasswordViewController: UIViewController {
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-
+    
     @IBAction func closeButtonAction(_ sender: Any) {
         dismiss(animated: true)
     }
-
-    @IBAction func recoverPasswordButton(_ sender: Any) {
-        if recoveryEmail {
+    
+    @IBAction func onPasswordRecoveryButtonTapped(_ sender: Any) {
+        if hasRequestedRecovery {
             dismiss(animated: true)
             return
         }
-
-        if validateEmailTextField() {
-            self.view.endEditing(true)
-            if !ConnectivityManager.shared.isConnected {
-                Globals.showNoInternetCOnnection(controller: self)
+        let isEmailAndConnectivityValid = validateEmailFormAndConnectivity()
+        if !isEmailAndConnectivityValid {
+            return
+        }
+        self.view.endEditing(true)
+        let passwordResetParameters = getPasswordResetRequestParameters()
+        sendPasswordResetRequest(parameters: passwordResetParameters)
+    }
+    
+    func validateEmailFormAndConnectivity() -> Bool {
+        let isEmailValid = validateEmailForm()
+        if !isEmailValid {
+            return false
+        }
+        let isConnected = ConnectivityManager.shared.isConnected
+        if !isConnected {
+            Globals.showNoInternetCOnnection(controller: self)
+            return false
+        }
+        return true
+    }
+    
+    func getPasswordResetRequestParameters() -> [String : String] {
+        let emailInput = emailTextField.text!.trimmingCharacters(in: .whitespaces)
+        let passwordResetParameters = [
+            "email": emailInput
+        ]
+        return passwordResetParameters
+    }
+    
+    func sendPasswordResetRequest(parameters: [String : String]) {
+        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
+            if success {
+                self.handlePasswordResetRequestSuccess()
                 return
             }
-
-            let emailUser = emailTextField.text!.trimmingCharacters(in: .whitespaces)
-            
-            let parameters = [
-                "email": emailUser
-            ]
-            
-            BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-                if success {
-                    self.recoveryEmail = true
-                    self.emailTextField.isHidden = true
-                    self.emailTextFieldLabel.isHidden = true
-                    self.viewSuccess.isHidden = false
-                    self.emailLabel.text = self.emailTextField.text?.trimmingCharacters(in: .whitespaces)
-                    self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
-                    self.recoverPasswordButton.setTitle("Voltar", for: .normal)
-                } else {
-                    let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "OK", style: .default)
-                    alertController.addAction(action)
-                    self.present(alertController, animated: true)
-                }
-            }
+            self.handlePasswordResetRequestFailure()
         }
+    }
+    
+    func handlePasswordResetRequestSuccess() {
+        self.hasRequestedRecovery = true
+        self.emailTextField.isHidden = true
+        self.emailTextFieldLabel.isHidden = true
+        self.viewSuccess.isHidden = false
+        let emailInput = self.emailTextField.text?.trimmingCharacters(in: .whitespaces)
+        self.emailLabel.text = emailInput
+        self.recoverPasswordButton.setTitle("Voltar", for: .normal)
+    }
+    
+    func handlePasswordResetRequestFailure() {
+        let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default)
+        alertController.addAction(action)
+        self.present(alertController, animated: true)
     }
     
     @IBAction func loginButton(_ sender: Any) {
@@ -83,7 +107,7 @@ class LuaResetPasswordViewController: UIViewController {
         present(newVc, animated: true)
     }
     
-    func validateEmailTextField() -> Bool {
+    func validateEmailForm() -> Bool {
         let isEmailFormatValid = validateEmailFormat()
         if isEmailFormatValid {
             return true
@@ -93,12 +117,12 @@ class LuaResetPasswordViewController: UIViewController {
     }
     
     func validateEmailFormat() -> Bool {
-        guard let emailTextifieldText = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
-             return false
+        guard let emailTextifieldText = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
+            return false
         }
         let isEmailFormatValid = emailTextifieldText.contains(".") &&
-                                 emailTextifieldText.contains("@") &&
-                                 emailTextifieldText.count > 5
+        emailTextifieldText.contains("@") &&
+        emailTextifieldText.count > 5
         return isEmailFormatValid
     }
     
@@ -116,7 +140,7 @@ extension LuaResetPasswordViewController {
         recoverPasswordButton.layer.cornerRadius = recoverPasswordButton.bounds.height / 2
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-
+        
         loginButton.layer.cornerRadius = createAccountButton.frame.height / 2
         loginButton.layer.borderWidth = 1
         loginButton.layer.borderColor = UIColor.blue.cgColor

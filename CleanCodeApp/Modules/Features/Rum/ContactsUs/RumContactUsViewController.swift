@@ -32,7 +32,7 @@ class RumContactUsViewController: LoadingInheritageController {
         let phoneButton = UIButton()
         phoneButton.backgroundColor = .systemGray4
         phoneButton.layer.cornerRadius = 10
-        phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        phoneButton.addTarget(self, action: #selector(didTapPhoneButton), for: .touchUpInside)
         phoneButton.translatesAutoresizingMaskIntoConstraints = false
         return phoneButton
     }()
@@ -41,7 +41,7 @@ class RumContactUsViewController: LoadingInheritageController {
         let emailButton = UIButton()
         emailButton.backgroundColor = .systemGray4
         emailButton.layer.cornerRadius = 10
-        emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        emailButton.addTarget(self, action: #selector(didTapEmailButton), for: .touchUpInside)
         emailButton.translatesAutoresizingMaskIntoConstraints = false
         return emailButton
     }()
@@ -50,7 +50,7 @@ class RumContactUsViewController: LoadingInheritageController {
         let chatButton = UIButton()
         chatButton.backgroundColor = .systemGray4
         chatButton.layer.cornerRadius = 10
-        chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+        chatButton.addTarget(self, action: #selector(didTapChatButton), for: .touchUpInside)
         chatButton.translatesAutoresizingMaskIntoConstraints = false
         return chatButton
     }()
@@ -74,7 +74,7 @@ class RumContactUsViewController: LoadingInheritageController {
         sendMessageButton.setTitleColor(.white, for: .normal)
         sendMessageButton.layer.cornerRadius = 10
         sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
-        sendMessageButton.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
+        sendMessageButton.addTarget(self, action: #selector(didTapSendMessageButton), for: .touchUpInside)
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
     }()
@@ -87,7 +87,7 @@ class RumContactUsViewController: LoadingInheritageController {
         closeButton.layer.borderWidth = 1
         closeButton.layer.borderColor = UIColor.blue.cgColor
         closeButton.layer.cornerRadius = 10
-        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
         closeButton.translatesAutoresizingMaskIntoConstraints = false
         return closeButton
     }()
@@ -170,17 +170,17 @@ class RumContactUsViewController: LoadingInheritageController {
     }
     
     // MARK: - Actions
-    @objc func phoneClick() {
+    @objc func didTapPhoneButton() {
         guard let tel = model?.phone, let url = URL(string: "tel://\(tel)") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
-    @objc func emailClick() {
+    @objc func didTapEmailButton() {
         guard let mail = model?.mail, let url = URL(string: "mailto:\(mail)") else { return }
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
     }
     
-    @objc func chatClicked() {
+    @objc func didTapChatButton() {
         guard let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { return }
         UIApplication.shared.canOpenURL(whatsappURL) ? openWhatsapp(whatsappURL) : openAppStore()
     }
@@ -194,7 +194,7 @@ class RumContactUsViewController: LoadingInheritageController {
         UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
     }
     
-    @objc func close() {
+    @objc func didTapCloseButton() {
         dismiss(animated: true)
     }
     
@@ -223,7 +223,7 @@ class RumContactUsViewController: LoadingInheritageController {
         }
     }
     
-    @objc func messageSend() {
+    @objc func didTapSendMessageButton() {
         view.endEditing(true)
         let email = model?.mail ?? ""
         if let message = textView.text, textView.text.count > 0 {

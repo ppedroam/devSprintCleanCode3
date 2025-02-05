@@ -108,10 +108,9 @@ class RumContactUsViewController: LoadingInheritageController {
     }
     
     private func setupButtonImages() {
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
-        phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfiguration), for: .normal)
-        emailButton.setImage(UIImage.init(systemName: "envelope")?.withConfiguration(symbolConfiguration), for: .normal)
-        chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfiguration), for: .normal)
+        phoneButton.setSymbolImage(systemName: "phone", pointSize: 36)
+        emailButton.setSymbolImage(systemName: "envelope", pointSize: 36)
+        chatButton.setSymbolImage(systemName: "message", pointSize: 36)
     }
     
     private func setupHierarchy() {

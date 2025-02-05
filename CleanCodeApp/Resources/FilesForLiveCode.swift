@@ -62,11 +62,18 @@ class LastLaunchingsService {
     
 }
 
+class LastLaunchAnallytics {
+    
+}
+
 class LastLaunchingsViewModel {
     let service: LastLaunchingsService
+    let analytics: LastLaunchAnallytics
     
-    init(service: LastLaunchingsService) {
+    init(service: LastLaunchingsService,
+         analytics: LastLaunchAnallytics) {
         self.service = service
+        self.analytics = analytics
     }
 }
 

@@ -24,14 +24,15 @@ class SolContactUsViewController: LoadingInheritageController {
         let phoneButton = UIButton()
         phoneButton.backgroundColor = .systemGray4
         phoneButton.layer.cornerRadius = 10
-        phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        phoneButton.addTarget(self, action: #selector(didTapPhone), for: .touchUpInside)
         return phoneButton
     }()
+    
     lazy var emailButton: UIButton = {
-    let emailButton = UIButton()
-    emailButton.backgroundColor = .systemGray4
-    emailButton.layer.cornerRadius = 10
-    emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        let emailButton = UIButton()
+        emailButton.backgroundColor = .systemGray4
+        emailButton.layer.cornerRadius = 10
+        emailButton.addTarget(self, action: #selector(didTapEmail), for: .touchUpInside)
         return emailButton
     }()
     
@@ -39,7 +40,7 @@ class SolContactUsViewController: LoadingInheritageController {
         let chatButton = UIButton()
         chatButton.backgroundColor = .systemGray4
         chatButton.layer.cornerRadius = 10
-        chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+        chatButton.addTarget(self, action: #selector(didTapChat), for: .touchUpInside)
         return chatButton
     }()
     
@@ -95,7 +96,7 @@ class SolContactUsViewController: LoadingInheritageController {
         textView.text = "Escreva sua mensagem aqui"
         setButtonImages()
         setupConstraints()
-        pegarDados()
+        fetchData()
     }
     
     func setButtonImages() {
@@ -111,7 +112,7 @@ class SolContactUsViewController: LoadingInheritageController {
         }
         
         NSLayoutConstraint.activate([
-
+            
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -135,7 +136,7 @@ class SolContactUsViewController: LoadingInheritageController {
             messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
             messageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             messageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-//            stackView.heightAnchor.constraint(equalToConstant: 30),
+            //            stackView.heightAnchor.constraint(equalToConstant: 30),
             
             textView.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 20),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -156,7 +157,7 @@ class SolContactUsViewController: LoadingInheritageController {
     }
     
     @objc
-    func phoneClick() {
+    func didTapPhone() {
         if let tel = model?.phone,
            let url = URL(string: "tel://\(tel)") {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -164,7 +165,7 @@ class SolContactUsViewController: LoadingInheritageController {
     }
     
     @objc
-    func emailClick() {
+    func didTapEmail() {
         if let mail = model?.mail,
            let url = URL(string: "mailto:\(mail)") {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -172,7 +173,7 @@ class SolContactUsViewController: LoadingInheritageController {
     }
     
     @objc
-    func chatClicked() {
+    func didTapChat() {
         if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
             if UIApplication.shared.canOpenURL(whatsappURL) {
                 UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
@@ -190,23 +191,29 @@ class SolContactUsViewController: LoadingInheritageController {
     }
     
     
-    func pegarDados() {
+    func fetchData() {
         showLoadingView()
         let url = Endpoints.contactUs
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
             self?.removeLoadingView()
+            guard let self = self else {return}
             switch result {
             case .success(let data):
-                let decoder = JSONDecoder()
-                if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self?.model = returned
-                } else {
-                    self?.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
-                }
+                self.decodeData(data: data)
             case .failure(let error):
                 print("error api: \(error.localizedDescription)")
-                self?.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
+                self.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
             }
+        }
+    }
+    
+    private func decodeData(data: Data) {
+        do {
+            let decoder = JSONDecoder()
+            let returned = try decoder.decode(ContactUsModel.self, from: data)
+            self.model = returned
+        } catch {
+            self.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
         }
     }
     
@@ -219,22 +226,33 @@ class SolContactUsViewController: LoadingInheritageController {
     @objc
     func messageSend() {
         view.endEditing(true)
+        let parameters = sendParameters()
+        showLoadingView()
+        requestSendMessage(parameters: parameters)
+    }
+    
+    func sendParameters() -> [String: String] {
         let email = model?.mail ?? ""
         if let message = textView.text, textView.text.count > 0 {
             let parameters: [String: String] = [
                 "email": email,
                 "mensagem": message
             ]
-            showLoadingView()
-            let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) {  result in
-                self.removeLoadingView()
-                switch result {
-                case .success:
-                    self.showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", dissmiss: true)
-                case .failure:
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-                }
+            return parameters
+        }
+        return [:]
+    }
+    
+    func requestSendMessage(parameters:[ String: String]) {
+        let url = Endpoints.sendMessage
+        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { [weak self]  result in
+            guard let self = self else {return}
+            self.removeLoadingView()
+            switch result {
+            case .success:
+                self.showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", dissmiss: true)
+            case .failure:
+                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
             }
         }
     }

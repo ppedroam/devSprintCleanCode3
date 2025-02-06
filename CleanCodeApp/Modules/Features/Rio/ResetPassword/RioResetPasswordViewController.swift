@@ -34,37 +34,63 @@ class RioResetPasswordViewController: UIViewController {
             return
         }
 
-        if validateForm() {
-            self.view.endEditing(true)
-            if !ConnectivityManager.shared.isConnected {
-                Globals.showNoInternetCOnnection(controller: self)
-                return
-            }
+        guard validateForm() else { return }
+        
+        self.view.endEditing(true)
+        guard isConnected() else { return }
 
-            let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
-            
-            let parameters = [
-                "email": emailUser
-            ]
-            
-            BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-                if success {
-                    self.recoveryEmail = true
-                    self.emailTextfield.isHidden = true
-                    self.textLabel.isHidden = true
-                    self.viewSuccess.isHidden = false
-                    self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
-                    self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
-                    self.recoverPasswordButton.setTitle("Voltar", for: .normal)
-                } else {
-                    let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "OK", style: .default)
-                    alertController.addAction(action)
-                    self.present(alertController, animated: true)
-                }
-            }
+        let emailUser = getEmail()
+        resetPassword(email: emailUser)
+    }
+
+    // MARK: - Validações
+
+    private func isConnected() -> Bool {
+        guard ConnectivityManager.shared.isConnected else {
+            Globals.showNoInternetCOnnection(controller: self)
+            return false
+        }
+        return true
+    }
+
+    private func getEmail() -> String {
+        return emailTextfield.text!.trimmingCharacters(in: .whitespaces)
+    }
+
+    // MARK: - Reset de Senha
+
+    private func resetPassword(email: String) {
+        let parameters = ["email": email]
+
+        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { success in
+            success ? self.handleSuccess(email: email) : self.showErrorAlert()
         }
     }
+
+    private func handleSuccess(email: String) {
+        recoveryEmail = true
+        emailTextfield.isHidden = true
+        textLabel.isHidden = true
+        viewSuccess.isHidden = false
+        emailLabel.text = email
+        updateRecoverPasswordButton()
+    }
+
+    private func updateRecoverPasswordButton() {
+        recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
+        recoverPasswordButton.setTitle("Voltar", for: .normal)
+    }
+
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Ops..",
+            message: "Algo de errado aconteceu. Tente novamente mais tarde.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
     
     @IBAction func loginButton(_ sender: Any) {
         dismiss(animated: true)
@@ -83,20 +109,28 @@ class RioResetPasswordViewController: UIViewController {
         present(newVc, animated: true)
     }
     
+    // Gerencia a validação do campo de email
     func validateForm() -> Bool {
-        let status = emailTextfield.text!.isEmpty ||
-            !emailTextfield.text!.contains(".") ||
-            !emailTextfield.text!.contains("@") ||
-            emailTextfield.text!.count <= 5
-        
-        if status {
-            emailTextfield.setErrorColor()
-            textLabel.textColor = .red
-            textLabel.text = "Verifique o e-mail informado"
+        guard let email = emailTextfield.text, !isEmailFormatInvalid(email) else {
+            showEmailValidationError()
             return false
         }
-        
         return true
+    }
+
+    // Apenas valida o formato do e-mail, sem acessar UI
+    func isEmailFormatInvalid(_ email: String) -> Bool {
+        return email.isEmpty ||
+               !email.contains(".") ||
+               !email.contains("@") ||
+               email.count <= 5
+    }
+
+    // Responsável apenas por atualizar a UI quando houver erro
+    func showEmailValidationError() {
+        emailTextfield.setErrorColor()
+        textLabel.textColor = .red
+        textLabel.text = "Verifique o e-mail informado"
     }
 }
 
@@ -104,35 +138,41 @@ class RioResetPasswordViewController: UIViewController {
 extension RioResetPasswordViewController {
     
     func setupView() {
-        recoverPasswordButton.layer.cornerRadius = recoverPasswordButton.bounds.height / 2
-        recoverPasswordButton.backgroundColor = .blue
-        recoverPasswordButton.setTitleColor(.white, for: .normal)
-
-        loginButton.layer.cornerRadius = createAccountButton.frame.height / 2
-        loginButton.layer.borderWidth = 1
-        loginButton.layer.borderColor = UIColor.blue.cgColor
-        loginButton.setTitleColor(.blue, for: .normal)
-        loginButton.backgroundColor = .white
-        
-        helpButton.layer.cornerRadius = createAccountButton.frame.height / 2
-        helpButton.layer.borderWidth = 1
-        helpButton.layer.borderColor = UIColor.blue.cgColor
-        helpButton.setTitleColor(.blue, for: .normal)
-        helpButton.backgroundColor = .white
-        
-        createAccountButton.layer.cornerRadius = createAccountButton.frame.height / 2
-        createAccountButton.layer.borderWidth = 1
-        createAccountButton.layer.borderColor = UIColor.blue.cgColor
-        createAccountButton.setTitleColor(.blue, for: .normal)
-        createAccountButton.backgroundColor = .white
-        
-        emailTextfield.setDefaultColor()
-        
-        if !email.isEmpty {
-            emailTextfield.text = email
-            emailTextfield.isEnabled = false
-        }
+        setupButtons()
+        setupTextField()
+        setupEmail()
         validateButton()
+    }
+
+    // MARK: - Configuração dos Botões
+
+    private func setupButtons() {
+        styleButton(recoverPasswordButton, backgroundColor: .blue, titleColor: .white, borderWidth: 0)
+        styleButton(loginButton, backgroundColor: .white, titleColor: .blue, borderWidth: 1)
+        styleButton(helpButton, backgroundColor: .white, titleColor: .blue, borderWidth: 1)
+        styleButton(createAccountButton, backgroundColor: .white, titleColor: .blue, borderWidth: 1)
+    }
+
+    private func styleButton(_ button: UIButton, backgroundColor: UIColor, titleColor: UIColor, borderWidth: CGFloat) {
+        button.layer.cornerRadius = button.bounds.height / 2
+        button.layer.borderWidth = borderWidth
+        button.layer.borderColor = UIColor.blue.cgColor
+        button.setTitleColor(titleColor, for: .normal)
+        button.backgroundColor = backgroundColor
+    }
+
+    // MARK: - Configuração do Campo de Texto
+
+    private func setupTextField() {
+        emailTextfield.setDefaultColor()
+    }
+
+    // MARK: - Configuração do E-mail
+
+    private func setupEmail() {
+        guard !email.isEmpty else { return }
+        emailTextfield.text = email
+        emailTextfield.isEnabled = false
     }
     
     //email

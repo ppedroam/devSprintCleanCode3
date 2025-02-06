@@ -5,7 +5,7 @@
 //  Created by Pedro Menezes on 05/02/25.
 //
 
-import Foundation
+import UIKit
 
 struct GameCoordinator {
     

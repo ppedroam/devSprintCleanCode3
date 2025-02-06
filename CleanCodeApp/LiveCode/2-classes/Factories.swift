@@ -19,7 +19,7 @@ enum LastLaunchingsFactory {
 
 enum GameFactory {
     static func make() -> UIViewController {
-        let coordinator = GameCoordinator()
+        var coordinator = GameCoordinator()
         let viewController = GameViewController()
         coordinator.viewController = viewController
         return viewController

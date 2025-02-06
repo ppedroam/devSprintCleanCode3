@@ -13,7 +13,7 @@ class FozResetPasswordViewController: UIViewController {
     @IBOutlet weak var emailLabel: UILabel!
 
     var userEmail = ""
-    var hasRecoveryEmail = false
+    var userPressedRecoveryButton = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,21 +30,22 @@ class FozResetPasswordViewController: UIViewController {
 
 // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        guard !hasRecoveryEmail else {
+        if !userPressedRecoveryButton {
+            validateRecovering()
+        }
+        else {
             dismiss(animated: true)
-            return
         }
 
+        view.endEditing(true)
+    }
+
+    private func validateRecovering(){
         guard validateForm() else {
             return
         }
 
-        view.endEditing(true)
-
-        guard ConnectivityManager.shared.isConnected else {
-            Globals.showNoInternetCOnnection(controller: self)
-            return
-        }
+        checkUserConnection()
 
         guard let email = emailTextfield.text?.trimmingCharacters(in: .whitespaces), !email.isEmpty else {
             return
@@ -52,6 +53,13 @@ class FozResetPasswordViewController: UIViewController {
 
         let parameters = ["email": email]
         performPasswordReset(with: parameters, email: email)
+    }
+
+    private func checkUserConnection (){
+        guard ConnectivityManager.shared.isConnected else {
+            Globals.showNoInternetCOnnection(controller: self)
+            return
+        }
     }
 
     private func performPasswordReset(with parameters: [String: String], email: String) {
@@ -64,7 +72,7 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     private func handlePasswordResetSuccess(withEmail email: String) {
-        hasRecoveryEmail = true
+        userPressedRecoveryButton = true
         emailTextfield.isHidden = true
         textLabel.isHidden = true
         viewSuccess.isHidden = false
@@ -100,21 +108,31 @@ class FozResetPasswordViewController: UIViewController {
         present(newVc, animated: true)
     }
 
-    // TODO: Create validator in a separate file/class/struct
     func validateForm() -> Bool {
-        let status = emailTextfield.text!.isEmpty ||
-        !emailTextfield.text!.contains(".") ||
-        !emailTextfield.text!.contains("@") ||
-        emailTextfield.text!.count <= 5
+        let isEmailValid = EmailValidator.isValid(emailTextfield.text)
 
-        if status {
-            emailTextfield.setErrorColor()
-            textLabel.textColor = .red
-            textLabel.text = "Verifique o e-mail informado"
+        if isEmailValid {
+            return true
+        }
+
+        else {
+            setupErrorMessage()
             return false
         }
 
-        return true
+    }
+
+    private func setupErrorMessage(){
+        emailTextfield.setErrorColor()
+        textLabel.textColor = .red
+        textLabel.text = "Verifique o e-mail informado"
+    }
+}
+
+struct EmailValidator {
+    static func isValid(_ email: String?) -> Bool {
+        guard let email = email?.trimmingCharacters(in: .whitespaces), !email.isEmpty else { return false }
+        return email.contains("@") && email.contains(".") && email.count > 5
     }
 }
 

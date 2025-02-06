@@ -1,5 +1,10 @@
 import UIKit
 
+enum PasswordRecoveryError: Error {
+    case invalidEmail
+    case noInternetConnection
+}
+
 class LuaResetPasswordViewController: UIViewController {
     
     @IBOutlet weak var emailTextField: UITextField!
@@ -11,7 +16,7 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var passwordRecoverySuccessView: UIView!
     @IBOutlet weak var emailLabel: UILabel!
     
-    var emailInput: String {
+    var emaiInputed: String {
         get {
             guard let emailInput = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
                 return ""
@@ -35,35 +40,46 @@ class LuaResetPasswordViewController: UIViewController {
     }
     
     @IBAction func onPasswordRecoveryButtonTapped(_ sender: Any) {
+        startPasswordRecoveringProcess()
+    }
+    
+    func startPasswordRecoveringProcess() {
         if hasRequestedRecovery {
             dismiss(animated: true)
             return
         }
-        let isEmailAndConnectivityValid = validateEmailFormAndConnectivity()
-        if !isEmailAndConnectivityValid {
+        do {
+            try validatePasswordRecovery()
+            self.view.endEditing(true)
+        } catch let error {
+            handleRecoveryPasswordError(error: error as! PasswordRecoveryError)
             return
         }
-        self.view.endEditing(true)
-        let passwordResetParameters = getPasswordResetRequestParameters()
-        sendPasswordResetRequest(parameters: passwordResetParameters)
+        sendPasswordResetRequest(parameters: getPasswordResetRequestParameters())
     }
     
-    func validateEmailFormAndConnectivity() -> Bool {
-        let isEmailValid = validateEmailForm()
-        if !isEmailValid {
-            return false
-        }
-        let isConnected = ConnectivityManager.shared.isConnected
-        if !isConnected {
+    func handleRecoveryPasswordError(error: PasswordRecoveryError) {
+        switch error {
+        case PasswordRecoveryError.invalidEmail:
+            displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
+        case PasswordRecoveryError.noInternetConnection:
             Globals.showNoInternetCOnnection(controller: self)
-            return false
         }
-        return true
+    }
+    
+    func validatePasswordRecovery() throws {
+        guard validateEmailForm() else {
+            throw PasswordRecoveryError.invalidEmail
+            
+        }
+        guard ConnectivityManager.shared.isConnected else {
+            throw PasswordRecoveryError.noInternetConnection
+        }
     }
     
     func getPasswordResetRequestParameters() -> [String : String] {
         let passwordResetParameters = [
-            "email": emailInput
+            "email": emaiInputed
         ]
         return passwordResetParameters
     }
@@ -83,7 +99,7 @@ class LuaResetPasswordViewController: UIViewController {
         self.emailTextField.isHidden = true
         self.emailErrorLabel.isHidden = true
         self.passwordRecoverySuccessView.isHidden = false
-        self.emailLabel.text = emailInput
+        self.emailLabel.text = emaiInputed
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
     
@@ -116,14 +132,13 @@ class LuaResetPasswordViewController: UIViewController {
         if isEmailFormatValid {
             return true
         }
-        displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
         return false
     }
     
     func validateEmailFormat() -> Bool {
-        let isEmailFormatValid = emailInput.contains(".") &&
-        emailInput.contains("@") &&
-        emailInput.count > 5
+        let isEmailFormatValid = emaiInputed.contains(".") &&
+        emaiInputed.contains("@") &&
+        emaiInputed.count > 5
         return isEmailFormatValid
     }
     
@@ -194,29 +209,16 @@ extension LuaResetPasswordViewController {
 extension LuaResetPasswordViewController {
     
     func validateExistingEmailInput(){
-        if !emailInput.isEmpty {
-            emailTextField.text = emailInput
+        if !emaiInputed.isEmpty {
+            emailTextField.text = emaiInputed
             emailTextField.isEnabled = false
         }
     }
     
     func validatePasswordRecoveryButton() {
-        if !emailInput.isEmpty {
-            enablePasswordRecoveryButton()
-        } else {
-            disablePasswordRecoveryButtonTap()
-        }
-    }
-    
-    func disablePasswordRecoveryButtonTap() {
-        recoverPasswordButton.backgroundColor = .gray
+        let isEnabled = !emaiInputed.isEmpty
+        recoverPasswordButton.backgroundColor = isEnabled ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = false
-    }
-    
-    func enablePasswordRecoveryButton() {
-        recoverPasswordButton.backgroundColor = .blue
-        recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = true
+        recoverPasswordButton.isEnabled = isEnabled
     }
 }

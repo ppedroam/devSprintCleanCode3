@@ -24,7 +24,56 @@ class CeuResetPasswordViewController: UIViewController {
         return .lightContent
     }
 
+    // MARK: - IBAction functions
+    @IBAction func closeButtonAction(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+    @IBAction func recoverPasswordButton(_ sender: Any) {
+        if recoveryEmail {
+            dismiss(animated: true)
+            return
+        }
+
+        if validateForm() {
+            self.view.endEditing(true)
+            if !ConnectivityManager.shared.isConnected {
+                Globals.showNoInternetCOnnection(controller: self)
+                return
+            }
+            do {
+                let parameters = try setupResetPasswordRequestParameters()
+                makeResetPasswordRequest(parameters: parameters)
+            } catch {
+                Globals.alertMessage(title: "Ops...", message: "Tente novamente mais tarde", targetVC: self)
+            }
+        }
+    }
+
+    @IBAction func loginButton(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+    @IBAction func helpButton(_ sender: Any) {
+        let viewController = setupContactUsViewController()
+        self.present(viewController, animated: true, completion: nil)
+    }
+
+    @IBAction func createAccountButton(_ sender: Any) {
+        let viewController = setupCreateAccountViewController()
+        present(viewController, animated: true)
+    }
+
     // MARK: - Reset Password Request functions
+
+    private func makeResetPasswordRequest(parameters: [String : String]) {
+        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
+            if success {
+                return self.handleResetPasswordRequestSuccess()
+            }
+            self.handleResetPasswordRequestError()
+        }
+    }
 
     private func handleResetPasswordRequestSuccess() {
         self.recoveryEmail = true
@@ -43,59 +92,15 @@ class CeuResetPasswordViewController: UIViewController {
         self.present(alertController, animated: true)
     }
 
-    private func makeResetPasswordRequest(parameters: [String : String]) {
-        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-            if success {
-                return self.handleResetPasswordRequestSuccess()
-            }
-            self.handleResetPasswordRequestError()
-        }
-    }
+    private func setupResetPasswordRequestParameters() throws -> [String: String] {
+        guard let text = emailTextfield.text else { throw CommonsErros.invalidData }
 
-    private func setupResetPasswordRequestParameters() -> [String: String] {
-        let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
+        let emailUser = text.trimmingCharacters(in: .whitespaces)
         let parameters = [
             "email": emailUser
         ]
 
         return parameters
-    }
-
-    // MARK: - IBAction functions
-    @IBAction func closeButtonAction(_ sender: Any) {
-        dismiss(animated: true)
-    }
-
-    @IBAction func recoverPasswordButton(_ sender: Any) {
-        if recoveryEmail {
-            dismiss(animated: true)
-            return
-        }
-
-        if validateForm() {
-            self.view.endEditing(true)
-            if !ConnectivityManager.shared.isConnected {
-                Globals.showNoInternetCOnnection(controller: self)
-                return
-            }
-
-            let parameters = setupResetPasswordRequestParameters()
-            makeResetPasswordRequest(parameters: parameters)
-        }
-    }
-
-    @IBAction func loginButton(_ sender: Any) {
-        dismiss(animated: true)
-    }
-
-    @IBAction func helpButton(_ sender: Any) {
-        let viewController = setupContactUsViewController()
-        self.present(viewController, animated: true, completion: nil)
-    }
-
-    @IBAction func createAccountButton(_ sender: Any) {
-        let viewController = setupCreateAccountViewController()
-        present(viewController, animated: true)
     }
 
     private func setupContactUsViewController() -> UIViewController {
@@ -208,21 +213,19 @@ extension CeuResetPasswordViewController {
 
     func validateButton() {
         if emailTextfield.text!.isEmpty {
-            return disableCreateButton()
+            return createButtonIs(enable: false)
         }
-        return enableCreateButton()
+        return createButtonIs(enable: true)
     }
 
-    func disableCreateButton() {
-        recoverPasswordButton.backgroundColor = .gray
+    func createButtonIs(enable: Bool) {
+        recoverPasswordButton.backgroundColor = enable ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = false
-    }
-
-    func enableCreateButton() {
-        recoverPasswordButton.backgroundColor = .blue
-        recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = true
+        recoverPasswordButton.isEnabled = enable
     }
 }
 
+
+enum CommonsErros: Error {
+    case invalidData
+}

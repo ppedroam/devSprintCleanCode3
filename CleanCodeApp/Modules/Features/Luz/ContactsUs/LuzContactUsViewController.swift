@@ -88,7 +88,7 @@ final class LuzContactUsViewController: LoadingInheritageController {
     private lazy var sendMessageButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .blue
-        button.setTitle("  Enviar ", for: .normal)
+        button.setTitle("Enviar", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
         button.setContentHuggingPriority(.required, for: .horizontal)

@@ -119,7 +119,7 @@ final class LuzContactUsViewController: LoadingInheritageController {
         super.viewDidLoad()
         view.backgroundColor = .systemGray6
         configureUI()
-        setupConstraints()
+        setupLayout()
         fetch()
     }
 
@@ -136,47 +136,34 @@ final class LuzContactUsViewController: LoadingInheritageController {
         ].forEach { view.addSubview($0) }
     }
 
-    func setupConstraints() {
+    func setupLayout() {
+        let contactButtonsStackView = createContactButtonsStackView()
+        let messageStackView = createMessageStackView()
+        let ctaStackView = createCTAStackView()
+
+        let mainStackView = UIStackView(
+            arrangedSubviews: [
+                titleLabel,
+                contactButtonsStackView,
+                messageStackView,
+                ctaStackView
+            ]
+        )
+        mainStackView.axis = .vertical
+        mainStackView.spacing = 30
+        mainStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(mainStackView)
+
+        setupConstraints(for: mainStackView)
+    }
+
+    func setupConstraints(for mainStackView: UIStackView) {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            phoneButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
-            emailButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
-            chatButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
-
-            phoneButton.widthAnchor.constraint(equalToConstant: 80),
-            phoneButton.heightAnchor.constraint(equalToConstant: 80),
-            phoneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-
-            emailButton.widthAnchor.constraint(equalToConstant: 80),
-            emailButton.heightAnchor.constraint(equalToConstant: 80),
-            emailButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
-            chatButton.widthAnchor.constraint(equalToConstant: 80),
-            chatButton.heightAnchor.constraint(equalToConstant: 80),
-            chatButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
-            messageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            messageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            textView.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 20),
-            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            textView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
-
-
-            sendMessageButton.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
-            sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
-            sendMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            sendMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-
-            closeButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            closeButton.heightAnchor.constraint(equalToConstant: 40),
-            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            mainStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            mainStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            mainStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
 
@@ -277,6 +264,58 @@ final class LuzContactUsViewController: LoadingInheritageController {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
+}
+
+// MARK: - StackView's
+extension LuzContactUsViewController {
+    private func createContactButtonsStackView() -> UIStackView {
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                phoneButton,
+                emailButton,
+                chatButton
+            ]
+        )
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.distribution = .equalSpacing
+
+        [phoneButton, emailButton, chatButton].forEach { view in
+            view.widthAnchor.constraint(equalToConstant: 80).isActive = true
+            view.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        }
+
+        return stackView
+    }
+
+    private func createMessageStackView() -> UIStackView {
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                messageLabel,
+                textView
+            ]
+        )
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        return stackView
+    }
+
+    private func createCTAStackView() -> UIStackView {
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                sendMessageButton,
+                closeButton
+            ]
+        )
+        stackView.axis = .vertical
+        stackView.spacing = 20
+
+        [sendMessageButton, closeButton].forEach { view in
+            view.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        }
+        return stackView
+    }
+
 }
 
 #Preview {

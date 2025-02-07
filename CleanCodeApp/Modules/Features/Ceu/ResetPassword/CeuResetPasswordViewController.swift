@@ -32,21 +32,8 @@ class CeuResetPasswordViewController: UIViewController {
     @IBAction func recoverPasswordButton(_ sender: Any) {
         if recoveryEmail {
             dismiss(animated: true)
-            return
-        }
-
-        if validateForm() {
-            self.view.endEditing(true)
-            if !ConnectivityManager.shared.isConnected {
-                Globals.showNoInternetCOnnection(controller: self)
-                return
-            }
-            do {
-                let parameters = try setupResetPasswordRequestParameters()
-                makeResetPasswordRequest(parameters: parameters)
-            } catch {
-                Globals.alertMessage(title: "Ops...", message: "Tente novamente mais tarde", targetVC: self)
-            }
+        } else {
+            startRecoverPassword()
         }
     }
 
@@ -127,17 +114,42 @@ class CeuResetPasswordViewController: UIViewController {
         return status
     }
 
-    func validateForm() -> Bool {
+    private func startRecoverPassword() {
+        do {
+            try validateForm()
+            try verifyInternet()
+
+            let parameters = try setupResetPasswordRequestParameters()
+            makeResetPasswordRequest(parameters: parameters)
+        } catch CommonsErros.invalidEmail {
+            showAlert(message: "Verifique o e-mail informado.")
+        } catch {
+            showAlert(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
+        }
+    }
+
+    private func showAlert(message: String) {
+        return Globals.alertMessage(title: "Ops...", message: message, targetVC: self)
+    }
+
+    private func verifyInternet() throws {
+        if !ConnectivityManager.shared.isConnected {
+            Globals.showNoInternetCOnnection(controller: self)
+            throw CommonsErros.networkError
+        }
+    }
+
+    private func validateForm() throws {
         let status = setupStatus()
 
         if status {
             emailTextfield.setErrorColor()
             textLabel.textColor = .red
             textLabel.text = "Verifique o e-mail informado"
-            return false
+            throw CommonsErros.invalidEmail
         }
 
-        return true
+        self.view.endEditing(true)
     }
 }
 
@@ -228,4 +240,6 @@ extension CeuResetPasswordViewController {
 
 enum CommonsErros: Error {
     case invalidData
+    case invalidEmail
+    case networkError
 }

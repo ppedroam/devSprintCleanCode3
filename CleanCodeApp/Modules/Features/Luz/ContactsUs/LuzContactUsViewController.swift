@@ -192,26 +192,37 @@ final class LuzContactUsViewController: LoadingInheritageController {
 
     func fetch() {
         showLoadingView()
-        let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
+        AF.shared.request(
+            Endpoints.contactUs,
+            method: .get,
+            parameters: nil,
+            headers: nil
+        ) { result in
             self.removeLoadingView()
             switch result {
             case .success(let data):
-                let decoder = JSONDecoder()
-                if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self.model = returned
-                } else {
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                }
+                self.handleSuccess(data: data)
             case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                    self.dismiss(animated: true)
-                }
+                self.handleError(error)
             }
         }
+    }
+
+    // MARK: - Handlers
+    private func handleSuccess(data: Data) {
+        return if let returned = try? JSONDecoder().decode(
+            ContactUsModel.self,
+            from: data
+        ) {
+            self.model = returned
+        } else {
+            showAlertError()
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        print("error api: \(error.localizedDescription)")
+        showAlertError()
     }
 
     @objc
@@ -224,9 +235,8 @@ final class LuzContactUsViewController: LoadingInheritageController {
                 "mensagem": message
             ]
             showLoadingView()
-            let url = Endpoints.sendMessage
             AF.shared.request(
-                url,
+                Endpoints.sendMessage,
                 method: .post,
                 parameters: parameters,
                 headers: nil
@@ -234,19 +244,9 @@ final class LuzContactUsViewController: LoadingInheritageController {
                 self.removeLoadingView()
                 switch result {
                 case .success:
-                    Globals.alertMessage(
-                        title: "Sucesso..",
-                        message: "Sua mensagem foi enviada",
-                        targetVC: self
-                    ) {
-                        self.dismiss(animated: true)
-                    }
+                    self.showAlertSuccess()
                 case .failure:
-                    Globals.alertMessage(
-                        title: "Ops..",
-                        message: "Ocorreu algum erro",
-                        targetVC: self
-                    )
+                    self.showAlertError()
                 }
             }
         }
@@ -262,6 +262,26 @@ final class LuzContactUsViewController: LoadingInheritageController {
             }
         } else {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+
+    private func showAlertSuccess() {
+        Globals.alertMessage(
+            title: "Sucesso..",
+            message: "Sua mensagem foi enviada",
+            targetVC: self
+        ) {
+            self.dismiss(animated: true)
+        }
+    }
+
+    private func showAlertError() {
+        Globals.alertMessage(
+            title: "Ops..",
+            message: "Ocorreu algum erro",
+            targetVC: self
+        ) {
+            self.dismiss(animated: true)
         }
     }
 }

@@ -7,7 +7,15 @@
 
 import UIKit
 
-class SolContactUsViewController: LoadingInheritageController {
+protocol SolContactUsProtocol: AnyObject {
+    func callLoadingView()
+    func callRemoveLoadingView()
+    func showMessageReturnModel(result: ContactUsModel)
+    func displayAlertMessage(title: String, message: String, dissmiss: Bool)
+    func displayGlobalAlertMessage()
+}
+
+class SolContactUsViewController: LoadingInheritageController, SolContactUsProtocol {
     var model: ContactUsModel?
     let textView = UITextView()
     
@@ -84,6 +92,7 @@ class SolContactUsViewController: LoadingInheritageController {
     init (viewModel: SolContactUsViewModel){
         self.viewModel = viewModel
         super.init(nibName: "SolContactUsViewController", bundle: nil)
+        self.viewModel.viewController = self
     }
     
     required init?(coder: NSCoder) {
@@ -96,7 +105,7 @@ class SolContactUsViewController: LoadingInheritageController {
         textView.text = "Escreva sua mensagem aqui"
         setButtonImages()
         setupConstraints()
-        fetchData()
+        viewModel.fetchData()
     }
     
     func setButtonImages() {
@@ -190,33 +199,6 @@ class SolContactUsViewController: LoadingInheritageController {
         dismiss(animated: true)
     }
     
-    
-    func fetchData() {
-        showLoadingView()
-        let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
-            self?.removeLoadingView()
-            guard let self = self else {return}
-            switch result {
-            case .success(let data):
-                self.decodeData(data: data)
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                self.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
-            }
-        }
-    }
-    
-    private func decodeData(data: Data) {
-        do {
-            let decoder = JSONDecoder()
-            let returned = try decoder.decode(ContactUsModel.self, from: data)
-            self.model = returned
-        } catch {
-            self.showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
-        }
-    }
-    
     func showAlertMessage(title: String, message: String, dissmiss: Bool) {
         Globals.alertMessage(title: title, message: message, targetVC: self) {
             self.dismiss(animated: dissmiss)
@@ -228,7 +210,7 @@ class SolContactUsViewController: LoadingInheritageController {
         view.endEditing(true)
         let parameters = sendParameters()
         showLoadingView()
-        requestSendMessage(parameters: parameters)
+        viewModel.requestSendMessage(parameters: parameters)
     }
     
     func sendParameters() -> [String: String] {
@@ -243,17 +225,24 @@ class SolContactUsViewController: LoadingInheritageController {
         return [:]
     }
     
-    func requestSendMessage(parameters:[ String: String]) {
-        let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { [weak self]  result in
-            guard let self = self else {return}
-            self.removeLoadingView()
-            switch result {
-            case .success:
-                self.showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", dissmiss: true)
-            case .failure:
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-            }
-        }
+    func callLoadingView() {
+        showLoading()
+    }
+    
+    func callRemoveLoadingView() {
+        removeLoadingView()
+    }
+    
+    func showMessageReturnModel(result: ContactUsModel) {
+        self.model = result
+    }
+    
+    func displayAlertMessage(title: String, message: String, dissmiss: Bool) {
+        self.showAlertMessage(title: title, message: message , dissmiss: dissmiss)
+    }
+    
+    func displayGlobalAlertMessage() {
+        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
     }
 }
+

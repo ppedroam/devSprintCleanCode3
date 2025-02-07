@@ -1,5 +1,19 @@
 import UIKit
 
+enum RioCommonErrors: Error {
+    case noInternet
+    case invalidEmail
+    
+    var alertDescription: String {
+        switch self {
+        case .noInternet:
+            return "Você não tem conexão no momento."
+        case .invalidEmail:
+            return "O e-mail informado é inválido."
+        }
+    }
+}
+
 class RioResetPasswordViewController: UIViewController {
 
     @IBOutlet weak var emailTextfield: UITextField!
@@ -34,27 +48,31 @@ class RioResetPasswordViewController: UIViewController {
             return
         }
 
-        guard validateForm() else { return }
-        
-        self.view.endEditing(true)
-        guard isConnected() else { return }
+        attemptPasswordReset()
+    }
 
-        let emailUser = getEmail()
-        resetPassword(email: emailUser)
+    // MARK: - Nova função de reset de senha com tratamento de erro
+
+    private func attemptPasswordReset() {
+        do {
+            try validateForm()
+            try validateInternetConnection()
+            
+            let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
+            resetPassword(email: emailUser)
+        } catch let error as RioCommonErrors {
+            showErrorAlert(message: error.alertDescription)
+        } catch {
+            showErrorAlert(message: "Ocorreu um erro inesperado. Tente novamente.")
+        }
     }
 
     // MARK: - Validações
 
-    private func isConnected() -> Bool {
+    private func validateInternetConnection() throws {
         guard ConnectivityManager.shared.isConnected else {
-            Globals.showNoInternetCOnnection(controller: self)
-            return false
+            throw RioCommonErrors.noInternet
         }
-        return true
-    }
-
-    private func getEmail() -> String {
-        return emailTextfield.text!.trimmingCharacters(in: .whitespaces)
     }
 
     // MARK: - Reset de Senha
@@ -63,7 +81,7 @@ class RioResetPasswordViewController: UIViewController {
         let parameters = ["email": email]
 
         BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { success in
-            success ? self.handleSuccess(email: email) : self.showErrorAlert()
+            success ? self.handleSuccess(email: email) : self.showErrorAlert(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
 
@@ -81,10 +99,10 @@ class RioResetPasswordViewController: UIViewController {
         recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
-    private func showErrorAlert() {
+    private func showErrorAlert(message: String) {
         let alert = UIAlertController(
             title: "Ops..",
-            message: "Algo de errado aconteceu. Tente novamente mais tarde.",
+            message: message,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -109,28 +127,17 @@ class RioResetPasswordViewController: UIViewController {
         present(newVc, animated: true)
     }
     
-    // Gerencia a validação do campo de email
-    func validateForm() -> Bool {
+    func validateForm() throws {
         guard let email = emailTextfield.text, !isEmailFormatInvalid(email) else {
-            showEmailValidationError()
-            return false
+            throw RioCommonErrors.invalidEmail
         }
-        return true
     }
 
-    // Apenas valida o formato do e-mail, sem acessar UI
     func isEmailFormatInvalid(_ email: String) -> Bool {
         return email.isEmpty ||
                !email.contains(".") ||
                !email.contains("@") ||
                email.count <= 5
-    }
-
-    // Responsável apenas por atualizar a UI quando houver erro
-    func showEmailValidationError() {
-        emailTextfield.setErrorColor()
-        textLabel.textColor = .red
-        textLabel.text = "Verifique o e-mail informado"
     }
 }
 
@@ -141,7 +148,7 @@ extension RioResetPasswordViewController {
         setupButtons()
         setupTextField()
         setupEmail()
-        validateButton()
+        updateRecoverPasswordButtonState()
     }
 
     // MARK: - Configuração dos Botões
@@ -182,7 +189,7 @@ extension RioResetPasswordViewController {
     
     @IBAction func emailEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
-        validateButton()
+        updateRecoverPasswordButtonState()
     }
     
     @IBAction func emailEndEditing(_ sender: Any) {
@@ -192,23 +199,10 @@ extension RioResetPasswordViewController {
 
 extension RioResetPasswordViewController {
     
-    func validateButton() {
-        if !emailTextfield.text!.isEmpty {
-            enableCreateButton()
-        } else {
-            disableCreateButton()
-        }
-    }
-    
-    func disableCreateButton() {
-        recoverPasswordButton.backgroundColor = .gray
+    func updateRecoverPasswordButtonState() {
+        let isValid = !(emailTextfield.text?.isEmpty ?? true)
+        recoverPasswordButton.backgroundColor = isValid ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = false
-    }
-    
-    func enableCreateButton() {
-        recoverPasswordButton.backgroundColor = .blue
-        recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = true
+        recoverPasswordButton.isEnabled = isValid
     }
 }

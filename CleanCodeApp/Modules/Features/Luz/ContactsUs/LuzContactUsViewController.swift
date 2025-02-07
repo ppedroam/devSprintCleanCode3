@@ -256,12 +256,18 @@ final class LuzContactUsViewController: LoadingInheritageController {
     private func open(appLink: AppLink) {
         guard let url = appLink.url else { return }
 
-        if appLink.fallbackURL != nil, !UIApplication.shared.canOpenURL(url) {
-            if let fallback = appLink.fallbackURL {
-                UIApplication.shared.open(fallback, options: [:], completionHandler: nil)
-            }
-        } else {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(
+                url,
+                options: [:],
+                completionHandler: nil
+            )
+        } else if let fallback = appLink.fallbackURL {
+            UIApplication.shared.open(
+                fallback,
+                options: [:],
+                completionHandler: nil
+            )
         }
     }
 

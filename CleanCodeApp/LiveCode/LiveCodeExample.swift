@@ -69,6 +69,7 @@ class GameViewController: UIViewController {
     }
     
     @objc func openNextScreen() {
+        let analytics = LastLaunchAnallytics()
         let service = LastLaunchingsService()
         let viewModel = LastLaunchingsViewModel(service: service, analytics: analytics)
         let lastLaunchingsVC = LastLaunchingsViewController(viewModel: viewModel)

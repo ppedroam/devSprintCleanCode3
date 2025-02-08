@@ -27,7 +27,7 @@ class RumResetPasswordViewController: UIViewController {
     @IBAction func closeButtonAction(_ sender: Any) {
         dismiss(animated: true)
     }
-
+    
     @IBAction func recoverPasswordButton(_ sender: Any) {
         if recoveryEmail {
             dismiss(animated: true)
@@ -56,6 +56,7 @@ class RumResetPasswordViewController: UIViewController {
                     self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
                     self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
                     self.recoverPasswordButton.setTitle("Voltar", for: .normal)
+                    
                 } else {
                     let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
                     let action = UIAlertAction(title: "OK", style: .default)

@@ -167,32 +167,43 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     
     @objc
     func didTapPhone() {
-        if let tel = model?.phone,
-           let url = URL(string: "tel://\(tel)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        if let phone = model?.phone {
+            openAppLinks(appLink: .phone(phone))
         }
     }
     
     @objc
     func didTapEmail() {
-        if let mail = model?.mail,
-           let url = URL(string: "mailto:\(mail)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        if let mail = model?.mail{
+            openAppLinks(appLink: .email(mail))
         }
     }
     
     @objc
     func didTapChat() {
-        if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
-            if UIApplication.shared.canOpenURL(whatsappURL) {
-                UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-            } else {
-                if let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") {
-                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-                }
-            }
+        if let phoneNumber = model?.phone {
+            openAppLinks(appLink: .whatsapp(phoneNumber))
         }
     }
+    
+    private func openAppLinks(appLink: ExternalActionsHandler) {
+           guard let url = appLink.url else { return }
+
+           if UIApplication.shared.canOpenURL(url) {
+               UIApplication.shared.open(
+                   url,
+                   options: [:],
+                   completionHandler: nil
+               )
+           } else if let fallback = appLink.fallbackURL {
+               UIApplication.shared.open(
+                   fallback,
+                   options: [:],
+                   completionHandler: nil
+               )
+           }
+       }
+    
     
     @objc
     func close() {

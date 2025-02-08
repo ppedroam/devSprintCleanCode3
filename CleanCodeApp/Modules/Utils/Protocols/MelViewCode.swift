@@ -1,5 +1,5 @@
 //
-//  ViewCode.swift
+//  MelViewCode.swift
 //  CleanCodeApp
 //
 //  Created by Bruno Moura on 04/02/25.
@@ -14,7 +14,7 @@ import Foundation
 ///
 /// The default implementation provides a `setup()` method that calls the required methods
 /// in the proper order: `addSubviews()`, `setupConstraints()`, and `setupStyle`.
-protocol ViewCode {
+protocol MelViewCode {
     /// Adds subviews to the main view.
     func addSubviews()
     
@@ -25,7 +25,7 @@ protocol ViewCode {
     func setupStyle()
 }
 
-extension ViewCode {
+extension MelViewCode {
     /// Sets up the view by calling the required methods in the correct order.
     ///
     /// This method first adds subviews, then configures layout constraints, and finally applies styling.

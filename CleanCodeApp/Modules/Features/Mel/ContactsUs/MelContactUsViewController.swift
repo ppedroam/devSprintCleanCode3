@@ -92,7 +92,7 @@ class MelContactUsViewController: LoadingInheritageController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setup()
-        pegarDados()
+        fetchAndProcessContactData()
     }
 }
 
@@ -116,7 +116,6 @@ extension MelContactUsViewController {
     private func chatClicked() {
         do {
             let whatsAppURL = try getWhatsAppURL()
-            
             if canOpenURL(whatsAppURL) {
                 openURL(whatsAppURL)
             } else {
@@ -150,25 +149,50 @@ extension MelContactUsViewController {
     @objc
     private func messageSend() {
         view.endEditing(true)
+        guard let message = textView.text, !message.isEmpty else { return }
         let email = model?.mail ?? ""
-        if let message = textView.text, textView.text.count > 0 {
-            let parameters: [String: String] = [
-                "email": email,
-                "mensagem": message
-            ]
-            showLoadingView()
-            let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-                self.removeLoadingView()
-                switch result {
-                case .success:
-                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                case .failure:
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-                }
-            }
+        let parameters = createMessageParameters(email: email, message: message)
+        showLoadingView()
+        sendRequest(parameters) { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleResponse(result)
+        }
+    }
+    
+    private func createMessageParameters(email: String, message: String) -> [String : String] {
+        return [
+            "email" : email,
+            "message" : message
+        ]
+    }
+    
+    private func sendRequest(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
+        let url = Endpoints.sendMessage
+        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+            completion(result)
+        }
+    }
+    
+    private func handleResponse(_ result: Result<Data, Error>) {
+        switch result {
+        case .success:
+            showSuccessAlert()
+        case .failure:
+            showErrorAlert()
+        }
+    }
+    
+    private func showSuccessAlert() {
+        Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    private func showErrorAlert(mustDismiss: Bool = false) {
+        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        if mustDismiss {
+            self.dismiss(animated: true)
         }
     }
     
@@ -179,38 +203,55 @@ extension MelContactUsViewController {
     
     private func symbolConfiguration() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 36)
-        phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfig), for: .normal)
-        emailButton.setImage(UIImage.init(systemName: "envelope")?.withConfiguration(symbolConfig), for: .normal)
-        chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfig), for: .normal)
+        configureButtonImage(phoneButton, with: "phone", buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(emailButton, with: "envelope", buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(chatButton, with: "message", buttonSymbolConfiguration: symbolConfig)
     }
     
-    private func pegarDados() {
+    private func configureButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {
+        let image = UIImage(systemName: systemNameImage)?.withConfiguration(buttonSymbolConfiguration)
+        button.setImage(image, for: .normal)
+    }
+    
+    private func fetchAndProcessContactData() {
         showLoadingView()
+        fetchContactData() { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleContactDataResponse(result)
+        }
+    }
+    
+    private func fetchContactData(completion: @escaping (Result<Data, Error>) -> Void) {
         let url = Endpoints.contactUs
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            self.removeLoadingView()
-            switch result {
-            case .success(let data):
-                let decoder = JSONDecoder()
-                if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self.model = returned
-                } else {
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                }
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                    self.dismiss(animated: true)
-                }
-            }
+            completion(result)
+        }
+    }
+    
+    private func handleContactDataResponse(_ result: Result<Data, Error>) {
+        switch result {
+        case .success(let data):
+            decodeContactData(data)
+        case .failure(let error):
+            print("Erro na API: \(error.localizedDescription)")
+            showErrorAlert(mustDismiss: true)
+        }
+    }
+    
+    private func decodeContactData(_ data: Data) {
+        let decoder = JSONDecoder()
+        
+        if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
+            self.model = returned
+        } else {
+            showErrorAlert(mustDismiss: true)
         }
     }
 }
 
 // MARK: - ViewCode Protocol Conformance
-extension MelContactUsViewController: ViewCode {
+extension MelContactUsViewController: MelViewCode {
     func addSubviews() {
         view.addSubview(titleLabel)
         view.addSubview(phoneButton)

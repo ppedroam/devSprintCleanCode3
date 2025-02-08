@@ -121,7 +121,7 @@ class CeuResetPasswordViewController: UIViewController {
 
             let parameters = try setupResetPasswordRequestParameters()
             makeResetPasswordRequest(parameters: parameters)
-        } catch CommonsErros.invalidEmail {
+        } catch CeuCommonsErros.invalidEmail {
             showAlert(message: "Verifique o e-mail informado.")
         } catch {
             showAlert(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
@@ -135,7 +135,7 @@ class CeuResetPasswordViewController: UIViewController {
     private func verifyInternet() throws {
         if !ConnectivityManager.shared.isConnected {
             Globals.showNoInternetCOnnection(controller: self)
-            throw CommonsErros.networkError
+            throw CeuCommonsErros.networkError
         }
     }
 
@@ -146,7 +146,7 @@ class CeuResetPasswordViewController: UIViewController {
             emailTextfield.setErrorColor()
             textLabel.textColor = .red
             textLabel.text = "Verifique o e-mail informado"
-            throw CommonsErros.invalidEmail
+            throw CeuCommonsErros.invalidEmail
         }
 
         self.view.endEditing(true)
@@ -238,7 +238,7 @@ extension CeuResetPasswordViewController {
 }
 
 
-enum CommonsErros: Error {
+enum CeuCommonsErros: Error {
     case invalidData
     case invalidEmail
     case networkError

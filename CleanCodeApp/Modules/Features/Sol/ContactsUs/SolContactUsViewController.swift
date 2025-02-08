@@ -207,22 +207,28 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     
     @objc
     func messageSend() {
-        view.endEditing(true)
-        let parameters = sendParameters()
-        showLoadingView()
-        viewModel.requestSendMessage(parameters: parameters)
+        do{
+            view.endEditing(true)
+            let parameters = try sendParameters()
+            showLoadingView()
+            viewModel.requestSendMessage(parameters: parameters)
+        }
+        catch {
+            Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        }
     }
     
-    func sendParameters() -> [String: String] {
+    func sendParameters() throws -> [String: String]  {
         let email = model?.mail ?? ""
-        if let message = textView.text, textView.text.count > 0 {
-            let parameters: [String: String] = [
-                "email": email,
-                "mensagem": message
-            ]
-            return parameters
+        guard let message = textView.text, textView.text.count > 0 else {
+            throw CommonsError.invalidMessage
         }
-        return [:]
+        
+        let parameters: [String: String] = [
+            "email": email,
+            "mensagem": message
+        ]
+        return parameters
     }
     
     func callLoadingView() {
@@ -246,3 +252,6 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
 }
 
+enum CommonsError: Error {
+    case invalidMessage
+}

@@ -34,7 +34,7 @@ class CeuLoginViewController: UIViewController {
 
     func verifyLogin() {
         if let _ = UserDefaultsManager.UserInfos.shared.readSesion() {
-            let vc = UINavigationController(rootViewController: HomeViewController())
+            let vc = UINavigationController(rootViewController: CeuHomeViewController())
             let scenes = UIApplication.shared.connectedScenes
             let windowScene = scenes.first as? UIWindowScene
             let window = windowScene?.windows.first
@@ -64,7 +64,7 @@ class CeuLoginViewController: UIViewController {
                 case .success(let data):
                     let decoder = JSONDecoder()
                     if let session = try? decoder.decode(Session.self, from: data) {
-                        let vc = UINavigationController(rootViewController: HomeViewController())
+                        let vc = UINavigationController(rootViewController: CeuHomeViewController())
                         let scenes = UIApplication.shared.connectedScenes
                         let windowScene = scenes.first as? UIWindowScene
                         let window = windowScene?.windows.first
@@ -131,7 +131,6 @@ extension CeuLoginViewController {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(didClickView))
         view.addGestureRecognizer(gesture)
         view.isUserInteractionEnabled = true
-//        view.backgroundColor = .lightGray
         validateButton()
     }
 
@@ -225,3 +224,5 @@ extension CeuLoginViewController {
         loginButton.isEnabled = true
     }
 }
+
+

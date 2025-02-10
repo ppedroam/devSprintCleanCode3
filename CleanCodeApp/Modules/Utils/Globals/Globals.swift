@@ -22,3 +22,12 @@ struct Globals {
         controller.present(alertController, animated: true)
     }
 }
+
+
+class Logger {
+    static let shared = Logger()
+    
+    func log(_ text: String) {
+        
+    }
+}

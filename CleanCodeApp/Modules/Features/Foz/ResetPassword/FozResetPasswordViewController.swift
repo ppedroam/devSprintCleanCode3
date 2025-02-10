@@ -129,24 +129,18 @@ class FozResetPasswordViewController: UIViewController {
     }
 }
 
-struct EmailValidator {
-    static func isValid(_ email: String?) -> Bool {
-        guard let email = email?.trimmingCharacters(in: .whitespaces), !email.isEmpty else { return false }
-        return email.contains("@") && email.contains(".") && email.count > 5
-    }
-}
 
 // MARK: - Comportamentos de layout
 extension FozResetPasswordViewController {
 
     func setupView() {
-        stylePrimaryButton(recoverPasswordButton)
+        ButtonStyler.stylePrimaryButton(recoverPasswordButton)
 
-        styleSecondaryButton(loginButton)
+        ButtonStyler.styleSecondaryButton(loginButton)
 
-        styleSecondaryButton(helpButton)
+        ButtonStyler.styleSecondaryButton(helpButton)
 
-        styleSecondaryButton(createAccountButton)
+        ButtonStyler.styleSecondaryButton(createAccountButton)
 
         emailTextfield.setDefaultColor()
 
@@ -169,21 +163,6 @@ extension FozResetPasswordViewController {
 
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextfield.setDefaultColor()
-    }
-
-    // MARK: Button Styler
-    func stylePrimaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.backgroundColor = .blue
-        button.setTitleColor(.white, for: .normal)
-    }
-
-    func styleSecondaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.blue.cgColor
-        button.backgroundColor = .white
-        button.setTitleColor(.blue, for: .normal)
     }
 
 }

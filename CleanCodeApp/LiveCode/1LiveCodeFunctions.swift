@@ -118,6 +118,6 @@ struct DeviceUrls {
     let htmlURL: URL
 }
 
-enum CommonsErros: Error {
-    case invalidData
-}
+//enum CommonsErros: Error {
+//    case invalidData
+//}

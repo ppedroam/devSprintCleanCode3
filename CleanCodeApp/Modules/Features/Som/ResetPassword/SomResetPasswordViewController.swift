@@ -57,6 +57,7 @@ class SomResetPasswordViewController: UIViewController {
                     self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
                     self.recoverPasswordButton.setTitle("Voltar", for: .normal)
                 } else {
+                    Logger.shared.log("[ERRO API] - erro endpoint de reset")
                     let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
                     let action = UIAlertAction(title: "OK", style: .default)
                     alertController.addAction(action)

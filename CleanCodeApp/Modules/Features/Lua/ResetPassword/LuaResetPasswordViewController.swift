@@ -1,6 +1,6 @@
 import UIKit
 
-enum PasswordRecoveryError: Error {
+enum LuaPasswordRecoveryError: Error {
     case invalidEmail
     case noInternetConnection
 }
@@ -50,34 +50,34 @@ class LuaResetPasswordViewController: UIViewController {
         }
         do {
             try validatePasswordRecovery()
+            let parametersForRecoverPassword = makePasswordResetParams()
+            sendPasswordResetRequest(parameters: parametersForRecoverPassword)
             self.view.endEditing(true)
         } catch let error {
-            handleRecoveryPasswordError(error: error as! PasswordRecoveryError)
+            showPasswordRecoveryError(error: error as! LuaPasswordRecoveryError)
             return
         }
-        sendPasswordResetRequest(parameters: getPasswordResetRequestParameters())
     }
     
-    func handleRecoveryPasswordError(error: PasswordRecoveryError) {
+    func showPasswordRecoveryError(error: LuaPasswordRecoveryError) {
         switch error {
-        case PasswordRecoveryError.invalidEmail:
-            displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
-        case PasswordRecoveryError.noInternetConnection:
+        case LuaPasswordRecoveryError.invalidEmail:
+            showFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
+        case LuaPasswordRecoveryError.noInternetConnection:
             Globals.showNoInternetCOnnection(controller: self)
         }
     }
     
     func validatePasswordRecovery() throws {
         guard validateEmailForm() else {
-            throw PasswordRecoveryError.invalidEmail
-            
+            throw LuaPasswordRecoveryError.invalidEmail
         }
         guard ConnectivityManager.shared.isConnected else {
-            throw PasswordRecoveryError.noInternetConnection
+            throw LuaPasswordRecoveryError.noInternetConnection
         }
     }
     
-    func getPasswordResetRequestParameters() -> [String : String] {
+    func makePasswordResetParams() -> [String : String] {
         let passwordResetParameters = [
             "email": emaiInputed
         ]
@@ -87,14 +87,14 @@ class LuaResetPasswordViewController: UIViewController {
     func sendPasswordResetRequest(parameters: [String : String]) {
         BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
             if success {
-                self.handlePasswordResetRequestSuccess()
+                self.showPasswordResetSuccessUI()
                 return
             }
-            self.handlePasswordResetRequestFailure()
+            self.showPasswordResetErrorAlert()
         }
     }
     
-    func handlePasswordResetRequestSuccess() {
+    func showPasswordResetSuccessUI() {
         self.hasRequestedRecovery = true
         self.emailTextField.isHidden = true
         self.emailErrorLabel.isHidden = true
@@ -103,8 +103,11 @@ class LuaResetPasswordViewController: UIViewController {
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
     
-    func handlePasswordResetRequestFailure() {
-        let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
+    func showPasswordResetErrorAlert() {
+        let alertController = UIAlertController(
+            title: "Ops..",
+            message: "Algo de errado aconteceu. Tente novamente mais tarde.",
+            preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         self.present(alertController, animated: true)
@@ -115,17 +118,26 @@ class LuaResetPasswordViewController: UIViewController {
     }
     
     @IBAction func onHelpButtonTapped(_ sender: Any) {
-        let vc = LuaContactUsViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        self.present(vc, animated: true, completion: nil)
+        presentLuaContactUsViewController()
+    }
+    
+    func presentLuaContactUsViewController() {
+        let LuaContactUsViewController = LuaContactUsViewController()
+        LuaContactUsViewController.modalPresentationStyle = .fullScreen
+        LuaContactUsViewController.modalTransitionStyle = .coverVertical
+        self.present(LuaContactUsViewController, animated: true, completion: nil)
     }
     
     @IBAction func onCreateAccountButtonTapped(_ sender: Any) {
-        let newVc = LuaCreateAccountViewController()
-        newVc.modalPresentationStyle = .fullScreen
-        present(newVc, animated: true)
+        presentLuaCreateAccountViewController()
     }
+    
+    func presentLuaCreateAccountViewController() {
+        let LuaCreateAccountViewController = LuaCreateAccountViewController()
+        LuaCreateAccountViewController.modalPresentationStyle = .fullScreen
+        present(LuaCreateAccountViewController, animated: true)
+    }
+    
     
     func validateEmailForm() -> Bool {
         let isEmailFormatValid = validateEmailFormat()
@@ -142,7 +154,7 @@ class LuaResetPasswordViewController: UIViewController {
         return isEmailFormatValid
     }
     
-    func displayFormError(textField: UITextField, label: UILabel, errorText: String) {
+    func showFormError(textField: UITextField, label: UILabel, errorText: String) {
         textField.setErrorColor()
         label.textColor = .red
         label.text = errorText
@@ -159,7 +171,7 @@ extension LuaResetPasswordViewController {
         setupAccountButton()
         emailTextField.setDefaultColor()
         validateExistingEmailInput()
-        validatePasswordRecoveryButton()
+        updatePasswordRecoveryButtonState()
     }
     
     func setupRecoverPasswordButton() {
@@ -198,7 +210,7 @@ extension LuaResetPasswordViewController {
     
     @IBAction func onEmailTextFieldEdit(_ sender: Any) {
         emailTextField.setEditingColor()
-        validatePasswordRecoveryButton()
+        updatePasswordRecoveryButtonState()
     }
     
     @IBAction func emailTextFieldDidEndEditing(_ sender: Any) {
@@ -215,10 +227,14 @@ extension LuaResetPasswordViewController {
         }
     }
     
-    func validatePasswordRecoveryButton() {
+    func updatePasswordRecoveryButtonState() {
         let isEnabled = !emaiInputed.isEmpty
-        recoverPasswordButton.backgroundColor = isEnabled ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = isEnabled
+        updatePasswordRecoverButtonStatus(newStatus: isEnabled)
+    }
+    
+    func updatePasswordRecoverButtonStatus(newStatus: Bool) {
+        recoverPasswordButton.backgroundColor = newStatus ? .blue : .gray
+        recoverPasswordButton.isEnabled = newStatus
     }
 }

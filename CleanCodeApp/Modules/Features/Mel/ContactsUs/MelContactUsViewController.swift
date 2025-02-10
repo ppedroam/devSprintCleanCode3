@@ -149,15 +149,9 @@ extension MelContactUsViewController {
     @objc
     private func messageSend() {
         view.endEditing(true)
-        guard let message = textView.text, !message.isEmpty else { return }
-        let email = model?.mail ?? ""
-        let parameters = createMessageParameters(email: email, message: message)
+        guard let message = textView.text, !message.isEmpty, let email = model?.mail else { return }
         showLoadingView()
-        sendRequest(parameters) { [weak self] result in
-            guard let self = self else { return }
-            self.removeLoadingView()
-            self.handleResponse(result)
-        }
+        prepareAndSendMessage(email: email, message: message)
     }
     
     private func createMessageParameters(email: String, message: String) -> [String : String] {
@@ -180,6 +174,15 @@ extension MelContactUsViewController {
             showSuccessAlert()
         case .failure:
             showErrorAlert()
+        }
+    }
+    
+    private func prepareAndSendMessage(email: String, message: String) {
+        let parameters = createMessageParameters(email: email, message: message)
+        sendRequest(parameters) { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleResponse(result)
         }
     }
     

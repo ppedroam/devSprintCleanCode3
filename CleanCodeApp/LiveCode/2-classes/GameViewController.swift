@@ -44,6 +44,10 @@ class GameViewController3: UIViewController {
         view.addSubview(webView)
     }
     
+    func teste() {
+        
+    }
+    
     @objc 
     func openFAQ() {
         coordinator.openFaq()

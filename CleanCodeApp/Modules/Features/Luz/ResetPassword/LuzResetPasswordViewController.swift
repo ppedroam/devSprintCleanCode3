@@ -111,7 +111,7 @@ private extension LuzResetPasswordViewController {
         validateButton()
     }
 
-    private func buttonStyle(
+    func buttonStyle(
         for button: UIButton,
         backgroundColor: UIColor,
         textColor: UIColor
@@ -121,7 +121,7 @@ private extension LuzResetPasswordViewController {
         button.setTitleColor(textColor, for: .normal)
     }
 
-    private func buttonOutlineStyle(for button: UIButton) {
+    func buttonOutlineStyle(for button: UIButton) {
         button.layer.cornerRadius = createAccountButton.bounds.height / 2
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.blue.cgColor
@@ -171,7 +171,7 @@ private extension LuzResetPasswordViewController {
 
 // MARK: Handlers
 private extension LuzResetPasswordViewController {
-    private func handleSucess() {
+    func handleSucess() {
         self.recoveryEmail = true
         self.emailTextfield.isHidden = true
         self.textLabel.isHidden = true
@@ -181,7 +181,7 @@ private extension LuzResetPasswordViewController {
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
-    private func handleError() {
+    func handleError() {
         let alertController = UIAlertController(
             title: "Ops..",
             message: "Algo de errado aconteceu. Tente novamente mais tarde.",

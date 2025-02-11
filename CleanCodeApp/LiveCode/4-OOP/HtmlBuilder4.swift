@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct HtmlBuilder2 {
-    let realmManager = RealmManager()
+struct HtmlBuilder4 {
+    private let realmManager = RealmManager()
 
     func createWebViewUrls(content: WebViewContent) throws -> DeviceUrls {
         let htmlAfterCustomization = try configureHtmlAppearence(content: content)
@@ -17,7 +17,9 @@ struct HtmlBuilder2 {
         try data.write(to: deviceUrls.htmlURL)
         return deviceUrls
     }
-    
+}
+
+private extension HtmlBuilder4 {
     func configureHtmlAppearence(content: WebViewContent) throws -> String {
         guard let rHtmlConfig = realmManager.getObjects(HtmlConfig.self),
               let htmlConfig = rHtmlConfig.last as? HtmlConfig,

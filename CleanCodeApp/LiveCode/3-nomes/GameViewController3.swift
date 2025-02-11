@@ -1,20 +1,20 @@
 //
-//  4aula.swift
+//  codigo3.swift
 //  CleanCode
 //
-//  Created by Pedro Menezes on 10/02/25.
+//  Created by Pedro Menezes on 07/02/25.
 //
 
 import UIKit
 import WebKit
 
-final class GameViewController5: UIViewController {
-    private let htmlBuilder = HtmlBuilder3()
-    private let webView = WKWebView()
-    private var webViewContent: WebViewContent?
-    private var coordinator = GameCoordinator2()
+class GameViewController3: UIViewController {
+    let htmlBuilder = HtmlBuilder()
+    let webView = WKWebView()
+    var webViewContent: WebViewContent?
+    var coordinator = GameCoordinator3()
 
-    private lazy var goToLauchingsButton : UIButton = {
+    lazy var goToLauchingsButton : UIButton = {
         let launchButton = UIButton(type: .system)
         launchButton.setTitle("Ver lançamentos", for: .normal)
         launchButton.addTarget(self, action: #selector(openLastLaunchingsScreen), for: .touchUpInside)
@@ -34,11 +34,7 @@ final class GameViewController5: UIViewController {
         webView.frame = view.frame
         view.addSubview(webView)
     }
-}
-
-// MARK: Setup Layout
-
-private extension GameViewController5 {
+    
     @objc
     func openFAQ() {
         coordinator.openFaqScreen()

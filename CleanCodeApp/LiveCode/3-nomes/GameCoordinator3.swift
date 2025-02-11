@@ -5,9 +5,10 @@
 //  Created by Pedro Menezes on 10/02/25.
 //
 
-import Foundation
+import UIKit
 
 struct GameCoordinator3 {
+    
     weak var viewController: UIViewController?
     
     func openFaqScreen() {
@@ -20,4 +21,3 @@ struct GameCoordinator3 {
         viewController?.navigationController?.pushViewController(lastLaunchingsViewController, animated: true)
     }
 }
-

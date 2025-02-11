@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 
-class GameViewController2: UIViewController {
+class GameViewController1: UIViewController {
     
     let webView = WKWebView()
     var content: WebViewContent?

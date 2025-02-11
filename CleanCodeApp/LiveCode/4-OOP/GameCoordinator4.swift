@@ -7,8 +7,7 @@
 
 import UIKit
 
-struct GameCoordinator2 {
-    
+struct GameCoordinator4 {
     weak var viewController: UIViewController?
     
     func openFaqScreen() {
@@ -21,3 +20,4 @@ struct GameCoordinator2 {
         viewController?.navigationController?.pushViewController(lastLaunchingsViewController, animated: true)
     }
 }
+

@@ -17,7 +17,7 @@ import WebKit
 // A -> B
 // B -> A
 
-class GameViewController3: UIViewController {
+class GameViewController2: UIViewController {
     let htmlBuilder = HtmlBuilder()
     let webView = WKWebView()
     var content: WebViewContent?

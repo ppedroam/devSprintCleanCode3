@@ -186,3 +186,19 @@ extension LuaResetPasswordViewController {
     }
 }
 
+class Coordinator {
+    
+
+    let navigationController: UINavigationController
+    let viewStack: [UIViewController] = []
+    
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
+   
+    func push() {
+        
+//        navigationController.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+    }
+}
+

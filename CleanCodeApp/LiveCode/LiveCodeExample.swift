@@ -23,26 +23,9 @@ class GameViewController: UIViewController {
             target: self,
             action: #selector(openFAQ)
         )        
-        setupWebView()
-        setupBottomButton()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        webView.frame = view.frame
-        view.addSubview(webView)
-    }
-    
-    
-    @objc func openFAQ() {
-        let faqVC = FAQViewController(type: .lastUpdates)
-        navigationController?.pushViewController(faqVC, animated: true)
-    }
-    
-    func setupBottomButton() {
         let launchButton = UIButton(type: .system)
         launchButton.setTitle("Ver lançamentos", for: .normal)
-        launchButton.addTarget(self, action: #selector(openLastLaunchings), for: .touchUpInside)
+        launchButton.addTarget(self, action: #selector(openNextScreen), for: .touchUpInside)
         
         launchButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(launchButton)
@@ -51,16 +34,7 @@ class GameViewController: UIViewController {
             launchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             launchButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
-    }
-    
-    @objc func openLastLaunchings() {
-        let service = LastLaunchingsService()
-        let viewModel = LastLaunchingsViewModel(service: service)
-        let lastLaunchingsVC = LastLaunchingsViewController(viewModel: viewModel)
-        navigationController?.pushViewController(lastLaunchingsVC, animated: true)
-    }
-    
-    func setupWebView() {
+        
         guard let content = content else { return }
         let rHtmlConfig = realmManager.getObjects(HtmlConfig.self)
         let htmlConfig = rHtmlConfig?.last as? HtmlConfig
@@ -80,5 +54,25 @@ class GameViewController: UIViewController {
         
         try? data.write(to: htmlURL)
         webView.loadFileURL(htmlURL, allowingReadAccessTo: pathURL.absoluteURL)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        webView.frame = view.frame
+        view.addSubview(webView)
+    }
+    
+    
+    @objc func openFAQ() {
+        let faqVC = FAQViewController(type: .lastUpdates)
+        navigationController?.pushViewController(faqVC, animated: true)
+    }
+    
+    @objc func openNextScreen() {
+        let analytics = LastLaunchAnallytics()
+        let service = LastLaunchingsService()
+        let viewModel = LastLaunchingsViewModel(service: service, analytics: analytics)
+        let lastLaunchingsVC = LastLaunchingsViewController(viewModel: viewModel)
+        navigationController?.pushViewController(lastLaunchingsVC, animated: true)
     }
 }

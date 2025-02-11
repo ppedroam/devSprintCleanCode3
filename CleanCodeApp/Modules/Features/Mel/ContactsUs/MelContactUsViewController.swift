@@ -9,72 +9,253 @@ import UIKit
 
 class MelContactUsViewController: LoadingInheritageController {
     var model: ContactUsModel?
-    let textView = UITextView()
+    
+    private lazy var textView: UITextView = {
+        let textView = UITextView()
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.text = "Escreva sua mensagem aqui"
+        return textView
+    }()
+    
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
+        label.text = "Escolha o canal para contato"
+        return label
+    }()
+    
+    private lazy var phoneButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemGray4
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var emailButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemGray4
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var chatButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemGray4
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var messageLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        label.text = "Ou envie uma mensagem"
+        label.numberOfLines = 2
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        return label
+    }()
+    
+    private lazy var sendMessageButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .blue
+        button.setTitle("  Enviar ", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 10
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var closeButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Voltar", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.backgroundColor = .clear
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.blue.cgColor
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(close), for: .touchUpInside)
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .systemGray6
-        let titleLabel = UILabel()
-        titleLabel.textColor = .black
-        titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        titleLabel.text = "Escolha o canal para contato"
-        
-        // Criar botões
-        let phoneButton = UIButton()
-        phoneButton.backgroundColor = .systemGray4
-        phoneButton.layer.cornerRadius = 10
-        phoneButton.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
-        let emailButton = UIButton()
-        emailButton.backgroundColor = .systemGray4
-        emailButton.layer.cornerRadius = 10
-        emailButton.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        setup()
+        fetchAndProcessContactData()
+    }
+}
 
-        let chatButton = UIButton()
-        chatButton.backgroundColor = .systemGray4
-        chatButton.layer.cornerRadius = 10
-        chatButton.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+// MARK: - Functions
+extension MelContactUsViewController {
+    @objc
+    private func phoneClick() {
+        guard let tel = model?.phone,
+              let url = URL(string: "tel://\(tel)") else { return }
+        openURL(url)
+    }
+    
+    @objc
+    private func emailClick() {
+        guard let mail = model?.mail,
+              let url = URL(string: "mailto:\(mail)") else { return }
+        openURL(url)
+    }
+    
+    @objc
+    private func chatClicked() {
+        do {
+            let whatsAppURL = try getWhatsAppURL()
+            if canOpenURL(whatsAppURL) {
+                openURL(whatsAppURL)
+            } else {
+                let appStoreURL = try getAppStoreURL()
+                openURL(appStoreURL)
+            }
+        } catch {
+            print("Erro ao tentar abrir o chat: \(error)")
+        }
+    }
+    
+    private func getWhatsAppURL() throws -> URL {
+        guard let phoneNumber = model?.phone else { throw ChatError.invalidPhoneNumber }
+        guard let url = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { throw ChatError.invalidURL }
+        return url
+    }
+    
+    private func getAppStoreURL() throws -> URL {
+        guard let url = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { throw ChatError.invalidURL }
+        return url
+    }
+    
+    private func canOpenURL(_ url: URL) -> Bool {
+        return UIApplication.shared.canOpenURL(url)
+    }
+    
+    private func openURL(_ url: URL) {
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
+    
+    @objc
+    private func messageSend() {
+        view.endEditing(true)
+        guard let message = textView.text, !message.isEmpty, let email = model?.mail else { return }
+        showLoadingView()
+        prepareAndSendMessage(email: email, message: message)
+    }
+    
+    private func createMessageParameters(email: String, message: String) -> [String : String] {
+        return [
+            "email" : email,
+            "message" : message
+        ]
+    }
+    
+    private func sendRequest(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
+        let url = Endpoints.sendMessage
+        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+            completion(result)
+        }
+    }
+    
+    private func handleResponse(_ result: Result<Data, Error>) {
+        switch result {
+        case .success:
+            showSuccessAlert()
+        case .failure:
+            showErrorAlert()
+        }
+    }
+    
+    private func prepareAndSendMessage(email: String, message: String) {
+        let parameters = createMessageParameters(email: email, message: message)
+        sendRequest(parameters) { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleResponse(result)
+        }
+    }
+    
+    private func showSuccessAlert() {
+        Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    private func showErrorAlert(mustDismiss: Bool = false) {
+        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        if mustDismiss {
+            self.dismiss(animated: true)
+        }
+    }
+    
+    @objc
+    private func close() {
+        dismiss(animated: true)
+    }
+    
+    private func symbolConfiguration() {
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 36)
+        configureButtonImage(phoneButton, with: "phone", buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(emailButton, with: "envelope", buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(chatButton, with: "message", buttonSymbolConfiguration: symbolConfig)
+    }
+    
+    private func configureButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {
+        let image = UIImage(systemName: systemNameImage)?.withConfiguration(buttonSymbolConfiguration)
+        button.setImage(image, for: .normal)
+    }
+    
+    private func fetchAndProcessContactData() {
+        showLoadingView()
+        fetchContactData() { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleContactDataResponse(result)
+        }
+    }
+    
+    private func fetchContactData(completion: @escaping (Result<Data, Error>) -> Void) {
+        let url = Endpoints.contactUs
+        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
+            completion(result)
+        }
+    }
+    
+    private func handleContactDataResponse(_ result: Result<Data, Error>) {
+        switch result {
+        case .success(let data):
+            decodeContactData(data)
+        case .failure(let error):
+            print("Erro na API: \(error.localizedDescription)")
+            showErrorAlert(mustDismiss: true)
+        }
+    }
+    
+    private func decodeContactData(_ data: Data) {
+        let decoder = JSONDecoder()
         
-        let messageLabel = UILabel()
-        messageLabel.textColor = .black
-        messageLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        messageLabel.text = "Ou envie uma mensagem"
-        messageLabel.numberOfLines = 2
-        messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        
-        let sendMessageButton = UIButton()
-        sendMessageButton.backgroundColor = .blue
-        sendMessageButton.setTitle("  Enviar ", for: .normal)
-        sendMessageButton.setTitleColor(.white, for: .normal)
-        sendMessageButton.layer.cornerRadius = 10
-        sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
-        sendMessageButton.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
-        
-        textView.text = "Escreva sua mensagem aqui"
-        let closeButton = UIButton()
-        closeButton.setTitle("Voltar", for: .normal)
-        closeButton.setTitleColor(.blue, for: .normal)
-        closeButton.backgroundColor = .clear
-        closeButton.layer.borderWidth = 1
-        closeButton.layer.borderColor = UIColor.blue.cgColor
-        closeButton.layer.cornerRadius = 10
-        closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
+            self.model = returned
+        } else {
+            showErrorAlert(mustDismiss: true)
+        }
+    }
+}
 
-        
-        let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
-        phoneButton.setImage(UIImage.init(systemName: "phone")?.withConfiguration(symbolConfiguration), for: .normal)
-        emailButton.setImage(UIImage.init(systemName: "envelope")?.withConfiguration(symbolConfiguration), for: .normal)
-        chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfiguration), for: .normal)
-        
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        phoneButton.translatesAutoresizingMaskIntoConstraints = false
-        emailButton.translatesAutoresizingMaskIntoConstraints = false
-        chatButton.translatesAutoresizingMaskIntoConstraints = false
-        messageLabel.translatesAutoresizingMaskIntoConstraints = false
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        
+// MARK: - ViewCode Protocol Conformance
+extension MelContactUsViewController: MelViewCode {
+    func addSubviews() {
         view.addSubview(titleLabel)
         view.addSubview(phoneButton)
         view.addSubview(emailButton)
@@ -83,9 +264,10 @@ class MelContactUsViewController: LoadingInheritageController {
         view.addSubview(textView)
         view.addSubview(sendMessageButton)
         view.addSubview(closeButton)
-        
+    }
+    
+    func setupConstraints() {
         NSLayoutConstraint.activate([
-
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -109,13 +291,11 @@ class MelContactUsViewController: LoadingInheritageController {
             messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
             messageLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             messageLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-//            stackView.heightAnchor.constraint(equalToConstant: 30),
             
             textView.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 20),
             textView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             textView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             textView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
-            
             
             sendMessageButton.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
             sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
@@ -127,91 +307,15 @@ class MelContactUsViewController: LoadingInheritageController {
             closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
         ])
-        
-        pegarDados()
     }
     
-    @objc
-    func phoneClick() {
-        if let tel = model?.phone,
-           let url = URL(string: "tel://\(tel)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
+    func setupStyle() {
+        view.backgroundColor = .systemGray6
+        symbolConfiguration()
     }
-    
-    @objc
-    func emailClick() {
-        if let mail = model?.mail,
-           let url = URL(string: "mailto:\(mail)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-    }
-    
-    @objc
-    func chatClicked() {
-        if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
-            if UIApplication.shared.canOpenURL(whatsappURL) {
-                UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-            } else {
-                if let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") {
-                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-                }
-            }
-        }
-    }
-    
-    @objc
-    func close() {
-        dismiss(animated: true)
-    }
-    
-    
-    func pegarDados() {
-        showLoadingView()
-        let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            self.removeLoadingView()
-            switch result {
-            case .success(let data):
-                let decoder = JSONDecoder()
-                if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-                    self.model = returned
-                } else {
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                }
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self) {
-                    self.dismiss(animated: true)
-                }
-            }
-        }
-    }
-    
-    @objc
-    func messageSend() {
-        view.endEditing(true)
-        let email = model?.mail ?? ""
-        if let message = textView.text, textView.text.count > 0 {
-            let parameters: [String: String] = [
-                "email": email,
-                "mensagem": message
-            ]
-            showLoadingView()
-            let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-                self.removeLoadingView()
-                switch result {
-                case .success:
-                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                case .failure:
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-                }
-            }
-        }
-    }
+}
+
+enum ChatError: Error {
+    case invalidPhoneNumber
+    case invalidURL
 }

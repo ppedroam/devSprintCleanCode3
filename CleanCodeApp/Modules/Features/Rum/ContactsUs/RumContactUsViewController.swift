@@ -249,7 +249,7 @@ class RumContactUsViewController: LoadingInheritageController {
     }
     
     private func handleAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
-        Globals.alertMessage(title: title, message: message, targetVC: self) {
+        Globals.showAlertMessage(title: title, message: message, targetVC: self) {
             shouldDismiss ? self.dismiss(animated: true) : nil
         }
     }

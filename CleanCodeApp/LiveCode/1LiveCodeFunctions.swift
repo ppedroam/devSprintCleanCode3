@@ -119,5 +119,5 @@ struct DeviceUrls {
 }
 
 enum CommonsErros: Error {
-   case invalidData
+    case invalidData
 }

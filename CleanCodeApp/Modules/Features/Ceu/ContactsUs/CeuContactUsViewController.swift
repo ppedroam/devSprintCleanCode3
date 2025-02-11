@@ -246,7 +246,7 @@ class CeuContactUsViewController: LoadingInheritageController {
             case .success(let data):
                 self.handleFetchContactUsDataResquestSuccess(data)
             case .failure(let error):
-                self.handleFetchContactUsDataResquestError(error)
+                self.showErrorAlertMessage()
             }
         }
     }
@@ -258,11 +258,6 @@ class CeuContactUsViewController: LoadingInheritageController {
         } else {
             self.showErrorAlertMessage()
         }
-    }
-
-    private func handleFetchContactUsDataResquestError(_ error: Error) {
-        print("error api: \(error.localizedDescription)")
-        showErrorAlertMessage()
     }
 
     private func showErrorAlertMessage() {

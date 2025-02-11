@@ -68,7 +68,7 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     func validateForm() throws {
-        guard let status = viewModel?.setupStatus(text: emailTextfield.text) else {
+        guard let status = viewModel?.setupStatusFor(email: emailTextfield.text) else {
             throw CeuCommonsErrors.invalidEmail
         }
 

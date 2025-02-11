@@ -13,12 +13,13 @@ class CeuResetPasswordViewModel {
         self.viewController = viewController
     }
 
-    func setupStatus(text: String?) -> Bool {
-        guard let text = text else { return false }
-        let status = text.isEmpty ||
-        !text.contains(".") ||
-        !text.contains("@") ||
-        text.count <= 5
+    func setupStatusFor(email: String?) -> Bool {
+        guard let email = email else { return false }
+        let emailIsEmpty = email.isEmpty
+        let status = emailIsEmpty ||
+        !email.contains(".") ||
+        !email.contains("@") ||
+        email.count <= 5
 
         return status
     }
@@ -28,21 +29,21 @@ class CeuResetPasswordViewModel {
 
         do {
             try viewController.validateForm()
-            try verifyInternet()
+            try verifyInternetConnection()
 
-            let parameters = try setupResetPasswordRequestParameters(text: viewController.emailTextfield?.text)
+            let parameters = try setupResetPasswordRequestParameters(email: viewController.emailTextfield?.text)
             makeResetPasswordRequest(parameters: parameters)
         } catch CeuCommonsErrors.invalidEmail {
-            showAlert(message: "Verifique o e-mail informado.")
+            showAlertWith(message: "Verifique o e-mail informado.")
         } catch {
-            showAlert(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
 
-    func setupResetPasswordRequestParameters(text: String?) throws -> [String: String] {
-        guard let text = text else { throw CeuCommonsErrors.invalidData }
+    func setupResetPasswordRequestParameters(email: String?) throws -> [String: String] {
+        guard let email = email else { throw CeuCommonsErrors.invalidData }
 
-        let emailUser = text.trimmingCharacters(in: .whitespaces)
+        let emailUser = email.trimmingCharacters(in: .whitespaces)
         let parameters = [
             "email": emailUser
         ]
@@ -50,12 +51,12 @@ class CeuResetPasswordViewModel {
         return parameters
     }
 
-    func showAlert(message: String) {
+    func showAlertWith(message: String) {
         guard let viewController = viewController else { return }
         return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
     }
 
-    func verifyInternet() throws {
+    func verifyInternetConnection() throws {
         guard let viewController = viewController else { return }
         if !ConnectivityManager.shared.isConnected {
             Globals.showNoInternetCOnnection(controller: viewController)

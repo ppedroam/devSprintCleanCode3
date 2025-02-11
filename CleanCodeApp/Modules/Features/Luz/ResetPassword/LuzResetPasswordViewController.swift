@@ -43,17 +43,11 @@ final class LuzResetPasswordViewController: UIViewController {
             return
         }
 
-        let emailUser = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
-
-        let parameters = [
-            "email": emailUser
-        ]
-
         BadNetworkLayer
             .shared
             .resetPassword(
                 self,
-                parameters: parameters
+                parameters: makeParams()
             ) { success in
                 guard success else {
                     self.handleError()
@@ -190,5 +184,15 @@ private extension LuzResetPasswordViewController {
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         self.present(alertController, animated: true)
+    }
+}
+
+// MARK: Make Params
+private extension LuzResetPasswordViewController {
+    func makeParams() -> [String: String] {
+        let email = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
+        return [
+            "email" : email
+        ]
     }
 }

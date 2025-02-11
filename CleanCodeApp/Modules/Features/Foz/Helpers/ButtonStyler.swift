@@ -8,20 +8,20 @@
 import Foundation
 import UIKit
 
-struct ButtonStyler {
+extension UIButton{
 
-    static func stylePrimaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.backgroundColor = .blue
-        button.setTitleColor(.white, for: .normal)
+    func applyPrimaryButtonStyle(){
+        layer.cornerRadius = bounds.height / 2
+        backgroundColor = .blue
+        setTitleColor(.white, for: .normal)
     }
 
-    static func styleSecondaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.blue.cgColor
-        button.backgroundColor = .white
-        button.setTitleColor(.blue, for: .normal)
+    func applySecondaryButtonStyle(){
+        layer.cornerRadius = bounds.height / 2
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.blue.cgColor
+        backgroundColor = .white
+        setTitleColor(.blue, for: .normal)
     }
 
 }

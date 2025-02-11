@@ -64,3 +64,5 @@ fastlane/test_output
 contents.xcworkspacedata
 IDEWorkspaceChecks.plist
 project.pbxproj
+
+SceneDelegate.swift

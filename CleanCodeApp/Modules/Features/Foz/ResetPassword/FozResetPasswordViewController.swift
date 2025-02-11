@@ -8,16 +8,28 @@ class FozResetPasswordViewController: UIViewController {
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
 
+<<<<<<< HEAD
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var viewSuccess: UIView!
     @IBOutlet weak var emailLabel: UILabel!
 
     var userEmail = ""
     var userPressedRecoveryButton = false
+=======
+    @IBOutlet weak var verifyUserEmailLabel: UILabel!
+    @IBOutlet weak var passwordRecoveredSuccessView: UIView!
+    @IBOutlet weak var emailDisplayLabel: UILabel!
+
+    var didUserPutEmail: String = ""
+    var didUserPressRecoverPasswordButton: Bool = false
+
+    private let emailValidator: EmailValidating = EmailValidatorUseCase()
+
+>>>>>>> upstream/main
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupView()
+        configureRecoverPasswordView()
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -28,9 +40,15 @@ class FozResetPasswordViewController: UIViewController {
         dismiss(animated: true)
     }
 
+<<<<<<< HEAD
 // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
         if !userPressedRecoveryButton {
+=======
+    // MARK: Recover Password
+    @IBAction func recoverPasswordButton(_ sender: Any) {
+        if !didUserPressRecoverPasswordButton {
+>>>>>>> upstream/main
             validateRecovering()
         }
         else {
@@ -72,11 +90,19 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     private func handlePasswordResetSuccess(withEmail email: String) {
+<<<<<<< HEAD
         userPressedRecoveryButton = true
         emailTextfield.isHidden = true
         textLabel.isHidden = true
         viewSuccess.isHidden = false
         emailLabel.text = email
+=======
+        didUserPressRecoverPasswordButton = true
+        emailTextfield.isHidden = true
+        verifyUserEmailLabel.isHidden = true
+        passwordRecoveredSuccessView.isHidden = false
+        emailDisplayLabel.text = email
+>>>>>>> upstream/main
         recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
@@ -109,7 +135,11 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     func validateForm() -> Bool {
+<<<<<<< HEAD
         let isEmailValid = EmailValidator.isValid(emailTextfield.text)
+=======
+        let isEmailValid = emailValidator.isValid(emailTextfield.text)
+>>>>>>> upstream/main
 
         if isEmailValid {
             return true
@@ -124,6 +154,7 @@ class FozResetPasswordViewController: UIViewController {
 
     private func setupErrorMessage(){
         emailTextfield.setErrorColor()
+<<<<<<< HEAD
         textLabel.textColor = .red
         textLabel.text = "Verifique o e-mail informado"
     }
@@ -133,12 +164,18 @@ struct EmailValidator {
     static func isValid(_ email: String?) -> Bool {
         guard let email = email?.trimmingCharacters(in: .whitespaces), !email.isEmpty else { return false }
         return email.contains("@") && email.contains(".") && email.count > 5
+=======
+        verifyUserEmailLabel.textColor = .red
+        verifyUserEmailLabel.text = "Verifique o e-mail informado"
+>>>>>>> upstream/main
     }
 }
+
 
 // MARK: - Comportamentos de layout
 extension FozResetPasswordViewController {
 
+<<<<<<< HEAD
     func setupView() {
         stylePrimaryButton(recoverPasswordButton)
 
@@ -152,21 +189,45 @@ extension FozResetPasswordViewController {
 
         if !userEmail.isEmpty {
             emailTextfield.text = userEmail
+=======
+    func configureRecoverPasswordView() {
+        recoverPasswordButton.applyPrimaryButtonStyle()
+
+        loginButton.applySecondaryButtonStyle()
+
+        helpButton.applySecondaryButtonStyle()
+
+        createAccountButton.applySecondaryButtonStyle()
+
+        emailTextfield.setDefaultColor()
+
+        if !didUserPutEmail.isEmpty {
+            emailTextfield.text = didUserPutEmail
+>>>>>>> upstream/main
             emailTextfield.isEnabled = false
         }
-        validateButton()
+        updateRecoverPasswordButtonState()
     }
 
+<<<<<<< HEAD
     //email
     @IBAction func emailBeginEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
     }
 
     @IBAction func emailEditing(_ sender: Any) {
+=======
+    @IBAction func emailEditingDidBegin(_ sender: Any) {
         emailTextfield.setEditingColor()
-        validateButton()
     }
 
+    @IBAction func emailEditingChanged(_ sender: Any) {
+>>>>>>> upstream/main
+        emailTextfield.setEditingColor()
+        updateRecoverPasswordButtonState()
+    }
+
+<<<<<<< HEAD
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextfield.setDefaultColor()
     }
@@ -191,20 +252,37 @@ extension FozResetPasswordViewController {
 extension FozResetPasswordViewController {
 
     func validateButton() {
+=======
+    @IBAction func emailEditingDidEnd(_ sender: Any) {
+        emailTextfield.setDefaultColor()
+    }
+
+
+    func updateRecoverPasswordButtonState() {
+>>>>>>> upstream/main
         if !emailTextfield.text!.isEmpty {
-            enableCreateButton()
-        } else {
-            disableCreateButton()
+            enableRecoverPasswordButton()
+        }
+        else {
+            disableRecoverPasswordButton()
         }
     }
 
+<<<<<<< HEAD
     func disableCreateButton() {
+=======
+    func disableRecoverPasswordButton() {
+>>>>>>> upstream/main
         recoverPasswordButton.backgroundColor = .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = false
     }
 
+<<<<<<< HEAD
     func enableCreateButton() {
+=======
+    func enableRecoverPasswordButton() {
+>>>>>>> upstream/main
         recoverPasswordButton.backgroundColor = .blue
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = true

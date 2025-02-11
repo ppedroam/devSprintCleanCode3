@@ -232,7 +232,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     func sendParameters() throws -> [String: String]  {
         let email = model?.mail ?? ""
         guard let message = textView.text, textView.text.count > 0 else {
-            throw CommonsError.invalidMessage
+            throw SolCommonsError.invalidMessage
         }
         
         let parameters: [String: String] = [
@@ -263,6 +263,6 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
 }
 
-enum CommonsError: Error {
+enum SolCommonsError: Error {
     case invalidMessage
 }

@@ -17,9 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         self.window = UIWindow(frame: UIScreen.main.bounds)
-
-        let rootViewController = getRootViewController(forUser: .gabrielEirado)
-
+        let rootViewController = getRootViewController(forUser: .elyAssumpcao)
         self.window?.rootViewController = UINavigationController(rootViewController: rootViewController)
         self.window?.windowScene = windowScene
         self.window?.makeKeyAndVisible()
@@ -47,7 +45,7 @@ func getRootViewController(forUser user: Users) -> UIViewController {
         userIdentifier = "Rio"
     case .rayanaPrata:
         userIdentifier = "Rum"
-    case .elyAssuncao:
+    case .elyAssumpcao:
         userIdentifier = "Sol"
     }
     let storyboard = UIStoryboard(name: "\(userIdentifier)User", bundle: nil)
@@ -65,5 +63,5 @@ enum Users {
     case giuliaKetlin
     case thaisaAmanda
     case rayanaPrata
-    case elyAssuncao
+    case elyAssumpcao
 }

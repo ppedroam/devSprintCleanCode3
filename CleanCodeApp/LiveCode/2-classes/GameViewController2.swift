@@ -17,7 +17,7 @@ import WebKit
 // A -> B
 // B -> A
 
-class GameViewController3: UIViewController {
+class GameViewController2: UIViewController {
     let htmlBuilder = HtmlBuilder()
     let webView = WKWebView()
     var content: WebViewContent?
@@ -42,6 +42,10 @@ class GameViewController3: UIViewController {
         super.viewWillAppear(animated)
         webView.frame = view.frame
         view.addSubview(webView)
+    }
+    
+    func teste() {
+        
     }
     
     @objc 

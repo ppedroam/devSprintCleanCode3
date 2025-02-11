@@ -35,13 +35,15 @@ final class LuzResetPasswordViewController: UIViewController {
             return
         }
 
-        guard validateForm() else { return }
-
-        self.view.endEditing(true)
-        if !ConnectivityManager.shared.isConnected {
-            Globals.showNoInternetCOnnection(controller: self)
+        do {
+            try FormValidator.validateEmail(emailTextfield.text)
+            try ConnectivityValidator.checkInternetConnection()
+        } catch {
+            handleError(error)
             return
         }
+
+        self.view.endEditing(true)
 
         BadNetworkLayer
             .shared
@@ -50,7 +52,7 @@ final class LuzResetPasswordViewController: UIViewController {
                 parameters: makeParams()
             ) { success in
                 guard success else {
-                    self.handleError()
+                    self.showErrorAlert()
                     return
                 }
                 self.handleSucess()
@@ -126,22 +128,6 @@ private extension LuzResetPasswordViewController {
 
 // MARK: - Validations
 private extension LuzResetPasswordViewController {
-    func validateForm() -> Bool {
-        let status = emailTextfield.text!.isEmpty ||
-        !emailTextfield.text!.contains(".") ||
-        !emailTextfield.text!.contains("@") ||
-        emailTextfield.text!.count <= 5
-
-        if status {
-            emailTextfield.setErrorColor()
-            textLabel.textColor = .red
-            textLabel.text = "Verifique o e-mail informado"
-            return false
-        }
-
-        return true
-    }
-
     func validateButton() {
         if !emailTextfield.text!.isEmpty {
             enableCreateButton()
@@ -175,7 +161,7 @@ private extension LuzResetPasswordViewController {
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
-    func handleError() {
+    func showErrorAlert() {
         let alertController = UIAlertController(
             title: "Ops..",
             message: "Algo de errado aconteceu. Tente novamente mais tarde.",
@@ -184,6 +170,22 @@ private extension LuzResetPasswordViewController {
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         self.present(alertController, animated: true)
+    }
+
+    func handleError(_ error: Error) {
+        emailTextfield.setErrorColor()
+        textLabel.textColor = .red
+
+        switch error {
+        case ValidationError.emptyEmail:
+            return textLabel.text = "E-mail não pode estar vazio"
+        case ValidationError.invalidFormat:
+            return textLabel.text = "Verifique o email informado"
+        case ConnectivityError.noInternet:
+            return Globals.showNoInternetCOnnection(controller: self)
+        default:
+            textLabel.text = "Ocorreu um erro inesperado"
+        }
     }
 }
 

@@ -1,10 +1,5 @@
 import UIKit
 
-enum LuaPasswordRecoveryError: Error {
-    case invalidEmail
-    case noInternetConnection
-}
-
 class LuaResetPasswordViewController: UIViewController {
     
     @IBOutlet weak var emailTextField: UITextField!
@@ -16,7 +11,7 @@ class LuaResetPasswordViewController: UIViewController {
     @IBOutlet weak var passwordRecoverySuccessView: UIView!
     @IBOutlet weak var emailLabel: UILabel!
     
-    var emaiInputed: String {
+    var emailInputted: String {
         get {
             guard let emailInput = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
                 return ""
@@ -24,10 +19,14 @@ class LuaResetPasswordViewController: UIViewController {
             return emailInput
         }
     }
+    
     var hasRequestedRecovery = false
+    
+    let viewModel = LuaResetPasswordViewModelFabric.makeLuaResetPasswordViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupView()
     }
     
@@ -49,68 +48,32 @@ class LuaResetPasswordViewController: UIViewController {
             return
         }
         do {
-            try validatePasswordRecovery()
-            let parametersForRecoverPassword = makePasswordResetParams()
-            sendPasswordResetRequest(parameters: parametersForRecoverPassword)
+            try validateEmailFormat()
+            resquestPasswordReset()
+            self.displayPasswordResetSuccessUI()
             self.view.endEditing(true)
-        } catch let error {
-            showPasswordRecoveryError(error: error as! LuaPasswordRecoveryError)
-            return
+        } catch {
+            displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: LuaUserAccountError.invalidEmail.localizedDescription)
         }
     }
     
-    func showPasswordRecoveryError(error: LuaPasswordRecoveryError) {
-        switch error {
-        case LuaPasswordRecoveryError.invalidEmail:
-            showFormError(textField: emailTextField, label: emailErrorLabel, errorText: "Verifique o e-mail informado")
-        case LuaPasswordRecoveryError.noInternetConnection:
-            Globals.showNoInternetCOnnection(controller: self)
+    func resquestPasswordReset() {
+        viewModel.startPasswordResetRequest(targetViewController: self, emailInputted: emailInputted)
+    }
+    
+    func validateEmailFormat() throws {
+        guard viewModel.validateEmailFormat(inputedEmail: emailInputted) else {
+            throw LuaUserAccountError.invalidEmail
         }
     }
     
-    func validatePasswordRecovery() throws {
-        guard validateEmailForm() else {
-            throw LuaPasswordRecoveryError.invalidEmail
-        }
-        guard ConnectivityManager.shared.isConnected else {
-            throw LuaPasswordRecoveryError.noInternetConnection
-        }
-    }
-    
-    func makePasswordResetParams() -> [String : String] {
-        let passwordResetParameters = [
-            "email": emaiInputed
-        ]
-        return passwordResetParameters
-    }
-    
-    func sendPasswordResetRequest(parameters: [String : String]) {
-        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-            if success {
-                self.showPasswordResetSuccessUI()
-                return
-            }
-            self.showPasswordResetErrorAlert()
-        }
-    }
-    
-    func showPasswordResetSuccessUI() {
+    func displayPasswordResetSuccessUI() {
         self.hasRequestedRecovery = true
         self.emailTextField.isHidden = true
         self.emailErrorLabel.isHidden = true
         self.passwordRecoverySuccessView.isHidden = false
-        self.emailLabel.text = emaiInputed
+        self.emailLabel.text = emailInputted
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
-    }
-    
-    func showPasswordResetErrorAlert() {
-        let alertController = UIAlertController(
-            title: "Ops..",
-            message: "Algo de errado aconteceu. Tente novamente mais tarde.",
-            preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default)
-        alertController.addAction(action)
-        self.present(alertController, animated: true)
     }
     
     @IBAction func onLoginButtonTapped(_ sender: Any) {
@@ -138,23 +101,7 @@ class LuaResetPasswordViewController: UIViewController {
         present(LuaCreateAccountViewController, animated: true)
     }
     
-    
-    func validateEmailForm() -> Bool {
-        let isEmailFormatValid = validateEmailFormat()
-        if isEmailFormatValid {
-            return true
-        }
-        return false
-    }
-    
-    func validateEmailFormat() -> Bool {
-        let isEmailFormatValid = emaiInputed.contains(".") &&
-        emaiInputed.contains("@") &&
-        emaiInputed.count > 5
-        return isEmailFormatValid
-    }
-    
-    func showFormError(textField: UITextField, label: UILabel, errorText: String) {
+    func displayFormError(textField: UITextField, label: UILabel, errorText: String) {
         textField.setErrorColor()
         label.textColor = .red
         label.text = errorText
@@ -221,20 +168,37 @@ extension LuaResetPasswordViewController {
 extension LuaResetPasswordViewController {
     
     func validateExistingEmailInput(){
-        if !emaiInputed.isEmpty {
-            emailTextField.text = emaiInputed
+        if !emailInputted.isEmpty {
+            emailTextField.text = emailInputted
             emailTextField.isEnabled = false
         }
     }
     
     func updatePasswordRecoveryButtonState() {
-        let isEnabled = !emaiInputed.isEmpty
-        recoverPasswordButton.setTitleColor(.white, for: .normal)
+        let isEnabled = !emailInputted.isEmpty
         updatePasswordRecoverButtonStatus(newStatus: isEnabled)
     }
     
     func updatePasswordRecoverButtonStatus(newStatus: Bool) {
         recoverPasswordButton.backgroundColor = newStatus ? .blue : .gray
+        recoverPasswordButton.setTitleColor(newStatus ? .white: .blue, for: .normal)
         recoverPasswordButton.isEnabled = newStatus
     }
 }
+
+class Coordinator {
+    
+
+    let navigationController: UINavigationController
+    let viewStack: [UIViewController] = []
+    
+    init(navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
+   
+    func push() {
+        
+//        navigationController.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+    }
+}
+

@@ -71,7 +71,7 @@ class LuzResetPasswordViewController: UIViewController {
     }
     
     @IBAction func helpButton(_ sender: Any) {
-        let vc = LuzContactUsViewController()
+        let vc = LuzContactUsFactory.make()
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .coverVertical
         self.present(vc, animated: true, completion: nil)

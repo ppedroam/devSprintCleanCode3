@@ -7,7 +7,13 @@
 
 import UIKit
 
-final class LuaResetPasswordViewModel {
+protocol LuaResetPasswordViewModelProtocol {
+    func validateEmailFormat(inputedEmail: String) -> Bool
+    func presentLuaContactUSViewController(viewController: UIViewController)
+    func presentLuaCreateAccountViewController(viewController: UIViewController)
+}
+
+final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
     
     private let alertHandler: LuaAlertErrorHandlerProtocol
     private var luaBasicCoordinator: LuaCoordinatorProtocol // need to refactor
@@ -20,7 +26,7 @@ final class LuaResetPasswordViewModel {
     func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void) {
         do {
             try validateConnectivity(emailInputted: emailInputted)
-           
+            
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
             sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
             completion(true)
@@ -55,7 +61,7 @@ final class LuaResetPasswordViewModel {
         }
     }
     
-     func validateEmailFormat(inputedEmail: String) -> Bool {
+    func validateEmailFormat(inputedEmail: String) -> Bool {
         let isEmailFormatValid = inputedEmail.contains(".") &&
         inputedEmail.contains("@") &&
         inputedEmail.count > 5

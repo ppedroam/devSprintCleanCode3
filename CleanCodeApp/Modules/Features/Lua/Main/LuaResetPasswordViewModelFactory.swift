@@ -6,7 +6,7 @@
 //
 
 public struct LuaResetPasswordViewModelFactory {
-    static func makeLuaResetPasswordViewModel() -> LuaResetPasswordViewModel {
+    static func makeLuaResetPasswordViewModel() -> LuaResetPasswordViewModelProtocol {
         let alertErrorHandler = LuaAlertErrorHandlerFactory.makeAlertErrorHandle()
         let coordinator = LuaBasicCoordinatorFactory.makeBasicCoordinator()
         return LuaResetPasswordViewModel(alertHandler: alertErrorHandler, luaBasicCoordinator: coordinator)

@@ -14,6 +14,9 @@ final class RumContactUsViewController: LoadingInheritageController {
     // MARK: - UI Components
     private lazy var contactUsView = RumContactUsView()
     
+    // MARK: - Services
+    private let contactUsService = RumContactUsAPIService()
+    
     // MARK: - Lifecycle
     override func loadView() {
         view = contactUsView
@@ -65,26 +68,15 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     func fetchData() {
         showLoadingView()
-        let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            self.removeLoadingView()
+        contactUsService.fetchContactUsData { [weak self] result in
+            self?.removeLoadingView()
             switch result {
-            case .success(let data):
-                self.decodeData(data)
+            case .success(let model):
+                self?.model = model
             case .failure(let error):
                 print("error api: \(error.localizedDescription)")
-                self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
+                self?.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
             }
-        }
-    }
-    
-    private func decodeData(_ data: Data) {
-        do {
-            let decoder = JSONDecoder()
-            let returned = try decoder.decode(ContactUsModel.self, from: data)
-            self.model = returned
-        } catch {
-            self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
     
@@ -102,14 +94,13 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     private func sendMessage(parameters: [String: String]) {
         showLoadingView()
-        let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-            self.removeLoadingView()
+        contactUsService.sendMessage(parameters: parameters) { [weak self] result in
+            self?.removeLoadingView()
             switch result {
             case .success:
-                self.handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
+                self?.handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
             case .failure:
-                self.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
+                self?.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
             }
         }
     }

@@ -11,6 +11,7 @@ protocol LuaResetPasswordViewModelProtocol {
     func validateEmailFormat(inputedEmail: String) -> Bool
     func presentLuaContactUSViewController(viewController: UIViewController)
     func presentLuaCreateAccountViewController(viewController: UIViewController)
+    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void)
 }
 
 final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {

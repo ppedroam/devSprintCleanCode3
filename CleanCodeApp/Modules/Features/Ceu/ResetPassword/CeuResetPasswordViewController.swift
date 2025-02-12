@@ -8,14 +8,14 @@ class CeuResetPasswordViewController: UIViewController {
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
 
-    @IBOutlet weak var textLabel: UILabel!
-    @IBOutlet weak var viewSuccess: UIView!
-    @IBOutlet weak var emailLabel: UILabel!
+    @IBOutlet weak var verifyEmailLabel: UILabel!
+    @IBOutlet weak var recoveryPasswordSuccessView: UIView!
+    @IBOutlet weak var emailErrorLabel: UILabel!
 
     var email = ""
-    var recoveryEmail = false
-    var viewModel: CeuResetPasswordViewModel?
-    var coordinator: CeuResetPasswordCoordinator?
+    var isEmailRecovered = false
+    var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
+    var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,10 +33,10 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        if recoveryEmail {
+        if isEmailRecovered {
             dismiss(animated: true)
         } else {
-            viewModel?.startRecoverPassword()
+            ceuResetPasswordViewModel?.startRecoverPassword()
         }
     }
 
@@ -45,41 +45,48 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        coordinator?.setupContactUsViewController()
+        ceuResetPasswordCoordinator?.setupContactUsViewController()
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        coordinator?.setupCreateAccountViewController()
+        ceuResetPasswordCoordinator?.setupCreateAccountViewController()
     }
 
     // MARK: - Reset Password Request functions
     func handleResetPasswordRequestSuccess() {
-        self.recoveryEmail = true
+        self.isEmailRecovered = true
         self.emailTextfield.isHidden = true
-        self.textLabel.isHidden = true
-        self.viewSuccess.isHidden = false
-        self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
+        self.verifyEmailLabel.isHidden = true
+        self.recoveryPasswordSuccessView.isHidden = false
+        self.emailErrorLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
         self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
     func handleResetPasswordRequestError() {
-        coordinator?.showAlert()
+        ceuResetPasswordCoordinator?.showAlert()
     }
 
     func validateForm() throws {
-        guard let status = viewModel?.setupStatusFor(email: emailTextfield.text) else {
-            throw CeuCommonsErrors.invalidEmail
-        }
-
-        if status {
-            emailTextfield.setErrorColor()
-            textLabel.textColor = .red
-            textLabel.text = "Verifique o e-mail informado"
+        guard let isEmailInvalid = ceuResetPasswordViewModel?.verifyEmailValidation(email: emailTextfield.text) else {
             throw CeuCommonsErrors.invalidEmail
         }
 
         self.view.endEditing(true)
+//        guard isEmailValid else {
+//            emailTextfield.setErrorColor()
+//            verifyEmailLabel.textColor = .red
+//            verifyEmailLabel.text = "Verifique o e-mail informado"
+//            throw CeuCommonsErrors.invalidEmail
+//        }
+        if isEmailInvalid {
+            emailTextfield.setErrorColor()
+            verifyEmailLabel.textColor = .red
+            verifyEmailLabel.text = "Verifique o e-mail informado"
+            throw CeuCommonsErrors.invalidEmail
+        }
+        self.view.endEditing(true)
+
     }
 }
 
@@ -94,12 +101,12 @@ extension CeuResetPasswordViewController {
         setupCreateAccountButton()
         setupEmailTextfield()
 
-        validateButton()
+        changeEmailTextfieldState()
     }
 
     func configureSupportClasses() {
-        self.viewModel = CeuResetPasswordViewModel(viewController: self)
-        self.coordinator = CeuResetPasswordCoordinator(viewController: self)
+        self.ceuResetPasswordViewModel = CeuResetPasswordViewModel(viewController: self)
+        self.ceuResetPasswordCoordinator = CeuResetPasswordCoordinator(viewController: self)
     }
 
     private func setupRecoverPasswordButton() {
@@ -135,7 +142,8 @@ extension CeuResetPasswordViewController {
     private func setupEmailTextfield() {
         emailTextfield.setDefaultColor()
 
-        if !email.isEmpty {
+        let emailTextExists = !email.isEmpty
+        if emailTextExists {
             emailTextfield.text = email
             emailTextfield.isEnabled = false
         }
@@ -148,15 +156,16 @@ extension CeuResetPasswordViewController {
 
     @IBAction func emailEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
-        validateButton()
+        changeEmailTextfieldState()
     }
 
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextfield.setDefaultColor()
     }
 
-    func validateButton() {
-        if emailTextfield.text!.isEmpty {
+    func changeEmailTextfieldState() {
+        let emailTextfieldIsEmpty = emailTextfield.text!.isEmpty
+        if emailTextfieldIsEmpty {
             return createButtonIs(enable: false)
         }
         return createButtonIs(enable: true)

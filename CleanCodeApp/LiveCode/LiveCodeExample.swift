@@ -40,7 +40,7 @@ class GameViewController: UIViewController {
         let htmlConfig = rHtmlConfig?.last as? HtmlConfig
         let js = htmlConfig?.jsContent ?? ""
         let css = htmlConfig?.cssContent ?? ""
-        let body = RuntimeRoutine().runMustache(content: content)
+        let body = RuntimeRoutine.shared.runMustache(content: content)
         let htmlFinal = Globals.buildHtml(html: body, css: css, js: js)
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)

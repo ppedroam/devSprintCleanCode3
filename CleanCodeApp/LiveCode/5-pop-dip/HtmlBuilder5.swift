@@ -31,7 +31,7 @@ private extension HtmlBuilder5 {
               let css = htmlConfig.cssContent else {
             throw CommonsErros.invalidData
         }
-        let body = RuntimeRoutine().runMustache(content: content)
+        let body = RuntimeRoutine.shared.runMustache(content: content)
         let htmlFinal = Globals.buildHtml(html: body, css: css, js: js)
         return htmlFinal
     }

@@ -1,16 +1,16 @@
 //
-//  GameViewController5.swift
+//  GameViewController6.swift
 //  CleanCode
 //
-//  Created by Pedro Menezes on 11/02/25.
+//  Created by Pedro Menezes on 12/02/25.
 //
 
-import UIKit
 import WebKit
 
-enum GameFactory5 {
+enum GameFactory6 {
     static func make() -> UIViewController {
-        let htmlBuilder5 = HtmlBuilder5()
+        let runtimeRoutine = RuntimeRoutine6()
+        let htmlBuilder5 = HtmlBuilder6(runtimeRoutine: runtimeRoutine)
         let coordinator5 = GameCoordinator5()
         let analytics = MixpanelAnalytics()
         let webViewContent = WebViewContent(htmlContent: "")
@@ -19,18 +19,14 @@ enum GameFactory5 {
     }
 }
 
-struct GameDependencies {
-    let htmlBuilder: HtmlBuilderProtocol
-    var coordinator: GameCoordinatorProtocol
-    let analytics: Analytics
-}
-
-final class GameViewController5: UIViewController {
+//final class GameViewController6: ParentViewController {
+final class GameViewController6: UIViewController, AlertAvailable {
+    
     private let htmlBuilder: HtmlBuilderProtocol
     private var coordinator: GameCoordinatorProtocol
     private let analytics: Analytics
-//    private let dependencies: GameDependencies
     private let webViewContent: WebViewContent
+    private let uiapplication: UIApplicationProxy
     
     private let webView = WKWebView()
 
@@ -42,12 +38,18 @@ final class GameViewController5: UIViewController {
         return launchButton
     }()
     
-    init(htmlBuilder: HtmlBuilderProtocol = HtmlBuilder5(), coordinator: GameCoordinatorProtocol, analytics: Analytics, webViewContent: WebViewContent) {
-//    init(dependencies: GameDependencies, webViewContent: WebViewContent) {
+    init(
+        htmlBuilder: HtmlBuilderProtocol = HtmlBuilder5(),
+        coordinator: GameCoordinatorProtocol,
+        analytics: Analytics,
+        webViewContent: WebViewContent,
+        uiApplication: UIApplicationProxy = UIApplication.shared
+    ) {
         self.htmlBuilder = htmlBuilder
         self.coordinator = coordinator
         self.analytics = analytics
         self.webViewContent = webViewContent
+        self.uiapplication = uiApplication
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -58,7 +60,7 @@ final class GameViewController5: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
-        setupGoToLaunchingsButton()
+        setupView()
         fillWebViewContent()
     }
     
@@ -67,14 +69,34 @@ final class GameViewController5: UIViewController {
         webView.frame = view.frame
         view.addSubview(webView)
     }
+    
+
+}
+
+extension GameViewController6: SetupView {
+    func addSubviews() {
+        view.addSubview(goToLauchingsButton)
+    }
+    
+    func setupConstraints() {
+        NSLayoutConstraint.activate([
+            goToLauchingsButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            goToLauchingsButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        ])
+    }
 }
 
 // MARK: Setup Layout
 
-private extension GameViewController5 {
+private extension GameViewController6 {
     @objc
     func openFAQ() {
-        coordinator.openFaqScreen()
+        guard let url = URL(string: "www.faqcleancode.com") else {
+            return
+        }
+        Task.init {
+            await uiapplication.open(url)
+        }
     }
     
     @objc func openLastLaunchingsScreen() {
@@ -90,20 +112,27 @@ private extension GameViewController5 {
         )
     }
     
-    func setupGoToLaunchingsButton() {
-        view.addSubview(goToLauchingsButton)
-        NSLayoutConstraint.activate([
-            goToLauchingsButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            goToLauchingsButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        ])
-    }
-    
     func fillWebViewContent() {
         do {
             let deviceUrls = try htmlBuilder.createWebViewUrls(content: webViewContent)
             webView.loadFileURL(deviceUrls.htmlURL, allowingReadAccessTo: deviceUrls.pathURL.absoluteURL)
         } catch {
-            Globals.showAlertMessage(title: "Oops...", message: "Tente novamente mais tarde", targetVC: self)
+            showAlert(title: "Oops...", message: "Tente novamente mais tarde", actionTitle: "Ok") {
+                self.dismiss(animated: true)
+            }
+//            Globals.showAlertMessage(title: "Oops...", message: "Tente novamente mais tarde", targetVC: self)
         }
     }
 }
+
+protocol UIApplicationProxy {
+    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any]) async -> Bool
+}
+
+extension UIApplicationProxy {
+    func open(_ url: URL) async -> Bool {
+        await open(url, options: [:])
+    }
+}
+
+extension UIApplication: UIApplicationProxy {}

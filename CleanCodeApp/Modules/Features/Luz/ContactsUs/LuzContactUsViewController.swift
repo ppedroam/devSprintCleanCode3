@@ -1,8 +1,8 @@
 import UIKit
 
 final class LuzContactUsViewController: LoadingInheritageController {
-    var model: ContactUsModel?
-    let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36)
+    private var model: ContactUsModel?
+    private let symbolConfiguration: UIImage.SymbolConfiguration
 
     // MARK: - TextView
     private lazy var textView: UITextView = {
@@ -114,6 +114,19 @@ final class LuzContactUsViewController: LoadingInheritageController {
         return button
     }()
 
+    init(
+        model: ContactUsModel?,
+        symbolConfiguration: UIImage.SymbolConfiguration
+    ) {
+        self.model = model
+        self.symbolConfiguration = symbolConfiguration
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -208,23 +221,6 @@ final class LuzContactUsViewController: LoadingInheritageController {
         }
     }
 
-    // MARK: - Handlers
-    private func handleSuccess(data: Data) {
-        return if let returned = try? JSONDecoder().decode(
-            ContactUsModel.self,
-            from: data
-        ) {
-            self.model = returned
-        } else {
-            showAlertError()
-        }
-    }
-
-    private func handleError(_ error: Error) {
-        print("error api: \(error.localizedDescription)")
-        showAlertError()
-    }
-
     @objc
     func send() {
         view.endEditing(true)
@@ -289,6 +285,23 @@ final class LuzContactUsViewController: LoadingInheritageController {
         ) {
             self.dismiss(animated: true)
         }
+    }
+
+    // MARK: - Handlers
+    private func handleSuccess(data: Data) {
+        return if let returned = try? JSONDecoder().decode(
+            ContactUsModel.self,
+            from: data
+        ) {
+            self.model = returned
+        } else {
+            showAlertError()
+        }
+    }
+
+    private func handleError(_ error: Error) {
+        print("error api: \(error.localizedDescription)")
+        showAlertError()
     }
 }
 

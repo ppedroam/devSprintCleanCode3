@@ -11,7 +11,7 @@ public protocol LuaAlertErrorHandlerProtocol {
     func handle(error: Error, from viewController: UIViewController, alertTitle: String?)
 }
 
-final class LuaAlertErrorHandler: LuaAlertErrorHandlerProtocol {
+extension LuaAlertErrorHandlerProtocol {
     public func handle(error: Error, from viewController: UIViewController, alertTitle: String?) {
         let alertController = UIAlertController(title: alertTitle, message: error.localizedDescription, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default)

@@ -9,21 +9,11 @@ import UIKit
 
 protocol LuaResetPasswordViewModelProtocol {
     func validateEmailFormat(inputedEmail: String) -> Bool
-    func presentLuaContactUSViewController(viewController: UIViewController)
-    func presentLuaCreateAccountViewController(viewController: UIViewController)
     func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void)
 }
 
-final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
-    
-    private let alertHandler: LuaAlertErrorHandlerProtocol
-    private var luaBasicCoordinator: LuaCoordinatorProtocol // need to refactor
-    
-    init(alertHandler: LuaAlertErrorHandlerProtocol, luaBasicCoordinator: LuaCoordinatorProtocol) {
-        self.alertHandler = alertHandler
-        self.luaBasicCoordinator = luaBasicCoordinator
-    }
-    
+final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol, LuaAlertErrorHandlerProtocol {
+
     func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void) {
         do {
             try validateConnectivity(emailInputted: emailInputted)
@@ -31,11 +21,11 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
             sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
             completion(true)
-        } catch let error as LuaConnectivityError {
-            alertHandler.handle(error: error, from: targetViewController, alertTitle: error.errorTitle)
+        } catch let error as LuaNetworkError {
+            handle(error: error, from: targetViewController, alertTitle: error.errorTitle)
             completion(false)
         } catch {
-            alertHandler.handle(error: error, from: targetViewController, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            handle(error: error, from: targetViewController, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
             completion(false)
         }
     }
@@ -58,7 +48,7 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
     
     private func validateConnectivity(emailInputted: String) throws {
         guard ConnectivityManager.shared.isConnected else {
-            throw LuaConnectivityError.noInternetConnection
+            throw LuaNetworkError.noInternetConnection
         }
     }
     
@@ -67,16 +57,6 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         inputedEmail.contains("@") &&
         inputedEmail.count > 5
         return isEmailFormatValid
-    }
-    
-    func presentLuaContactUSViewController(viewController: UIViewController) {
-        luaBasicCoordinator.viewController = viewController
-        luaBasicCoordinator.openLuaContactUsScreen()
-    }
-    
-    func presentLuaCreateAccountViewController(viewController: UIViewController) {
-        luaBasicCoordinator.viewController = viewController
-        luaBasicCoordinator.openLuaCreateAccountScreen()
     }
 }
 

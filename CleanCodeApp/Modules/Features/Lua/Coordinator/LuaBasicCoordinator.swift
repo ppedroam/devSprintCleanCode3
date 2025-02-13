@@ -17,20 +17,13 @@ final class LuaBasicCoordinator: LuaCoordinatorProtocol {
 
     weak var viewController: UIViewController?
     
-    init(viewController: UIViewController? = nil) {
-        self.viewController = viewController
-    }
-    
     func openLuaContactUsScreen() {
         let luaContactUsViewController = LuaContactUsViewControllerFactory.makeLuaContactUsViewController()
-        luaContactUsViewController.modalPresentationStyle = .fullScreen
-        luaContactUsViewController.modalTransitionStyle = .coverVertical
         viewController?.present(luaContactUsViewController, animated: true, completion: nil)
     }
     
     func openLuaCreateAccountScreen() {
         let luaCreateAccountViewController = LuaCreateAccountViewControllerFactory.makeLuaCreateAccountViewController()
-        luaCreateAccountViewController.modalPresentationStyle = .fullScreen
         viewController?.present(luaCreateAccountViewController, animated: true)
     }
 }

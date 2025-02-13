@@ -13,10 +13,21 @@ enum LuaNetworkError: Error {
     case invalidURL
     case invalidStatusCode
     case networkError
+    case noInternetConnection
 }
 
 extension LuaNetworkError: LocalizedError {
-
+    
+    
+    var errorTitle: String? {
+        switch self {
+        case .noInternetConnection:
+            return "Sem Conexão com a Internet."
+        default:
+            return ""
+        }
+    }
+    
     var errorDescription: String? {
         switch self {
         case .decodeError:
@@ -29,6 +40,9 @@ extension LuaNetworkError: LocalizedError {
             return "Invalid status code"
         case .networkError:
             return "An error has occurred. Please verify your connection."
+        case .noInternetConnection:
+            return "Você não está conectado à internet. Verifique sua conexão e tente novamente."
         }
     }
+    
 }

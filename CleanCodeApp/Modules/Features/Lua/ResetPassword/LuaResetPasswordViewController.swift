@@ -22,7 +22,13 @@ final class LuaResetPasswordViewController: UIViewController {
     
     private var hasRequestedRecovery = false
     
-    private let viewModel = LuaResetPasswordViewModelFactory.makeLuaResetPasswordViewModel()
+    private var viewModel: LuaResetPasswordViewModelProtocol?
+    private var coordinator: LuaCoordinatorProtocol?
+    
+    func configure(viewModel: LuaResetPasswordViewModelProtocol, coordinator: LuaCoordinatorProtocol) {
+           self.viewModel = viewModel
+           self.coordinator = coordinator
+       }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +64,7 @@ final class LuaResetPasswordViewController: UIViewController {
     }
     
     private func resquestPasswordReset() {
-        viewModel.startPasswordResetRequest(targetViewController: self, emailInputted: emailInputted) { succes in
+        viewModel!.startPasswordResetRequest(targetViewController: self, emailInputted: emailInputted) { succes in
             if succes {
                 self.displayPasswordResetSuccessUI()
             }
@@ -66,7 +72,7 @@ final class LuaResetPasswordViewController: UIViewController {
     }
     
     private func validateEmailFormat() throws {
-        guard viewModel.validateEmailFormat(inputedEmail: emailInputted) else {
+        guard viewModel!.validateEmailFormat(inputedEmail: emailInputted) else {
             throw LuaUserAccountError.invalidEmail
         }
     }
@@ -85,12 +91,12 @@ final class LuaResetPasswordViewController: UIViewController {
     }
     
     @IBAction func onHelpButtonTapped(_ sender: Any) {
-        viewModel.presentLuaContactUSViewController(viewController: self)
+        coordinator!.openLuaContactUsScreen()
     }
 
     
     @IBAction func onCreateAccountButtonTapped(_ sender: Any) {
-        viewModel.presentLuaCreateAccountViewController(viewController: self)
+        coordinator!.openLuaCreateAccountScreen()
     }
     
     private func displayFormError(textField: UITextField, label: UILabel, errorText: String) {
@@ -160,7 +166,8 @@ private extension LuaResetPasswordViewController {
 private extension LuaResetPasswordViewController {
     
     func validateExistingEmailInput(){
-        if !emailInputted.isEmpty {
+        let emailInputtedIsNotEmpty = !emailInputted.isEmpty
+        if emailInputtedIsNotEmpty {
             emailTextField.text = emailInputted
             emailTextField.isEnabled = false
         }

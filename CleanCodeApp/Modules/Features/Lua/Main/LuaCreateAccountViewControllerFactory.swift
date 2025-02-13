@@ -9,6 +9,8 @@ import UIKit
 
 public struct LuaCreateAccountViewControllerFactory {
     static func makeLuaCreateAccountViewController() -> UIViewController {
-        return LuaCreateAccountViewController()
+        let luaCreateAccountViewController = LuaCreateAccountViewController()
+        luaCreateAccountViewController.modalPresentationStyle = .fullScreen
+        return luaCreateAccountViewController
     }
 }

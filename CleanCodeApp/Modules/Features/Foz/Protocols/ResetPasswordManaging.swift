@@ -8,7 +8,7 @@
 
 protocol ResetPasswordManaging: AnyObject {
     var onPasswordResetSuccess: ((String) -> Void)? { get set }
-    var onPasswordResetFailure: (() -> Void)? { get set }
+    var onPasswordResetFailure: ((String) -> Void)? { get set }
     func performPasswordReset(withEmail email: String?)
-    func validateEmail(_ email: String?) -> Bool
+    func isEmailValid(_ email: String?) -> Bool
 }

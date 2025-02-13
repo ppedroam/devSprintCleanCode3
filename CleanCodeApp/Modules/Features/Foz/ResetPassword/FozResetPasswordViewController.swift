@@ -32,8 +32,12 @@ class FozResetPasswordViewController: UIViewController {
         viewModel.onPasswordResetSuccess = { [weak self] email in
             self?.handlePasswordResetSuccess(withEmail: email)
         }
-        viewModel.onPasswordResetFailure = { [weak self] in
-            self?.handlePasswordResetFailure()
+        viewModel.onPasswordResetFailure = { [weak self] errorMessage in guard let self = self else { return }
+            if errorMessage == "Sem conexão com a internet" {
+                Globals.showNoInternetCOnnection(controller: self)
+            } else {
+                Globals.alertMessage(title: "Ops…", message: errorMessage, targetVC: self)
+            }
         }
     }
 
@@ -47,44 +51,11 @@ class FozResetPasswordViewController: UIViewController {
 
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        if !didUserPressRecoverPasswordButton {
-            validateRecovering()
-        }
-        else {
-            dismiss(animated: true)
-        }
-
         view.endEditing(true)
+        viewModel?.performPasswordReset(withEmail: emailTextfield.text)
+
     }
 
-    private func validateRecovering(){
-        guard isFormValid() else {
-            return
-        }
-
-        checkUserConnection()
-
-        guard let email = emailTextfield.text?.trimmingCharacters(in: .whitespaces), !email.isEmpty else {
-            return
-        }
-
-        let parameters = ["email": email]
-        performPasswordReset(with: parameters, email: email)
-    }
-
-    private func checkUserConnection (){
-        guard ConnectivityManager.shared.isConnected else {
-            Globals.showNoInternetCOnnection(controller: self)
-            return
-        }
-    }
-
-    private func performPasswordReset(with parameters: [String: String], email: String) {
-        guard isFormValid() else { return }
-        checkUserConnection()
-        guard let email = emailTextfield.text?.trimmingCharacters(in: .whitespaces), !email.isEmpty else { return }
-        viewModel?.performPasswordReset(withEmail: email)
-    }
 
     private func handlePasswordResetSuccess(withEmail email: String) {
         didUserPressRecoverPasswordButton = true
@@ -119,7 +90,7 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     private func isFormValid() -> Bool {
-        if (viewModel?.validateEmail(didUserPutEmail)) != nil {
+        if (viewModel?.isEmailValid(didUserPutEmail)) != nil {
             return true
         }
         else {

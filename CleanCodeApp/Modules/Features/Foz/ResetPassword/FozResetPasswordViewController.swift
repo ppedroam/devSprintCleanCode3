@@ -12,15 +12,33 @@ class FozResetPasswordViewController: UIViewController {
     @IBOutlet weak var passwordRecoveredSuccessView: UIView!
     @IBOutlet weak var emailDisplayLabel: UILabel!
 
-    var didUserPutEmail: String = ""
-    var didUserPressRecoverPasswordButton: Bool = false
+    private var didUserPutEmail: String = ""
+    private var didUserPressRecoverPasswordButton: Bool = false
 
-    private let emailValidator: EmailValidating = EmailValidatorUseCase()
+    var viewModel: ResetPasswordManaging?
+    var coordinator: Coordinating?
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        guard let viewModel = viewModel else {
+            fatalError("ResetPasswordViewModel não injetada. Faça isso antes de carregar a VC")
+        }
+        setupBindings(with: viewModel)
         configureRecoverPasswordView()
+    }
+
+    private func setupBindings(with viewModel: ResetPasswordManaging) {
+        viewModel.onPasswordResetSuccess = { [weak self] email in
+            self?.handlePasswordResetSuccess(withEmail: email)
+        }
+        viewModel.onPasswordResetFailure = { [weak self] errorMessage in guard let self = self else { return }
+            if errorMessage == "Sem conexão com a internet" {
+                Globals.showNoInternetCOnnection(controller: self)
+            } else {
+                Globals.alertMessage(title: "Ops…", message: errorMessage, targetVC: self)
+            }
+        }
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -33,46 +51,11 @@ class FozResetPasswordViewController: UIViewController {
 
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        if !didUserPressRecoverPasswordButton {
-            validateRecovering()
-        }
-        else {
-            dismiss(animated: true)
-        }
-
         view.endEditing(true)
+        viewModel?.performPasswordReset(withEmail: emailTextfield.text)
+
     }
 
-    private func validateRecovering(){
-        guard validateForm() else {
-            return
-        }
-
-        checkUserConnection()
-
-        guard let email = emailTextfield.text?.trimmingCharacters(in: .whitespaces), !email.isEmpty else {
-            return
-        }
-
-        let parameters = ["email": email]
-        performPasswordReset(with: parameters, email: email)
-    }
-
-    private func checkUserConnection (){
-        guard ConnectivityManager.shared.isConnected else {
-            Globals.showNoInternetCOnnection(controller: self)
-            return
-        }
-    }
-
-    private func performPasswordReset(with parameters: [String: String], email: String) {
-        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { [weak self] success in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                success ? self.handlePasswordResetSuccess(withEmail: email) : self.handlePasswordResetFailure()
-            }
-        }
-    }
 
     private func handlePasswordResetSuccess(withEmail email: String) {
         didUserPressRecoverPasswordButton = true
@@ -99,33 +82,24 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        let vc = FozContactUsViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        self.present(vc, animated: true, completion: nil)
+        coordinator?.showContactUs()
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        let newVc = FozCreateAccountViewController()
-        newVc.modalPresentationStyle = .fullScreen
-        present(newVc, animated: true)
+        coordinator?.showCreateAccount()
     }
 
-    func validateForm() -> Bool {
-        let isEmailValid = emailValidator.isValid(emailTextfield.text)
-
-        if isEmailValid {
+    private func isFormValid() -> Bool {
+        if (viewModel?.isEmailValid(didUserPutEmail)) != nil {
             return true
         }
-
         else {
-            setupErrorMessage()
+            displayErrorMessage()
             return false
         }
-
     }
 
-    private func setupErrorMessage(){
+    private func displayErrorMessage(){
         emailTextfield.setErrorColor()
         verifyUserEmailLabel.textColor = .red
         verifyUserEmailLabel.text = "Verifique o e-mail informado"

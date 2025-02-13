@@ -1,13 +1,17 @@
 //
-//  HtmlBuilder.swift
+//  HtmlBuilder5.swift
 //  CleanCode
 //
-//  Created by Pedro Menezes on 10/02/25.
+//  Created by Pedro Menezes on 11/02/25.
 //
 
 import Foundation
 
-struct HtmlBuilder4 {
+protocol HtmlBuilderProtocol {
+    func createWebViewUrls(content: WebViewContent) throws -> DeviceUrls
+}
+
+struct HtmlBuilder5: HtmlBuilderProtocol {
     private let realmManager = RealmManager()
 
     func createWebViewUrls(content: WebViewContent) throws -> DeviceUrls {
@@ -19,7 +23,7 @@ struct HtmlBuilder4 {
     }
 }
 
-private extension HtmlBuilder4 {
+private extension HtmlBuilder5 {
     func configureHtmlAppearence(content: WebViewContent) throws -> String {
         guard let rHtmlConfig = realmManager.getObjects(HtmlConfig.self),
               let htmlConfig = rHtmlConfig.last as? HtmlConfig,
@@ -48,3 +52,4 @@ private extension HtmlBuilder4 {
         return deviceUrls
     }
 }
+

@@ -290,65 +290,6 @@ final class LuzContactUsViewController: LoadingInheritageController {
             self.dismiss(animated: true)
         }
     }
-<<<<<<< HEAD
-}
-
-// MARK: - StackView's
-extension LuzContactUsViewController {
-    private func createContactButtonsStackView() -> UIStackView {
-        let stackView = UIStackView(
-            arrangedSubviews: [
-                phoneButton,
-                emailButton,
-                chatButton
-            ]
-        )
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .equalSpacing
-
-        [phoneButton, emailButton, chatButton].forEach { view in
-            view.widthAnchor.constraint(equalToConstant: 80).isActive = true
-            view.heightAnchor.constraint(equalToConstant: 80).isActive = true
-        }
-
-        return stackView
-    }
-
-    private func createMessageStackView() -> UIStackView {
-        let stackView = UIStackView(
-            arrangedSubviews: [
-                messageLabel,
-                textView
-            ]
-        )
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        return stackView
-    }
-
-    private func createCTAStackView() -> UIStackView {
-        let stackView = UIStackView(
-            arrangedSubviews: [
-                sendMessageButton,
-                closeButton
-            ]
-        )
-        stackView.axis = .vertical
-        stackView.spacing = 20
-
-        [sendMessageButton, closeButton].forEach { view in
-            view.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        }
-        return stackView
-    }
-
-}
-
-#Preview {
-    LuzContactUsViewController()
-=======
->>>>>>> upstream/main
 }
 
 // MARK: - StackView's

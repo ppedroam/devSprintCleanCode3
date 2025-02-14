@@ -7,11 +7,7 @@
 
 import UIKit
 struct CeuResetPasswordCoordinator {
-    private weak var viewController: UIViewController?
-
-    init(viewController: UIViewController) {
-        self.viewController = viewController
-    }
+    weak var viewController: UIViewController?
 
     func showContactUsViewController() {
         let ceuContactUsViewController = CeuContactUsViewController()

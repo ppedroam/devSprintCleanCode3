@@ -14,13 +14,12 @@ class CeuResetPasswordViewController: UIViewController {
 
     private var email = ""
     private var isEmailRecovered = false
-    private var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
-    private var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
+    var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
+    var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        configureSupportClasses()
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -94,11 +93,6 @@ private extension CeuResetPasswordViewController {
         setupEmailTextfield()
 
         changeEmailTextfieldState()
-    }
-
-    func configureSupportClasses() {
-        self.ceuResetPasswordViewModel = CeuResetPasswordViewModel(viewController: self)
-        self.ceuResetPasswordCoordinator = CeuResetPasswordCoordinator(viewController: self)
     }
 
     private func setupRecoverPasswordButton() {

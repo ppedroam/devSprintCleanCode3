@@ -7,11 +7,7 @@
 import UIKit
 
 class CeuResetPasswordViewModel {
-    private weak var viewController: CeuResetPasswordViewController?
-
-    init(viewController: CeuResetPasswordViewController) {
-        self.viewController = viewController
-    }
+    weak var viewController: CeuResetPasswordViewController?
 
     func startRecoverPassword() {
         guard let viewController = viewController else { return }

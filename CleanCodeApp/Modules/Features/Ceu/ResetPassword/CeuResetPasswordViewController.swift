@@ -157,8 +157,8 @@ extension CeuResetPasswordViewController {
     }
 
     func changeEmailTextfieldState() {
-        let emailTextfieldIsEmpty = emailTextfield.text!.isEmpty
-        return updateRecoverPasswordButtonState(toEnabled: emailTextfieldIsEmpty)
+        let emailTextfieldHasValue = !emailTextfield.text!.isEmpty
+        return updateRecoverPasswordButtonState(toEnabled: emailTextfieldHasValue)
     }
 
     func updateRecoverPasswordButtonState(toEnabled: Bool) {

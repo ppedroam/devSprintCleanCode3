@@ -44,7 +44,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     public lazy var successLabel: UILabel = {
         let label = UILabel()
         label.text = "Se o e-mail informado estiver cadastrado, você receberá em instantes um link de recuperação de senha. E-mail enviado para:"
-        label.font = UIFont(name: "SourceSansPro-Regular", size: 14)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .lightGray
         label.textAlignment = .center
         label.numberOfLines = 5
@@ -52,10 +52,10 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         return label
     }()
     
-    private lazy var emailSentLabel: UILabel = {
+    public lazy var emailSentLabel: UILabel = {
         let label = UILabel()
         label.text = "email@email.com"
-        label.font = UIFont(name: "SourceSansPro-Bold", size: 14)
+        label.font = .systemFont(ofSize: 14)
         label.textColor = .white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +65,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     public lazy var emailLabel: UILabel = {
         let label = UILabel()
         label.text = "Informe o e-mail associado à sua conta"
-        label.font = UIFont(name: "SourceSansPro-Regular", size: 12)
+        label.font = .systemFont(ofSize: 12)
         label.textColor = .lightGray
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         let textField = UITextField()
         textField.placeholder = "E-mail"
         textField.borderStyle = .roundedRect
-        textField.font = UIFont(name: "SourceSansPro-Regular", size: 12)
+        textField.font = .systemFont(ofSize: 12)
         textField.textColor = .black
         textField.setDefaultColor()
         textField.keyboardType = .emailAddress
@@ -88,7 +88,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     public lazy var passwordRecoveryButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("RECUPERAR SENHA", for: .normal)
-        button.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 15)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.backgroundColor = UIColor.defaultViolet
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 20
@@ -100,7 +100,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     private lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("LOGIN", for: .normal)
-        button.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 15)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.backgroundColor = .clear
         button.setTitleColor(UIColor.defaultViolet, for: .normal)
         button.backgroundColor = .white
@@ -114,7 +114,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     private lazy var helpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("PRECISO DE AJUDA", for: .normal)
-        button.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 15)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.backgroundColor = .clear
         button.setTitleColor(UIColor.defaultViolet, for: .normal)
         button.backgroundColor = .white
@@ -128,7 +128,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     private lazy var createAccountButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("CRIAR UMA CONTA", for: .normal)
-        button.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 15)
+        button.titleLabel?.font = .systemFont(ofSize: 15)
         button.backgroundColor = .clear
         button.setTitleColor( UIColor.defaultViolet, for: .normal)
         button.backgroundColor = .white
@@ -176,11 +176,11 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     }
     
     private func addSubviewsToContentView() {
-        [smokeImageView, passwordRecoverySuccessView, emailLabel, emailTextField,         passwordRecoveryButton, loginButton, helpButton, createAccountButton, closeButton].forEach {  contentView.addSubview($0) }
+        [smokeImageView, passwordRecoverySuccessView, emailLabel, emailTextField, passwordRecoveryButton, loginButton, helpButton, createAccountButton, closeButton].forEach {  contentView.addSubview($0) }
     }
     
     private func addSubviewsTosuccessView() {
-        [successLabel, emailSentLabel].forEach { passwordRecoverySuccessView.addSubview($0)  }
+        [successLabel, emailSentLabel].forEach { passwordRecoverySuccessView.addSubview($0) }
     }
     
     private func addConstraintsToUIComponents() {

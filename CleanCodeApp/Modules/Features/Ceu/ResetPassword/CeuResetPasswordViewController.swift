@@ -3,53 +3,27 @@ import UIKit
 class CeuResetPasswordViewController: UIViewController {
 
     @IBOutlet weak var emailTextfield: UITextField!
-    @IBOutlet weak var recoverPasswordButton: UIButton!
-    @IBOutlet weak var loginButton: UIButton!
-    @IBOutlet weak var helpButton: UIButton!
-    @IBOutlet weak var createAccountButton: UIButton!
+    @IBOutlet private weak var recoverPasswordButton: UIButton!
+    @IBOutlet private weak var loginButton: UIButton!
+    @IBOutlet private weak var helpButton: UIButton!
+    @IBOutlet private weak var createAccountButton: UIButton!
 
-    @IBOutlet weak var verifyEmailLabel: UILabel!
-    @IBOutlet weak var recoveryPasswordSuccessView: UIView!
-    @IBOutlet weak var emailErrorLabel: UILabel!
+    @IBOutlet private weak var verifyEmailLabel: UILabel!
+    @IBOutlet private weak var recoveryPasswordSuccessView: UIView!
+    @IBOutlet private weak var emailErrorLabel: UILabel!
 
-    var email = ""
-    var isEmailRecovered = false
+    private var email = ""
+    private var isEmailRecovered = false
     var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
     var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        configureSupportClasses()
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
-    }
-
-    // MARK: - IBAction functions
-    @IBAction func closeButtonAction(_ sender: Any) {
-        dismiss(animated: true)
-    }
-
-    @IBAction func recoverPasswordButton(_ sender: Any) {
-        if isEmailRecovered {
-            dismiss(animated: true)
-        } else {
-            ceuResetPasswordViewModel?.startRecoverPassword()
-        }
-    }
-
-    @IBAction func loginButton(_ sender: Any) {
-        dismiss(animated: true)
-    }
-
-    @IBAction func helpButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.showContactUsViewController()
-    }
-
-    @IBAction func createAccountButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.showCreateAccountViewController()
     }
 
     // MARK: - Reset Password Request functions
@@ -84,7 +58,31 @@ class CeuResetPasswordViewController: UIViewController {
 }
 
 // MARK: - Comportamentos de layout
-extension CeuResetPasswordViewController {
+private extension CeuResetPasswordViewController {
+    // MARK: - IBAction functions
+    @IBAction func closeButtonAction(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+    @IBAction func recoverPasswordButton(_ sender: Any) {
+        if isEmailRecovered {
+            dismiss(animated: true)
+        } else {
+            ceuResetPasswordViewModel?.startRecoverPassword()
+        }
+    }
+
+    @IBAction func loginButton(_ sender: Any) {
+        dismiss(animated: true)
+    }
+
+    @IBAction func helpButton(_ sender: Any) {
+        ceuResetPasswordCoordinator?.showContactUsViewController()
+    }
+
+    @IBAction func createAccountButton(_ sender: Any) {
+        ceuResetPasswordCoordinator?.showCreateAccountViewController()
+    }
 
     // MARK: - Setup Views
     func setupView() {
@@ -95,11 +93,6 @@ extension CeuResetPasswordViewController {
         setupEmailTextfield()
 
         changeEmailTextfieldState()
-    }
-
-    func configureSupportClasses() {
-        self.ceuResetPasswordViewModel = CeuResetPasswordViewModel(viewController: self)
-        self.ceuResetPasswordCoordinator = CeuResetPasswordCoordinator(viewController: self)
     }
 
     private func setupRecoverPasswordButton() {

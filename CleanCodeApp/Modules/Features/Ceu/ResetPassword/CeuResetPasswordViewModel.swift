@@ -9,10 +9,6 @@ import UIKit
 class CeuResetPasswordViewModel {
     weak var viewController: CeuResetPasswordViewController?
 
-    init(viewController: CeuResetPasswordViewController) {
-        self.viewController = viewController
-    }
-
     func startRecoverPassword() {
         guard let viewController = viewController else { return }
 
@@ -28,7 +24,9 @@ class CeuResetPasswordViewModel {
             showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
+}
 
+private extension CeuResetPasswordViewModel {
     func setupResetPasswordRequestParameters(email: String?) throws -> [String: String] {
         guard let email = email else { throw CeuCommonsErrors.invalidData }
 
@@ -63,3 +61,4 @@ class CeuResetPasswordViewModel {
         }
     }
 }
+

@@ -50,7 +50,7 @@ func getRootViewController(forUser user: Users) -> UIViewController {
     }
     let storyboard = UIStoryboard(name: "\(userIdentifier)User", bundle: nil)
     let vc = storyboard.instantiateViewController(withIdentifier: "\(userIdentifier)LoginViewController")
-    return vc
+    return LuaContactUsViewController()
 }
 
 enum Users {

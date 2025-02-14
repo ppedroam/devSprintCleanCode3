@@ -231,7 +231,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
             passwordRecoveryButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             passwordRecoveryButton.heightAnchor.constraint(equalToConstant: 48),
             
-            loginButton.topAnchor.constraint(equalTo:         passwordRecoveryButton.bottomAnchor, constant: 84),
+            loginButton.topAnchor.constraint(equalTo: passwordRecoveryButton.bottomAnchor, constant: 84),
             loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             loginButton.heightAnchor.constraint(equalToConstant: 48),
@@ -253,7 +253,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
             closeButton.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
-    
+    // MARK: - Target configuration
     public func configurePasswordRecoveryButton(target: Any, selector: Selector) {
         passwordRecoveryButton.addTarget(target, action: selector, for: .touchUpInside)
     }

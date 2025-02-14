@@ -8,23 +8,22 @@ import UIKit
 
 class CeuResetPasswordViewModel {
     weak var viewController: CeuResetPasswordViewController?
-    private let minimunCharactersQuantityForEmail = 5
 
     init(viewController: CeuResetPasswordViewController) {
         self.viewController = viewController
     }
 
-    func verifyEmailValidation(email: String?) -> Bool {
-        guard let email = email else { return false }
-        let emailIsEmpty = email.isEmpty
-        let emailDoestContainsDot = !email.contains(".")
-        let emailDoestContainsAtSymbol = !email.contains("@")
-        let emailDoesntHaveMinimunLength = email.count <= minimunCharactersQuantityForEmail
-
-        let isEmailInvalid = emailIsEmpty || emailDoestContainsDot || emailDoestContainsAtSymbol || emailDoesntHaveMinimunLength
-
-        return isEmailInvalid
-    }
+//    func verifyIfEmailIsValid(email: String?) -> Bool {
+//        guard let email = email else { return false }
+//        let emailHasValue = !email.isEmpty
+//        let emailContainsDot = email.contains(".")
+//        let emailContainsAtSymbol = email.contains("@")
+//        let emailHaveMinimunLength = email.count > minimunCharactersQuantityForEmail
+//
+//        let isEmailValid = emailHasValue || emailContainsDot || emailContainsAtSymbol || emailHaveMinimunLength
+//
+//        return isEmailValid
+//    }
 
     func startRecoverPassword() {
         guard let viewController = viewController else { return }

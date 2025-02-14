@@ -43,19 +43,18 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     func validateForm() throws {
-        guard let isEmailInvalid = ceuResetPasswordViewModel?.verifyEmailValidation(email: emailTextfield.text) else {
+        guard let isEmailValid = emailTextfield.text?.isEmailValid() else {
             throw CeuCommonsErrors.invalidEmail
         }
 
         self.view.endEditing(true)
 
-        if isEmailInvalid {
+        guard isEmailValid else {
             emailTextfield.setErrorColor()
             verifyEmailLabel.textColor = .red
             verifyEmailLabel.text = "Verifique o e-mail informado"
             throw CeuCommonsErrors.invalidEmail
         }
-        self.view.endEditing(true)
     }
 }
 
@@ -79,11 +78,11 @@ private extension CeuResetPasswordViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.setupContactUsViewController()
+        ceuResetPasswordCoordinator?.showContactUsViewController()
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.setupCreateAccountViewController()
+        ceuResetPasswordCoordinator?.showCreateAccountViewController()
     }
 
     // MARK: - Setup Views
@@ -157,17 +156,14 @@ private extension CeuResetPasswordViewController {
     }
 
     func changeEmailTextfieldState() {
-        let emailTextfieldIsEmpty = emailTextfield.text!.isEmpty
-        if emailTextfieldIsEmpty {
-            return createButtonIs(enable: false)
-        }
-        return createButtonIs(enable: true)
+        let emailTextfieldHasValue = !emailTextfield.text!.isEmpty
+        return updateRecoverPasswordButtonState(toEnabled: emailTextfieldHasValue)
     }
 
-    func createButtonIs(enable: Bool) {
-        recoverPasswordButton.backgroundColor = enable ? .blue : .gray
+    func updateRecoverPasswordButtonState(toEnabled: Bool) {
+        recoverPasswordButton.backgroundColor = toEnabled ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = enable
+        recoverPasswordButton.isEnabled = toEnabled
     }
 }
 

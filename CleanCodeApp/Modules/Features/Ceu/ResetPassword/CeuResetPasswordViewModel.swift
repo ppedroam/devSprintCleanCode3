@@ -8,7 +8,6 @@ import UIKit
 
 class CeuResetPasswordViewModel {
     private weak var viewController: CeuResetPasswordViewController?
-    private let minimunCharactersQuantityForEmail = 5
 
     init(viewController: CeuResetPasswordViewController) {
         self.viewController = viewController
@@ -29,19 +28,6 @@ class CeuResetPasswordViewModel {
             showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
-
-    func verifyEmailValidation(email: String?) -> Bool {
-        guard let email = email else { return false }
-        let emailIsEmpty = email.isEmpty
-        let emailDoestContainsDot = !email.contains(".")
-        let emailDoestContainsAtSymbol = !email.contains("@")
-        let emailDoesntHaveMinimunLength = email.count <= minimunCharactersQuantityForEmail
-
-        let isEmailInvalid = emailIsEmpty || emailDoestContainsDot || emailDoestContainsAtSymbol || emailDoesntHaveMinimunLength
-
-        return isEmailInvalid
-    }
-
 }
 
 private extension CeuResetPasswordViewModel {

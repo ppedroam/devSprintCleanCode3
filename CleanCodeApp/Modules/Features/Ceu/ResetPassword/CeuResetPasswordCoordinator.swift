@@ -13,17 +13,17 @@ struct CeuResetPasswordCoordinator {
         self.viewController = viewController
     }
 
-    func setupContactUsViewController() {
-        let viewController = CeuContactUsViewController()
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.modalTransitionStyle = .coverVertical
-        viewController.present(viewController, animated: true, completion: nil)
+    func showContactUsViewController() {
+        let ceuContactUsViewController = CeuContactUsViewController()
+        ceuContactUsViewController.modalPresentationStyle = .fullScreen
+        ceuContactUsViewController.modalTransitionStyle = .coverVertical
+        self.viewController?.present(ceuContactUsViewController, animated: true, completion: nil)
     }
 
-    func setupCreateAccountViewController() {
-        let viewController = CeuCreateAccountViewController()
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.present(viewController, animated: true)
+    func showCreateAccountViewController() {
+        let ceuCreateAccountViewController = CeuCreateAccountViewController()
+        ceuCreateAccountViewController.modalPresentationStyle = .fullScreen
+        self.viewController?.present(ceuCreateAccountViewController, animated: true)
     }
 
     func showAlert() {

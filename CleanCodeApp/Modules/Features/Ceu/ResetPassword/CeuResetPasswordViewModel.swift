@@ -13,17 +13,6 @@ class CeuResetPasswordViewModel {
         self.viewController = viewController
     }
 
-    func setupStatusFor(email: String?) -> Bool {
-        guard let email = email else { return false }
-        let emailIsEmpty = email.isEmpty
-        let status = emailIsEmpty ||
-        !email.contains(".") ||
-        !email.contains("@") ||
-        email.count <= 5
-
-        return status
-    }
-
     func startRecoverPassword() {
         guard let viewController = viewController else { return }
 

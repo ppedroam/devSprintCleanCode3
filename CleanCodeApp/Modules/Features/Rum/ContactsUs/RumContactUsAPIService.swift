@@ -13,16 +13,20 @@ final class RumContactUsAPIService {
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
             switch result {
             case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    let model = try decoder.decode(ContactUsModel.self, from: data)
-                    completion(.success(model))
-                } catch {
-                    completion(.failure(error))
-                }
+                self.decodeContactUsData(data, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
+        }
+    }
+    
+    private func decodeContactUsData(_ data: Data, completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
+        do {
+            let decoder = JSONDecoder()
+            let model = try decoder.decode(ContactUsModel.self, from: data)
+            completion(.success(model))
+        } catch {
+            completion(.failure(error))
         }
     }
     

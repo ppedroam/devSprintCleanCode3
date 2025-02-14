@@ -9,24 +9,20 @@ import UIKit
 
 protocol LuaResetPasswordViewModelProtocol {
     func validateEmailFormat(inputedEmail: String) -> Bool
-    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void)
+    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String) async throws
 }
 
-final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol, LuaAlertErrorHandlerProtocol {
+final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
 
-    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String, completion: @escaping (Bool) -> Void) {
+    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String) async throws {
         do {
             try validateConnectivity(emailInputted: emailInputted)
-            
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
             sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
-            completion(true)
-        } catch let error as LuaNetworkError {
-            handle(error: error, from: targetViewController, alertTitle: error.errorTitle)
-            completion(false)
+        } catch _ as LuaNetworkError {
+            throw LuaNetworkError.noInternetConnection
         } catch {
-            handle(error: error, from: targetViewController, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
-            completion(false)
+            throw LuaNetworkError.invalidStatusCode
         }
     }
     

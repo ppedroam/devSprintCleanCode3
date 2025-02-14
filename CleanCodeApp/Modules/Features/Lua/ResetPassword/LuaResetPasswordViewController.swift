@@ -1,6 +1,6 @@
 import UIKit
 
-final class LuaResetPasswordViewController: UIViewController {
+final class LuaResetPasswordViewController: UIViewController, LuaAlertErrorHandlerProtocol {
     
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var recoverPasswordButton: UIButton!
@@ -26,9 +26,9 @@ final class LuaResetPasswordViewController: UIViewController {
     private var coordinator: LuaCoordinatorProtocol?
     
     func configure(viewModel: LuaResetPasswordViewModelProtocol, coordinator: LuaCoordinatorProtocol) {
-           self.viewModel = viewModel
-           self.coordinator = coordinator
-       }
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,32 +45,36 @@ final class LuaResetPasswordViewController: UIViewController {
     }
     
     @IBAction func onPasswordRecoveryButtonTapped(_ sender: Any) {
-        startPasswordRecoveringProcess()
+        Task {
+            await startPasswordRecoveringProcess()
+        }
     }
     
-    private func startPasswordRecoveringProcess() {
+    private func startPasswordRecoveringProcess() async {
         if hasRequestedRecovery {
             dismiss(animated: true)
             return
         }
         do {
             try validateEmailFormat()
-            resquestPasswordReset()
-
+            await resquestPasswordReset()
             self.view.endEditing(true)
         } catch {
             displayFormError(textField: emailTextField, label: emailErrorLabel, errorText: LuaUserAccountError.invalidEmail.localizedDescription)
         }
     }
     
-    private func resquestPasswordReset() {
-        viewModel!.startPasswordResetRequest(targetViewController: self, emailInputted: emailInputted) { succes in
-            if succes {
-                self.displayPasswordResetSuccessUI()
-            }
+    private func resquestPasswordReset() async {
+        do {
+            try await viewModel!.startPasswordResetRequest(targetViewController: self, emailInputted: emailInputted)
+            displayPasswordResetSuccessUI()
+        } catch let error as LuaNetworkError  {
+            handle(error: error, from: self, alertTitle: error.errorTitle)
+        } catch {
+            handle(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
-    
+
     private func validateEmailFormat() throws {
         guard viewModel!.validateEmailFormat(inputedEmail: emailInputted) else {
             throw LuaUserAccountError.invalidEmail
@@ -93,7 +97,7 @@ final class LuaResetPasswordViewController: UIViewController {
     @IBAction func onHelpButtonTapped(_ sender: Any) {
         coordinator!.openLuaContactUsScreen()
     }
-
+    
     
     @IBAction func onCreateAccountButtonTapped(_ sender: Any) {
         coordinator!.openLuaCreateAccountScreen()
@@ -166,7 +170,7 @@ private extension LuaResetPasswordViewController {
 private extension LuaResetPasswordViewController {
     
     func validateExistingEmailInput(){
-        let emailInputtedIsNotEmpty = !emailInputted.isEmpty
+        let emailInputtedIsNotEmpty = emailInputted.isNotEmpty
         if emailInputtedIsNotEmpty {
             emailTextField.text = emailInputted
             emailTextField.isEnabled = false
@@ -174,7 +178,7 @@ private extension LuaResetPasswordViewController {
     }
     
     func updatePasswordRecoveryButtonState() {
-        let isEnabled = !emailInputted.isEmpty
+        let isEnabled = emailInputted.isNotEmpty
         updatePasswordRecoverButtonStatus(newStatus: isEnabled)
     }
     

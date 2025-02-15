@@ -7,8 +7,9 @@
 
 import UIKit
 
-final class LuaContactUsViewController: UIViewController, LuaAlertHandlerProtocol, LuaViewControllerProtocol {
+final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
     var model: ContactUsModel?
+   
     typealias ViewCode = LuaContactUsView
     internal let viewCode = LuaContactUsView()
 
@@ -25,7 +26,9 @@ final class LuaContactUsViewController: UIViewController, LuaAlertHandlerProtoco
 
     func pegarDados() {
         showLoading()
+        
         let url = Endpoints.contactUs
+        
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
             self.stopLoading()
             switch result {

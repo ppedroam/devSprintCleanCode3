@@ -1,6 +1,6 @@
 import UIKit
 
-protocol LuaContactUsViewProtocol {
+public protocol LuaContactUsViewProtocol {
     func configurePhoneButton(target: Any, selector: Selector)
     func configureEmailButton(target: Any, selector: Selector)
     func configureChatButton(target: Any, selector: Selector)
@@ -8,7 +8,7 @@ protocol LuaContactUsViewProtocol {
     func configureCloseButton(target: Any, selector: Selector)
 }
 
-class LuaContactUsView: UIView, LuaContactUsViewProtocol {
+final class LuaContactUsView: UIView, LuaContactUsViewProtocol {
     
     // MARK: - Lazy UI Components
     private lazy var scrollView: UIScrollView = {

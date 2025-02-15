@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LuaAppURLTarget {
+public enum LuaAppURLTarget {
     
     case phone(String)
     case mail(String)
@@ -28,7 +28,7 @@ enum LuaAppURLTarget {
     
     var fallBackURL: URL? {
         switch self {
-        case .whatsapp(let whatsappNumber):
+        case .whatsapp:
             return URL(string:"https://apps.apple.com/app/whatsapp-messenger/id310633997")
         default:
             return nil

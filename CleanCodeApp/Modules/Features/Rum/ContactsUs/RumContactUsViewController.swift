@@ -68,15 +68,20 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     func fetchData() {
         showLoadingView()
-        contactUsService.fetchContactUsData { [weak self] result in
-            self?.removeLoadingView()
-            switch result {
-            case .success(let model):
-                self?.model = model
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                self?.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
-            }
+        Task {
+            let result = await contactUsService.fetchContactUsData()
+            handleFetchResult(result)
+        }
+    }
+
+    private func handleFetchResult(_ result: Result<ContactUsModel, Error>) {
+        removeLoadingView()
+        switch result {
+        case .success(let model):
+            self.model = model
+        case .failure(let error):
+            print("Error fetching data: \(error.localizedDescription)")
+            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
     
@@ -94,14 +99,19 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     private func sendMessage(parameters: [String: String]) {
         showLoadingView()
-        contactUsService.sendMessage(parameters: parameters) { [weak self] result in
-            self?.removeLoadingView()
-            switch result {
-            case .success:
-                self?.handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
-            case .failure:
-                self?.handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
-            }
+        Task {
+            let result = await contactUsService.sendMessage(parameters: parameters)
+            handleSendMessageResult(result)
+        }
+    }
+    
+    private func handleSendMessageResult(_ result: Result<Void, Error>) {
+        removeLoadingView()
+        switch result {
+        case .success:
+            handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
+        case .failure:
+            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
         }
     }
     

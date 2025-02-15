@@ -8,36 +8,41 @@
 import Foundation
 
 final class RumContactUsAPIService {
-    func fetchContactUsData(completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
+    func fetchContactUsData() async -> Result<ContactUsModel, Error> {
         let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            switch result {
-            case .success(let data):
-                self.decodeContactUsData(data, completion: completion)
-            case .failure(let error):
-                completion(.failure(error))
+        return await withCheckedContinuation { continuation in
+            AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] response in
+                guard let self = self else { return }
+                switch response {
+                case .success(let data):
+                    continuation.resume(returning: self.decodeContactUsData(data))
+                case .failure(let error):
+                    continuation.resume(returning: .failure(error))
+                }
             }
         }
     }
     
-    private func decodeContactUsData(_ data: Data, completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
+    private func decodeContactUsData(_ data: Data) -> Result<ContactUsModel, Error> {
         do {
             let decoder = JSONDecoder()
             let model = try decoder.decode(ContactUsModel.self, from: data)
-            completion(.success(model))
+            return .success(model)
         } catch {
-            completion(.failure(error))
+            return .failure(error)
         }
     }
     
-    func sendMessage(parameters: [String: String], completion: @escaping (Result<Void, Error>) -> Void) {
+    func sendMessage(parameters: [String: String]) async -> Result<Void, Error> {
         let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-            switch result {
-            case .success:
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
+        return await withCheckedContinuation { continuation in
+            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { response in
+                switch response {
+                case .success:
+                    continuation.resume(returning: .success(()))
+                case .failure(let error):
+                    continuation.resume(returning: .failure(error))
+                }
             }
         }
     }

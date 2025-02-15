@@ -8,7 +8,7 @@
 import Foundation
 
 final class RumContactUsAPIService {
-    func fetchContactUsData() async -> Result<ContactUsModel, Error> {
+    func fetchContactUsData() async -> Result<ContactUsModel, RumContactUsError> {
         let url = Endpoints.contactUs
         return await withCheckedContinuation { continuation in
             AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] response in
@@ -16,32 +16,32 @@ final class RumContactUsAPIService {
                 switch response {
                 case .success(let data):
                     continuation.resume(returning: self.decodeContactUsData(data))
-                case .failure(let error):
-                    continuation.resume(returning: .failure(error))
+                case .failure(_):
+                    continuation.resume(returning: .failure(.networkError))
                 }
             }
         }
     }
     
-    private func decodeContactUsData(_ data: Data) -> Result<ContactUsModel, Error> {
+    private func decodeContactUsData(_ data: Data) -> Result<ContactUsModel, RumContactUsError> {
         do {
             let decoder = JSONDecoder()
             let model = try decoder.decode(ContactUsModel.self, from: data)
             return .success(model)
         } catch {
-            return .failure(error)
+            return .failure(.decodingError)
         }
     }
     
-    func sendMessage(parameters: [String: String]) async -> Result<Void, Error> {
+    func sendMessage(parameters: [String: String]) async -> Result<Void, RumContactUsError> {
         let url = Endpoints.sendMessage
         return await withCheckedContinuation { continuation in
             AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { response in
                 switch response {
                 case .success:
                     continuation.resume(returning: .success(()))
-                case .failure(let error):
-                    continuation.resume(returning: .failure(error))
+                case .failure(_):
+                    continuation.resume(returning: .failure(.networkError))
                 }
             }
         }

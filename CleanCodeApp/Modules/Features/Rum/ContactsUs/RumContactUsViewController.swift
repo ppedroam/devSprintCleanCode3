@@ -74,13 +74,13 @@ final class RumContactUsViewController: LoadingInheritageController {
         }
     }
 
-    private func handleFetchResult(_ result: Result<ContactUsModel, Error>) {
+    private func handleFetchResult(_ result: Result<ContactUsModel, RumContactUsError>) {
         removeLoadingView()
         switch result {
         case .success(let model):
             self.model = model
         case .failure(let error):
-            print("Error fetching data: \(error.localizedDescription)")
+            print("Log error: \(error.logMessage)")
             handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
@@ -105,12 +105,13 @@ final class RumContactUsViewController: LoadingInheritageController {
         }
     }
     
-    private func handleSendMessageResult(_ result: Result<Void, Error>) {
+    private func handleSendMessageResult(_ result: Result<Void, RumContactUsError>) {
         removeLoadingView()
         switch result {
         case .success:
             handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
-        case .failure:
+        case .failure(let error):
+            print("Log error: \(error.logMessage)")
             handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
         }
     }

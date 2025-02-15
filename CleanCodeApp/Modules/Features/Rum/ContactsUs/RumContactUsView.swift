@@ -85,6 +85,14 @@ final class RumContactUsView: UIView {
         return messageLabel
     }()
     
+    lazy var bottomStackView: UIStackView = {
+        let bottomStackView = UIStackView()
+        bottomStackView.axis = .vertical
+        bottomStackView.spacing = 20
+        bottomStackView.translatesAutoresizingMaskIntoConstraints = false
+        return bottomStackView
+    }()
+    
     lazy var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
         sendMessageButton.backgroundColor = .blue
@@ -137,11 +145,10 @@ final class RumContactUsView: UIView {
         headerStackView.addArrangedSubviews(titleLabel, headerButtonsStackView)
         headerButtonsStackView.addArrangedSubviews(phoneButton, emailButton, chatButton)
         centerStackView.addArrangedSubviews(messageLabel, textView)
+        bottomStackView.addArrangedSubviews(sendMessageButton, closeButton)
         addSubview(headerStackView)
-        addSubview(headerButtonsStackView)
         addSubview(centerStackView)
-        addSubview(sendMessageButton)
-        addSubview(closeButton)
+        addSubview(bottomStackView)
     }
     
     private func setupConstraints() {
@@ -164,15 +171,12 @@ final class RumContactUsView: UIView {
             centerStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             centerStackView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
             
-            sendMessageButton.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
-            sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
-            sendMessageButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            sendMessageButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            bottomStackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            bottomStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            bottomStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            closeButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
             closeButton.heightAnchor.constraint(equalToConstant: 40),
-            closeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
         ])
     }
 }

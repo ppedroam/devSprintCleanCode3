@@ -166,7 +166,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     }
     
     // MARK: - Setup UI
-    private func setupView() {
+    func setupView() {
         backgroundColor = .systemGray6
         addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -183,7 +183,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         [successLabel, emailSentLabel].forEach { passwordRecoverySuccessView.addSubview($0) }
     }
     
-    private func addConstraintsToUIComponents() {
+    func addConstraintsToUIComponents() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),

@@ -76,7 +76,7 @@ class LuaContactUsView: UIView, LuaContactUsViewProtocol {
     public lazy var textView: UITextView = {
         let textView = UITextView()
         textView.text = "Escreva sua mensagem aqui"
-        textView.font = .systemFont(ofSize: 10)
+        textView.font = .systemFont(ofSize: 13)
         textView.backgroundColor = .systemGray5
         textView.layer.cornerRadius = 10
         textView.translatesAutoresizingMaskIntoConstraints = false

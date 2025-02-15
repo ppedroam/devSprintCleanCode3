@@ -7,63 +7,27 @@
 
 import UIKit
 
-class LuaContactUsViewController: LoadingInheritageController {
+final class LuaContactUsViewController: UIViewController, LuaAlertHandlerProtocol, LuaViewControllerProtocol {
     var model: ContactUsModel?
-    var luaContactUsView = LuaContactUsView()
+    typealias ViewCode = LuaContactUsView
+    internal let viewCode = LuaContactUsView()
+
+    override func loadView() {
+        view = viewCode
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view = luaContactUsView
         pegarDados()
         configureButtons()
+        hideKeyboardWhenTappedAround() 
     }
-    
-    private func configureButtons() {
-        luaContactUsView.configureChatButton(target: self, selector: #selector(chatClicked))
-        luaContactUsView.configureCloseButton(target: self, selector: #selector(close))
-        luaContactUsView.configureEmailButton(target: self, selector: #selector(emailClick))
-        luaContactUsView.configurePhoneButton(target: self, selector: #selector(phoneClick))
-        luaContactUsView.configureSendMessageButton(target: self, selector: #selector(messageSend))
-    }
-    
-    @objc
-    func phoneClick() {
-        if let tel = model?.phone,
-           let url = URL(string: "tel://\(tel)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-    }
-    
-    @objc
-    func emailClick() {
-        if let mail = model?.mail,
-           let url = URL(string: "mailto:\(mail)") {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
-    }
-    
-    @objc func chatClicked() {
-        if let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") {
-            if UIApplication.shared.canOpenURL(whatsappURL) {
-                UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-            } else {
-                if let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") {
-                    UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-                }
-            }
-        }
-    }
-    
-    @objc
-    func close() {
-        dismiss(animated: true)
-    }
-    
-    
+
     func pegarDados() {
-        showLoadingView()
+        showLoading()
         let url = Endpoints.contactUs
         AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            self.removeLoadingView()
+            self.stopLoading()
             switch result {
             case .success(let data):
                 let decoder = JSONDecoder()
@@ -87,15 +51,15 @@ class LuaContactUsViewController: LoadingInheritageController {
     func messageSend() {
         view.endEditing(true)
         let email = model?.mail ?? ""
-        if let message = luaContactUsView.textView.text, luaContactUsView.textView.text.count > 0 {
+        if let message = viewCode.textView.text, viewCode.textView.text.count > 0 {
             let parameters: [String: String] = [
                 "email": email,
                 "mensagem": message
             ]
-            showLoadingView()
+            showLoading()
             let url = Endpoints.sendMessage
             AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-                self.removeLoadingView()
+                self.stopLoading()
                 switch result {
                 case .success:
                     Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
@@ -106,5 +70,99 @@ class LuaContactUsViewController: LoadingInheritageController {
                 }
             }
         }
+    }
+}
+// MARK: - Comportamentos de layout
+private extension LuaContactUsViewController {
+    func configureButtons() {
+        viewCode.configureChatButton(target: self, selector: #selector(chatButtonTapped))
+        viewCode.configureCloseButton(target: self, selector: #selector(close))
+        viewCode.configureEmailButton(target: self, selector: #selector(emailButtonTapped))
+        viewCode.configurePhoneButton(target: self, selector: #selector(phoneButtonTapped))
+        viewCode.configureSendMessageButton(target: self, selector: #selector(messageSend))
+    }
+    
+    @objc func phoneButtonTapped() {
+        do {
+            try openPhone()
+        } catch let error as LuaPersonalInfoError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        } catch {
+            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+        }
+    }
+    
+    @objc func emailButtonTapped() {
+        do {
+            try openMail()
+        } catch let error as LuaPersonalInfoError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        } catch {
+            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+        }
+    }
+    
+    @objc func chatButtonTapped() {
+        do {
+            try openWhatsapp()
+        } catch let error as LuaPersonalInfoError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        } catch {
+            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+        }
+    }
+    
+    @objc func close() {
+        dismiss(animated: true)
+    }
+    
+    func openPhone() throws {
+        guard let phoneNumer = model?.phone else {
+            throw LuaPersonalInfoError.invalidPhoneNumber
+        }
+        do {
+            try openExternalApp(appURLTarget: .phone(phoneNumer))
+        }
+        catch let error as LuaUIApplicationURLError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        }
+    }
+    
+    func openWhatsapp() throws {
+        guard let phoneNumer = model?.phone else {
+            throw LuaPersonalInfoError.invalidPhoneNumber
+        }
+        do {
+            try openExternalApp(appURLTarget: .whatsapp(phoneNumer))
+        }
+        catch let error as LuaUIApplicationURLError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        }
+    }
+    
+    func openMail() throws {
+        guard let mail = model?.mail else {
+            throw LuaPersonalInfoError.invalidMail
+        }
+        do {
+            try openExternalApp(appURLTarget: .mail(mail))
+        }
+        catch let error as LuaUIApplicationURLError {
+            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+        }
+    }
+    
+    func openExternalApp(appURLTarget: LuaAppURLTarget) throws {
+        guard let url = appURLTarget.url else {
+            throw LuaUIApplicationURLError.invalidAppURL
+        }
+        if canOpenURL(url) {
+            openExternalURL(url)
+            return
+        }
+        guard let fallBackURL = appURLTarget.fallBackURL else {
+            throw LuaUIApplicationURLError.unableToOpenAppURL
+        }
+        openExternalURL(fallBackURL)
     }
 }

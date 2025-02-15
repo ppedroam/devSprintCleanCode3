@@ -6,7 +6,17 @@
 //
 
 import UIKit
-struct CeuResetPasswordCoordinator {
+
+protocol CeuResetPasswordCoordinatorProtocol {
+    var viewController: UIViewController? { get set }
+    func showContactUsViewController()
+    func showCreateAccountViewController()
+    func showAlert()
+    func showAlertWith(message: String)
+    func showNoInternetConnectionAlert()
+}
+
+struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol {
     weak var viewController: UIViewController?
 
     func showContactUsViewController() {

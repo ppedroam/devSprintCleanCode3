@@ -95,7 +95,7 @@ class CeuLoginViewController: UIViewController {
     
     @IBAction func resetPasswordButton(_ sender: Any) {
         let ceuResetPasswordViewController = CeuResetPasswordFactory.make()
-        present(ceuResetPasswordViewController, animated: true)
+        self.present(ceuResetPasswordViewController, animated: true)
     }
     
     

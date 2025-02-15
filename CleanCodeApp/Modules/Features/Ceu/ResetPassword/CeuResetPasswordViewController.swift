@@ -14,8 +14,19 @@ class CeuResetPasswordViewController: UIViewController {
 
     private var email = ""
     private var isEmailRecovered = false
-    var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
-    var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
+    private var ceuResetPasswordViewModel: CeuResetPasswordViewModelProtocol?
+    private var ceuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol?
+
+    init?(coder: NSCoder, ceuResetPasswordViewModel: CeuResetPasswordViewModelProtocol, ceuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol) {
+        self.ceuResetPasswordViewModel = ceuResetPasswordViewModel
+        self.ceuResetPasswordCoordinator = ceuResetPasswordCoordinator
+        super.init(coder: coder)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented. Use init(coder:viewModel:coordinator:) instead.")
+    }
+
 
     override func viewDidLoad() {
         super.viewDidLoad()

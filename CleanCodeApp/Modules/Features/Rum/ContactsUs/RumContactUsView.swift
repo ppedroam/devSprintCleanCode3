@@ -9,6 +9,23 @@ import UIKit
 
 final class RumContactUsView: UIView {
     // MARK: - UI Components
+    
+    lazy var headerStackView: UIStackView = {
+        let headerStackView = UIStackView()
+        headerStackView.axis = .vertical
+        headerStackView.spacing = 30
+        headerStackView.translatesAutoresizingMaskIntoConstraints = false
+        return headerStackView
+    }()
+    
+    lazy var headerButtonsStackView: UIStackView = {
+        let headerButtonsStackView = UIStackView()
+        headerButtonsStackView.axis = .horizontal
+        headerButtonsStackView.distribution = .equalCentering
+        headerButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        return headerButtonsStackView
+    }()
+    
     lazy var textView: UITextView = {
         let textView = UITextView()
         textView.text = "Escreva sua mensagem aqui"
@@ -109,10 +126,10 @@ final class RumContactUsView: UIView {
     }
     
     private func setupHierarchy() {
-        addSubview(titleLabel)
-        addSubview(phoneButton)
-        addSubview(emailButton)
-        addSubview(chatButton)
+        headerStackView.addArrangedSubviews(titleLabel, headerButtonsStackView)
+        headerButtonsStackView.addArrangedSubviews(phoneButton, emailButton, chatButton)
+        addSubview(headerStackView)
+        addSubview(headerButtonsStackView)
         addSubview(messageLabel)
         addSubview(textView)
         addSubview(sendMessageButton)
@@ -121,27 +138,20 @@ final class RumContactUsView: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 30),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            headerStackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 30),
+            headerStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            headerStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            phoneButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
-            emailButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
-            chatButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
+            headerButtonsStackView.topAnchor.constraint(equalTo: headerStackView.bottomAnchor, constant: 30),
+            headerButtonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            headerButtonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            headerButtonsStackView.heightAnchor.constraint(equalToConstant: 80),
             
             phoneButton.widthAnchor.constraint(equalToConstant: 80),
-            phoneButton.heightAnchor.constraint(equalToConstant: 80),
-            phoneButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            
             emailButton.widthAnchor.constraint(equalToConstant: 80),
-            emailButton.heightAnchor.constraint(equalToConstant: 80),
-            emailButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            
             chatButton.widthAnchor.constraint(equalToConstant: 80),
-            chatButton.heightAnchor.constraint(equalToConstant: 80),
-            chatButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
+            messageLabel.topAnchor.constraint(equalTo: headerButtonsStackView.bottomAnchor, constant: 30),
             messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
@@ -160,5 +170,13 @@ final class RumContactUsView: UIView {
             closeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
         ])
+    }
+}
+
+extension UIStackView {
+    func addArrangedSubviews(_ views: UIView...) {
+        views.forEach { view in
+            addArrangedSubview(view)
+        }
     }
 }

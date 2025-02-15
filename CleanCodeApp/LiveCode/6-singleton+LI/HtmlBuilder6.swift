@@ -2,13 +2,18 @@
 //  HtmlBuilder.swift
 //  CleanCode
 //
-//  Created by Pedro Menezes on 10/02/25.
+//  Created by Pedro Menezes on 12/02/25.
 //
 
 import Foundation
 
-struct HtmlBuilder4 {
+struct HtmlBuilder6: HtmlBuilderProtocol {
     private let realmManager = RealmManager()
+    private let runtimeRoutine: RuntimeRoutinePpotocol
+    
+    init(runtimeRoutine: RuntimeRoutinePpotocol) {
+        self.runtimeRoutine = runtimeRoutine
+    }
 
     func createWebViewUrls(content: WebViewContent) throws -> DeviceUrls {
         let htmlAfterCustomization = try configureHtmlAppearence(content: content)
@@ -19,7 +24,7 @@ struct HtmlBuilder4 {
     }
 }
 
-private extension HtmlBuilder4 {
+private extension HtmlBuilder6 {
     func configureHtmlAppearence(content: WebViewContent) throws -> String {
         guard let rHtmlConfig = realmManager.getObjects(HtmlConfig.self),
               let htmlConfig = rHtmlConfig.last as? HtmlConfig,
@@ -27,7 +32,7 @@ private extension HtmlBuilder4 {
               let css = htmlConfig.cssContent else {
             throw CommonsErros.invalidData
         }
-        let body = RuntimeRoutine.shared.runMustache(content: content)
+        let body = runtimeRoutine.runMustache(content: content)
         let htmlFinal = Globals.buildHtml(html: body, css: css, js: js)
         return htmlFinal
     }

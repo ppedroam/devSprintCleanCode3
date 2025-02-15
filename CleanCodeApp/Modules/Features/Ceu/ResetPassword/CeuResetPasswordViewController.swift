@@ -8,16 +8,19 @@ class CeuResetPasswordViewController: UIViewController {
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
 
-    @IBOutlet weak var textLabel: UILabel!
-    @IBOutlet weak var viewSuccess: UIView!
-    @IBOutlet weak var emailLabel: UILabel!
+    @IBOutlet weak var verifyEmailLabel: UILabel!
+    @IBOutlet weak var recoveryPasswordSuccessView: UIView!
+    @IBOutlet weak var emailErrorLabel: UILabel!
 
     var email = ""
-    var recoveryEmail = false
+    var isEmailRecovered = false
+    var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
+    var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        configureSupportClasses()
     }
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -30,10 +33,10 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        if recoveryEmail {
+        if isEmailRecovered {
             dismiss(animated: true)
         } else {
-            startRecoverPassword()
+            ceuResetPasswordViewModel?.startRecoverPassword()
         }
     }
 
@@ -42,114 +45,41 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        let viewController = setupContactUsViewController()
-        self.present(viewController, animated: true, completion: nil)
+        ceuResetPasswordCoordinator?.showContactUsViewController()
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        let viewController = setupCreateAccountViewController()
-        present(viewController, animated: true)
+        ceuResetPasswordCoordinator?.showCreateAccountViewController()
     }
 
     // MARK: - Reset Password Request functions
-
-    private func makeResetPasswordRequest(parameters: [String : String]) {
-        BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { (success) in
-            if success {
-                return self.handleResetPasswordRequestSuccess()
-            }
-            self.handleResetPasswordRequestError()
-        }
-    }
-
-    private func handleResetPasswordRequestSuccess() {
-        self.recoveryEmail = true
+    func handleResetPasswordRequestSuccess() {
+        self.isEmailRecovered = true
         self.emailTextfield.isHidden = true
-        self.textLabel.isHidden = true
-        self.viewSuccess.isHidden = false
-        self.emailLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
+        self.verifyEmailLabel.isHidden = true
+        self.recoveryPasswordSuccessView.isHidden = false
+        self.emailErrorLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
         self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
         self.recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
 
-    private func handleResetPasswordRequestError() {
-        let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default)
-        alertController.addAction(action)
-        self.present(alertController, animated: true)
+    func handleResetPasswordRequestError() {
+        ceuResetPasswordCoordinator?.showAlert()
     }
 
-    private func setupResetPasswordRequestParameters() throws -> [String: String] {
-        guard let text = emailTextfield.text else { throw CommonsErros.invalidData }
-
-        let emailUser = text.trimmingCharacters(in: .whitespaces)
-        let parameters = [
-            "email": emailUser
-        ]
-
-        return parameters
-    }
-
-    private func setupContactUsViewController() -> UIViewController {
-        let viewController = CeuContactUsViewController()
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.modalTransitionStyle = .coverVertical
-
-        return viewController
-    }
-
-    private func setupCreateAccountViewController() -> UIViewController {
-        let viewController = CeuCreateAccountViewController()
-        viewController.modalPresentationStyle = .fullScreen
-
-        return viewController
-    }
-
-    private func setupStatus() -> Bool {
-        let status = emailTextfield.text!.isEmpty ||
-        !emailTextfield.text!.contains(".") ||
-        !emailTextfield.text!.contains("@") ||
-        emailTextfield.text!.count <= 5
-
-        return status
-    }
-
-    private func startRecoverPassword() {
-        do {
-            try validateForm()
-            try verifyInternet()
-
-            let parameters = try setupResetPasswordRequestParameters()
-            makeResetPasswordRequest(parameters: parameters)
-        } catch CeuCommonsErros.invalidEmail {
-            showAlert(message: "Verifique o e-mail informado.")
-        } catch {
-            showAlert(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
-        }
-    }
-
-    private func showAlert(message: String) {
-        return Globals.alertMessage(title: "Ops...", message: message, targetVC: self)
-    }
-
-    private func verifyInternet() throws {
-        if !ConnectivityManager.shared.isConnected {
-            Globals.showNoInternetCOnnection(controller: self)
-            throw CeuCommonsErros.networkError
-        }
-    }
-
-    private func validateForm() throws {
-        let status = setupStatus()
-
-        if status {
-            emailTextfield.setErrorColor()
-            textLabel.textColor = .red
-            textLabel.text = "Verifique o e-mail informado"
-            throw CeuCommonsErros.invalidEmail
+    func validateForm() throws {
+        guard let isEmailValid = emailTextfield.text?.isEmailValid() else {
+            throw CeuCommonsErrors.invalidEmail
         }
 
         self.view.endEditing(true)
+
+        guard isEmailValid else {
+            emailTextfield.setErrorColor()
+            verifyEmailLabel.textColor = .red
+            verifyEmailLabel.text = "Verifique o e-mail informado"
+            throw CeuCommonsErrors.invalidEmail
+        }
     }
 }
 
@@ -164,7 +94,12 @@ extension CeuResetPasswordViewController {
         setupCreateAccountButton()
         setupEmailTextfield()
 
-        validateButton()
+        changeEmailTextfieldState()
+    }
+
+    func configureSupportClasses() {
+        self.ceuResetPasswordViewModel = CeuResetPasswordViewModel(viewController: self)
+        self.ceuResetPasswordCoordinator = CeuResetPasswordCoordinator(viewController: self)
     }
 
     private func setupRecoverPasswordButton() {
@@ -200,7 +135,8 @@ extension CeuResetPasswordViewController {
     private func setupEmailTextfield() {
         emailTextfield.setDefaultColor()
 
-        if !email.isEmpty {
+        let emailTextExists = !email.isEmpty
+        if emailTextExists {
             emailTextfield.text = email
             emailTextfield.isEnabled = false
         }
@@ -213,32 +149,26 @@ extension CeuResetPasswordViewController {
 
     @IBAction func emailEditing(_ sender: Any) {
         emailTextfield.setEditingColor()
-        validateButton()
+        changeEmailTextfieldState()
     }
 
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextfield.setDefaultColor()
     }
-}
 
-extension CeuResetPasswordViewController {
-
-    func validateButton() {
-        if emailTextfield.text!.isEmpty {
-            return createButtonIs(enable: false)
-        }
-        return createButtonIs(enable: true)
+    func changeEmailTextfieldState() {
+        let emailTextfieldHasValue = !emailTextfield.text!.isEmpty
+        return updateRecoverPasswordButtonState(toEnabled: emailTextfieldHasValue)
     }
 
-    func createButtonIs(enable: Bool) {
-        recoverPasswordButton.backgroundColor = enable ? .blue : .gray
+    func updateRecoverPasswordButtonState(toEnabled: Bool) {
+        recoverPasswordButton.backgroundColor = toEnabled ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
-        recoverPasswordButton.isEnabled = enable
+        recoverPasswordButton.isEnabled = toEnabled
     }
 }
 
-
-enum CeuCommonsErros: Error {
+enum CeuCommonsErrors: Error {
     case invalidData
     case invalidEmail
     case networkError

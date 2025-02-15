@@ -28,4 +28,14 @@ struct CeuResetPasswordCoordinator {
         alertController.addAction(action)
         self.viewController?.present(alertController, animated: true)
     }
+
+    func showAlertWith(message: String) {
+        guard let viewController = viewController else { return }
+        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
+    }
+
+    func showNoInternetConnectionAlert() {
+        guard let viewController = viewController else { return }
+        Globals.showNoInternetCOnnection(controller: viewController)
+    }
 }

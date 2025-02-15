@@ -25,36 +25,6 @@ class CeuResetPasswordViewController: UIViewController {
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-
-    // MARK: - Reset Password Request functions
-    func handleResetPasswordRequestSuccess() {
-        self.isEmailRecovered = true
-        self.emailTextfield.isHidden = true
-        self.verifyEmailLabel.isHidden = true
-        self.recoveryPasswordSuccessView.isHidden = false
-        self.emailErrorLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
-        self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
-        self.recoverPasswordButton.setTitle("Voltar", for: .normal)
-    }
-
-    func handleResetPasswordRequestError() {
-        ceuResetPasswordCoordinator?.showAlert()
-    }
-
-    func validateForm() throws {
-        guard let isEmailValid = emailTextfield.text?.isEmailValid() else {
-            throw CeuCommonsErrors.invalidEmail
-        }
-
-        self.view.endEditing(true)
-
-        guard isEmailValid else {
-            emailTextfield.setErrorColor()
-            verifyEmailLabel.textColor = .red
-            verifyEmailLabel.text = "Verifique o e-mail informado"
-            throw CeuCommonsErrors.invalidEmail
-        }
-    }
 }
 
 // MARK: - Comportamentos de layout
@@ -68,7 +38,7 @@ private extension CeuResetPasswordViewController {
         if isEmailRecovered {
             dismiss(animated: true)
         } else {
-            ceuResetPasswordViewModel?.startRecoverPassword()
+            ceuResetPasswordViewModel?.startRecoverPasswordWith(email: emailTextfield?.text)
         }
     }
 
@@ -158,6 +128,46 @@ private extension CeuResetPasswordViewController {
         recoverPasswordButton.backgroundColor = toEnabled ? .blue : .gray
         recoverPasswordButton.setTitleColor(.white, for: .normal)
         recoverPasswordButton.isEnabled = toEnabled
+    }
+}
+
+extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
+    // MARK: - Reset Password Request functions
+    func handleResetPasswordRequestSuccess() {
+        self.isEmailRecovered = true
+        self.emailTextfield.isHidden = true
+        self.verifyEmailLabel.isHidden = true
+        self.recoveryPasswordSuccessView.isHidden = false
+        self.emailErrorLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
+        self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
+        self.recoverPasswordButton.setTitle("Voltar", for: .normal)
+    }
+
+    func handleResetPasswordRequestError() {
+        ceuResetPasswordCoordinator?.showAlert()
+    }
+
+    func validateForm() throws {
+        guard let isEmailValid = emailTextfield.text?.isEmailValid() else {
+            throw CeuCommonsErrors.invalidEmail
+        }
+
+        self.view.endEditing(true)
+
+        guard isEmailValid else {
+            emailTextfield.setErrorColor()
+            verifyEmailLabel.textColor = .red
+            verifyEmailLabel.text = "Verifique o e-mail informado"
+            throw CeuCommonsErrors.invalidEmail
+        }
+    }
+
+    func showAlertWith(message: String) {
+        ceuResetPasswordCoordinator?.showAlertWith(message: message)
+    }
+
+    func showNoInternetConnectionAlert() {
+        ceuResetPasswordCoordinator?.showNoInternetConnectionAlert()
     }
 }
 

@@ -6,22 +6,28 @@
 //
 import UIKit
 
+protocol CeuResetPasswordViewModelDelegate where Self: UIViewController {
+    func handleResetPasswordRequestSuccess()
+    func handleResetPasswordRequestError()
+    func validateForm() throws
+    func showAlertWith(message: String)
+    func showNoInternetConnectionAlert()
+}
+
 class CeuResetPasswordViewModel {
-    weak var viewController: CeuResetPasswordViewController?
+    weak var delegate: CeuResetPasswordViewModelDelegate?
 
-    func startRecoverPassword() {
-        guard let viewController = viewController else { return }
-
+    func startRecoverPasswordWith(email: String?) {
         do {
-            try viewController.validateForm()
+            try delegate?.validateForm()
             try verifyInternetConnection()
 
-            let parameters = try setupResetPasswordRequestParameters(email: viewController.emailTextfield?.text)
+            let parameters = try setupResetPasswordRequestParameters(email: email)
             makeResetPasswordRequest(parameters: parameters)
         } catch CeuCommonsErrors.invalidEmail {
-            showAlertWith(message: "Verifique o e-mail informado.")
+            delegate?.showAlertWith(message: "Verifique o e-mail informado.")
         } catch {
-            showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            delegate?.showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
 }
@@ -38,26 +44,21 @@ private extension CeuResetPasswordViewModel {
         return parameters
     }
 
-    func showAlertWith(message: String) {
-        guard let viewController = viewController else { return }
-        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
-    }
-
     func verifyInternetConnection() throws {
-        guard let viewController = viewController else { return }
         if !ConnectivityManager.shared.isConnected {
-            Globals.showNoInternetCOnnection(controller: viewController)
+            delegate?.showNoInternetConnectionAlert()
             throw CeuCommonsErrors.networkError
         }
     }
 
     func makeResetPasswordRequest(parameters: [String : String]) {
-        guard let viewController = viewController else { return }
-        BadNetworkLayer.shared.resetPassword(viewController, parameters: parameters) { (success) in
+        guard let delegate = delegate else { return }
+        BadNetworkLayer.shared.resetPassword(delegate, parameters: parameters) { (success) in
             if success {
-                return viewController.handleResetPasswordRequestSuccess()
+                self.delegate?.handleResetPasswordRequestSuccess()
+                return
             }
-            viewController.handleResetPasswordRequestError()
+            self.delegate?.handleResetPasswordRequestError()
         }
     }
 }

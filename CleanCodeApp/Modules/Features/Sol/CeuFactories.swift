@@ -13,7 +13,7 @@ enum CeuResetPasswordFactory {
         ceuResetPasswordViewController.modalPresentationStyle = .fullScreen
 
         let ceuResetPasswordViewModel = CeuResetPasswordViewModel()
-        ceuResetPasswordViewModel.viewController = ceuResetPasswordViewController
+        ceuResetPasswordViewModel.delegate = ceuResetPasswordViewController
 
         var ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
         ceuResetPasswordCoordinator.viewController = ceuResetPasswordViewController

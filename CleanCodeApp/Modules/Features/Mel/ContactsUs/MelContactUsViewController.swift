@@ -10,6 +10,8 @@ import UIKit
 class MelContactUsViewController: LoadingInheritageController {
     var model: ContactUsModel?
     var screen: MelContactUsScreen?
+    private let urlHandler: MelURLHandler = MelURLHandler()
+    private let service: MelContactUsService = MelContactUsService()
     
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
     
@@ -34,23 +36,23 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     func didTapPhoneButton() {
         guard let tel = model?.phone,
               let url = URL(string: "tel://\(tel)") else { return }
-        openURL(url)
+        urlHandler.openURL(url)
     }
     
     func didTapEmailButton() {
         guard let mail = model?.mail,
               let url = URL(string: "mailto:\(mail)") else { return }
-        openURL(url)
+        urlHandler.openURL(url)
     }
     
     func didTapChatButton() {
         do {
-            let whatsAppURL = try getWhatsAppURL()
-            if canOpenURL(whatsAppURL) {
-                openURL(whatsAppURL)
+            let whatsAppURL = try urlHandler.getWhatsAppURL(phoneNumber: model?.phone)
+            if urlHandler.canOpenURL(whatsAppURL) {
+                urlHandler.openURL(whatsAppURL)
             } else {
-                let appStoreURL = try getAppStoreURL()
-                openURL(appStoreURL)
+                let appStoreURL = try urlHandler.getAppStoreURL()
+                urlHandler.openURL(appStoreURL)
             }
         } catch {
             print("Erro ao tentar abrir o chat: \(error)")
@@ -70,25 +72,6 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
         dismiss(animated: true)
     }
     
-    private func getWhatsAppURL() throws -> URL {
-        guard let phoneNumber = model?.phone else { throw ChatError.invalidPhoneNumber }
-        guard let url = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { throw ChatError.invalidURL }
-        return url
-    }
-    
-    private func getAppStoreURL() throws -> URL {
-        guard let url = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { throw ChatError.invalidURL }
-        return url
-    }
-    
-    private func canOpenURL(_ url: URL) -> Bool {
-        return UIApplication.shared.canOpenURL(url)
-    }
-    
-    private func openURL(_ url: URL) {
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-    }
-    
     private func createMessageParameters(email: String, message: String) -> [String : String] {
         return [
             "email" : email,
@@ -96,10 +79,12 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
         ]
     }
     
-    private func sendRequest(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
-        let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-            completion(result)
+    private func prepareAndSendMessage(email: String, message: String) {
+        let parameters = createMessageParameters(email: email, message: message)
+        service.sendRequest(parameters) { [weak self] result in
+            guard let self = self else { return }
+            self.removeLoadingView()
+            self.handleResponse(result)
         }
     }
     
@@ -109,15 +94,6 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
             showSuccessAlert()
         case .failure:
             showErrorAlert()
-        }
-    }
-    
-    private func prepareAndSendMessage(email: String, message: String) {
-        let parameters = createMessageParameters(email: email, message: message)
-        sendRequest(parameters) { [weak self] result in
-            guard let self = self else { return }
-            self.removeLoadingView()
-            self.handleResponse(result)
         }
     }
     
@@ -136,37 +112,16 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func fetchAndProcessContactData() {
         melLoadingView.showLoadingView()
-        fetchContactData() { [weak self] result in
+        service.fetchContactData() { [weak self] result in
             guard let self = self else { return }
             self.melLoadingView.removeLoadingView()
-            self.handleContactDataResponse(result)
-        }
-    }
-    
-    private func fetchContactData(completion: @escaping (Result<Data, Error>) -> Void) {
-        let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            completion(result)
-        }
-    }
-    
-    private func handleContactDataResponse(_ result: Result<Data, Error>) {
-        switch result {
-        case .success(let data):
-            decodeContactData(data)
-        case .failure(let error):
-            print("Erro na API: \(error.localizedDescription)")
-            showErrorAlert(mustDismiss: true)
-        }
-    }
-    
-    private func decodeContactData(_ data: Data) {
-        let decoder = JSONDecoder()
-        
-        if let returned = try? decoder.decode(ContactUsModel.self, from: data) {
-            self.model = returned
-        } else {
-            showErrorAlert(mustDismiss: true)
+            switch result {
+            case .success(let contactModel):
+                self.model = contactModel
+            case .failure(let error):
+                print("Erro na API: \(error.localizedDescription)")
+                self.showErrorAlert(mustDismiss: true)
+            }
         }
     }
 }

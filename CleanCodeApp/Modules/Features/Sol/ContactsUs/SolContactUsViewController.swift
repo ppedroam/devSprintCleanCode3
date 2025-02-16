@@ -18,7 +18,6 @@ protocol SolContactUsProtocol: AnyObject {
 class SolContactUsViewController: LoadingInheritageController, SolContactUsProtocol {
     var model: ContactUsModel?
     
-    
     private let viewModel: SolContactUsViewModel
     private let contactUsView = SolContactUsView()
     
@@ -41,8 +40,6 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
         view.backgroundColor = .systemGray6
         contactUsView.textView.text  = "Escreva sua mensagem aqui"
         callConfigureActionsButtonsByType ()
-        
-        
         
         viewModel.fetchData()
     }

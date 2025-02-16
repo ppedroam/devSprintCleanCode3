@@ -8,7 +8,17 @@
 import Foundation
 import UIKit
 
-final class SolContactUsView: UIView {
+protocol SolContactUsViewProtocol: AnyObject {
+    func setupView()
+    func setupConstraints()
+}
+extension  SolContactUsViewProtocol {
+    func setupView() {
+        setupConstraints()
+    }
+}
+
+final class SolContactUsView: UIView, SolContactUsViewProtocol {
     let textView = UITextView()
     
     lazy var titleLabel: UILabel = {
@@ -90,7 +100,7 @@ final class SolContactUsView: UIView {
         chatButton.setImage(UIImage.init(systemName: "message")?.withConfiguration(symbolConfiguration), for: .normal)
     }
     
-    private func setupConstraints() {
+     func setupConstraints() {
         [titleLabel, phoneButton, emailButton, chatButton, messageLabel, textView, sendMessageButton, closeButton].forEach { uiView in
             uiView.translatesAutoresizingMaskIntoConstraints = false
             addSubview(uiView)

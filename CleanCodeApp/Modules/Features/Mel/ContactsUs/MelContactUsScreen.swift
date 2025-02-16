@@ -22,7 +22,7 @@ class MelContactUsScreen: UIView {
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.text = "Escreva sua mensagem aqui"
+        textView.text = MelContactUsStrings.placeholderMessage.rawValue
         return textView
     }()
     
@@ -31,7 +31,7 @@ class MelContactUsScreen: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
-        label.text = "Escolha o canal para contato"
+        label.text = MelContactUsStrings.contactChannelTitle.rawValue
         return label
     }()
     
@@ -67,7 +67,7 @@ class MelContactUsScreen: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        label.text = "Ou envie uma mensagem"
+        label.text = MelContactUsStrings.alternativeMessageText.rawValue
         label.numberOfLines = 2
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
@@ -77,7 +77,7 @@ class MelContactUsScreen: UIView {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .blue
-        button.setTitle("  Enviar ", for: .normal)
+        button.setTitle(MelContactUsStrings.sendActionTitle.rawValue, for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
         button.setContentHuggingPriority(.required, for: .horizontal)
@@ -88,7 +88,7 @@ class MelContactUsScreen: UIView {
     private lazy var closeButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Voltar", for: .normal)
+        button.setTitle(MelContactUsStrings.backActionTitle.rawValue, for: .normal)
         button.setTitleColor(.blue, for: .normal)
         button.backgroundColor = .clear
         button.layer.borderWidth = 1
@@ -149,9 +149,15 @@ extension MelContactUsScreen {
     
     private func symbolConfiguration() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 36)
-        configureButtonImage(phoneButton, with: "phone", buttonSymbolConfiguration: symbolConfig)
-        configureButtonImage(emailButton, with: "envelope", buttonSymbolConfiguration: symbolConfig)
-        configureButtonImage(chatButton, with: "message", buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(phoneButton,
+                             with: MelSystemImage.phone.rawValue,
+                             buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(emailButton,
+                             with: MelSystemImage.envelope.rawValue,
+                             buttonSymbolConfiguration: symbolConfig)
+        configureButtonImage(chatButton,
+                             with: MelSystemImage.message.rawValue,
+                             buttonSymbolConfiguration: symbolConfig)
     }
     
     private func configureButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {

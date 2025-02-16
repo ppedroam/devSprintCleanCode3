@@ -98,13 +98,17 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     }
     
     private func showSuccessAlert() {
-        Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
+        Globals.alertMessage(title: MelContactUsStrings.successAlertTitle.rawValue,
+                             message: MelContactUsStrings.successAlertMessage.rawValue,
+                             targetVC: self) {
             self.dismiss(animated: true)
         }
     }
     
     private func showErrorAlert(mustDismiss: Bool = false) {
-        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        Globals.alertMessage(title: MelContactUsStrings.errorAlertTitle.rawValue,
+                             message: MelContactUsStrings.errorAlertMessage.rawValue,
+                             targetVC: self)
         if mustDismiss {
             self.dismiss(animated: true)
         }

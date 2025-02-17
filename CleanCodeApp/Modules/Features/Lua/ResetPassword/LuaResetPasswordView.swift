@@ -243,17 +243,4 @@ class LuaResetPasswordView: UIView {
             closeButton.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
-    // MARK: - Target configuration
-    public func configurePasswordRecoveryButton(target: Any, selector: Selector) {
-     
-        loginButton.addTarget(target, action: selector, for: .touchUpInside)
-        helpButton.addTarget(target, action: selector, for: .touchUpInside)
-        createAccountButton.addTarget(target, action: selector, for: .touchUpInside)
-        closeButton.addTarget(target, action: selector, for: .touchUpInside)
-        emailTextField.addTarget(target, action: selector, for: .editingDidBegin)
-        emailTextField.addTarget(target, action: selector, for: .editingChanged)
-        emailTextField.addTarget(target, action: selector, for: .editingDidEnd)
-    }
-    
-   
 }

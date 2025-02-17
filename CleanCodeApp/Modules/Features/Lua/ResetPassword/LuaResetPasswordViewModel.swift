@@ -28,7 +28,7 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         } catch _ as LuaNetworkError {
             throw LuaNetworkError.noInternetConnection
         } catch {
-            throw LuaNetworkError.unknown
+            throw error
         }
     }
     

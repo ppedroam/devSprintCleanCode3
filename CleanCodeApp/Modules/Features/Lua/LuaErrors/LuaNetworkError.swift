@@ -8,16 +8,16 @@
 import Foundation
 
 enum LuaNetworkError: Error {
-    case decodeError
-    case noData
-    case invalidURL
-    case invalidStatusCode
-    case networkError
+    case badRequest // 400
+    case unauthorized // 401
+    case forbidden // 403
+    case notFound // 404
+    case serverError // 500
+    case unknown
     case noInternetConnection
 }
 
 extension LuaNetworkError: LocalizedError {
-    
     
     var errorTitle: String? {
         switch self {
@@ -30,19 +30,10 @@ extension LuaNetworkError: LocalizedError {
     
     var errorDescription: String? {
         switch self {
-        case .decodeError:
-            return "Error during data decoding"
-        case .noData:
-            return "Data error"
-        case .invalidURL:
-            return "Invalid URL"
-        case .invalidStatusCode:
-            return "Invalid status code"
-        case .networkError:
-            return "An error has occurred. Please verify your connection."
         case .noInternetConnection:
             return "Você não está conectado à internet. Verifique sua conexão e tente novamente."
+        default:
+            return ""
         }
     }
-    
 }

@@ -9,22 +9,22 @@ import UIKit
 
 final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
     var model: ContactUsModel?
-   
+    
     typealias ViewCode = LuaContactUsView
     internal let viewCode = LuaContactUsView()
-
+    private let viewModel = LuaContactUsViewModel()
     override func loadView() {
         view = viewCode
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        pegarDados()
+        FetchContactUSData()
         configureButtons()
-        hideKeyboardWhenTappedAround() 
+        hideKeyboardWhenTappedAround()
     }
-
-    func pegarDados() {
+    
+    private func FetchContactUSData() {
         showLoading()
         
         let url = Endpoints.contactUs
@@ -50,30 +50,55 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
         }
     }
     
-    @objc
-    func messageSend() {
+    private func startSendMessageProcess() {
         view.endEditing(true)
-        let email = model?.mail ?? ""
-        if let message = viewCode.textView.text, viewCode.textView.text.count > 0 {
-            let parameters: [String: String] = [
-                "email": email,
-                "mensagem": message
-            ]
+        let hasMessage = viewCode.textView.text.isNotEmpty && viewCode.textView.text != "Escreva sua mensagem aqui"
+        if hasMessage {
+            
+            let message = viewCode.textView.text!
+            let email = model?.mail ?? ""
+            
             showLoading()
-            let url = Endpoints.sendMessage
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-                self.stopLoading()
-                switch result {
-                case .success:
-                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
-                        self.dismiss(animated: true)
-                    }
-                case .failure:
-                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
-                }
+            
+            do {
+                try viewModel.sendMessage(message: message, mail: email)
+                // need a alert to success
+                self.dismiss(animated: true)
+            } catch {
+                showAlertError(error: error, from: self, alertTitle: "Ocorreu algum erro")
             }
+            
+            stopLoading()
+            return
         }
+        // need a alert to show that user does not wrote a message
     }
+    
+    
+    //    @objc
+    //    func sendMessage() {
+    //        view.endEditing(true)
+    //        let email = model?.mail ?? ""
+    //        if let message = viewCode.textView.text, viewCode.textView.text.count > 0 {
+    //            let parameters: [String: String] = [
+    //                "email": email,
+    //                "mensagem": message
+    //            ]
+    //            showLoading()
+    //            let url = Endpoints.sendMessage
+    //            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+    //                self.stopLoading()
+    //                switch result {
+    //                case .success:
+    //                    Globals.alertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", targetVC: self) {
+    //                        self.dismiss(animated: true)
+    //                    }
+    //                case .failure:
+    //                    Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+    //                }
+    //            }
+    //        }
+    //    }
 }
 // MARK: - Comportamentos de layout
 private extension LuaContactUsViewController {
@@ -82,7 +107,11 @@ private extension LuaContactUsViewController {
         viewCode.configureCloseButton(target: self, selector: #selector(close))
         viewCode.configureEmailButton(target: self, selector: #selector(emailButtonTapped))
         viewCode.configurePhoneButton(target: self, selector: #selector(phoneButtonTapped))
-        viewCode.configureSendMessageButton(target: self, selector: #selector(messageSend))
+        viewCode.configureSendMessageButton(target: self, selector: #selector(sendMessageButtonTapped))
+    }
+    
+    @objc func sendMessageButtonTapped() {
+        startSendMessageProcess()
     }
     
     @objc func phoneButtonTapped() {

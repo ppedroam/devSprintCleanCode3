@@ -7,6 +7,8 @@
 
 import UIKit
 
+//IMPLEMENTAR SINGLETO UIAPPLICATION
+
 protocol SolContactUsProtocol: AnyObject {
     func callLoadingView()
     func callRemoveLoadingView()

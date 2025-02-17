@@ -8,11 +8,6 @@
 import Foundation
 import UIKit
 
-
-class WebViewContent {
-    
-}
-
 class RealmManager {
     func getObjects(_ type: Any) -> [Any]? {
         return []
@@ -24,11 +19,22 @@ class HtmlConfig {
     var cssContent: String?
 }
 
+struct WebViewContent {
+    let htmlContent: String
+}
+
 class RuntimeRoutine {
+    static let shared = RuntimeRoutine()
+    private init() {}
+    
     func runMustache(content: WebViewContent) -> String {
-        return ""
+        var customizedHTML = content.htmlContent
+        customizedHTML = customizedHTML.replacingOccurrences(of: "<h1>", with: "<h1 style='color:blue;'>")
+        customizedHTML = customizedHTML.replacingOccurrences(of: "<body>", with: "<body style='background-color:#f0f0f0;'>")
+        return "Customized HTML:\n\(customizedHTML)"
     }
 }
+
 
 extension Globals {
     static func buildHtml(html: String, css: String, js: String) -> String {
@@ -62,11 +68,18 @@ class LastLaunchingsService {
     
 }
 
+class LastLaunchAnallytics {
+    
+}
+
 class LastLaunchingsViewModel {
     let service: LastLaunchingsService
+    let analytics: LastLaunchAnallytics
     
-    init(service: LastLaunchingsService) {
+    init(service: LastLaunchingsService,
+         analytics: LastLaunchAnallytics) {
         self.service = service
+        self.analytics = analytics
     }
 }
 

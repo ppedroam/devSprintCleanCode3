@@ -40,7 +40,7 @@ class GameViewController: UIViewController {
         let htmlConfig = rHtmlConfig?.last as? HtmlConfig
         let js = htmlConfig?.jsContent ?? ""
         let css = htmlConfig?.cssContent ?? ""
-        let body = RuntimeRoutine().runMustache(content: content)
+        let body = RuntimeRoutine.shared.runMustache(content: content)
         let htmlFinal = Globals.buildHtml(html: body, css: css, js: js)
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
@@ -69,8 +69,9 @@ class GameViewController: UIViewController {
     }
     
     @objc func openNextScreen() {
+        let analytics = LastLaunchAnallytics()
         let service = LastLaunchingsService()
-        let viewModel = LastLaunchingsViewModel(service: service)
+        let viewModel = LastLaunchingsViewModel(service: service, analytics: analytics)
         let lastLaunchingsVC = LastLaunchingsViewController(viewModel: viewModel)
         navigationController?.pushViewController(lastLaunchingsVC, animated: true)
     }

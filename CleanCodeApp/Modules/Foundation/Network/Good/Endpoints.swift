@@ -7,3 +7,9 @@ enum Endpoints {
     static let contactUs = "www.apiQualquer.com/contactUs"
     static let sendMessage = "www.apiQualquer.com/sendMessage"
 }
+
+extension Endpoints {
+    static func createUrl(baseUrl: String, endpointPath: String) -> String {
+        return "\(baseUrl)\(endpointPath)"
+    }
+}

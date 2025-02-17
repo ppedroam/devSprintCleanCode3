@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="uHU-dp-7pV">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="uHU-dp-7pV">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22131"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23084"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -412,13 +412,13 @@ E-mail enviado para:</string>
                     </view>
                     <connections>
                         <outlet property="createAccountButton" destination="gjm-W7-qgQ" id="Cig-i1-uOl"/>
-                        <outlet property="emailLabel" destination="bfO-Kx-DZX" id="ST2-fq-Poc"/>
+                        <outlet property="emailErrorLabel" destination="bfO-Kx-DZX" id="Gg9-UU-ySt"/>
                         <outlet property="emailTextfield" destination="Vzh-no-Lvd" id="gfB-rd-Pt6"/>
                         <outlet property="helpButton" destination="CW8-GQ-2y2" id="bqU-Vt-77Q"/>
                         <outlet property="loginButton" destination="gTs-DZ-zBa" id="YPm-Wk-cgI"/>
                         <outlet property="recoverPasswordButton" destination="cPO-xo-Goh" id="SPx-Hz-Cno"/>
-                        <outlet property="textLabel" destination="29q-Kk-Ndf" id="1WS-AR-w4A"/>
-                        <outlet property="viewSuccess" destination="Ygz-WZ-Pxh" id="Vo3-aG-fbU"/>
+                        <outlet property="recoveryPasswordSuccessView" destination="jR1-IP-EY1" id="bAx-7K-9AJ"/>
+                        <outlet property="verifyEmailLabel" destination="29q-Kk-Ndf" id="FMY-tI-FHg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UBU-bC-5gd" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -444,10 +444,10 @@ E-mail enviado para:</string>
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemGray6Color">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

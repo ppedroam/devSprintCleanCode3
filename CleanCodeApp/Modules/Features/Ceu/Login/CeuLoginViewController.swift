@@ -94,10 +94,8 @@ class CeuLoginViewController: UIViewController {
     }
     
     @IBAction func resetPasswordButton(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "CeuUser", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "CeuResetPasswordViewController") as! CeuResetPasswordViewController
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
+        let ceuResetPasswordViewController = CeuResetPasswordFactory.make()
+        present(ceuResetPasswordViewController, animated: true)
     }
     
     
@@ -224,3 +222,5 @@ extension CeuLoginViewController {
         loginButton.isEnabled = true
     }
 }
+
+

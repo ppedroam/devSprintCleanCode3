@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 
-class GameViewController2: UIViewController {
+class GameViewController1: UIViewController {
     
     let webView = WKWebView()
     var content: WebViewContent?
@@ -71,7 +71,7 @@ class GameViewController2: UIViewController {
               let css = htmlConfig.cssContent else {
             throw CommonsErros.invalidData
         }
-        let body = RuntimeRoutine().runMustache(content: content)
+        let body = RuntimeRoutine.shared.runMustache(content: content)
         let htmlFinal = Globals.buildHtml(html: body, css: css, js: js)
         return htmlFinal
     }
@@ -105,8 +105,9 @@ class GameViewController2: UIViewController {
     }
     
     @objc func openNextScreen() {
+        let analytics = LastLaunchAnallytics()
         let service = LastLaunchingsService()
-        let viewModel = LastLaunchingsViewModel(service: service)
+        let viewModel = LastLaunchingsViewModel(service: service, analytics: analytics)
         let lastLaunchingsVC = LastLaunchingsViewController(viewModel: viewModel)
         navigationController?.pushViewController(lastLaunchingsVC, animated: true)
     }

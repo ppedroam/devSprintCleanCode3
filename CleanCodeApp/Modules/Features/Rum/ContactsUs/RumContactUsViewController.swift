@@ -34,7 +34,7 @@ final class RumContactUsViewController: LoadingInheritageController {
         contactUsView.emailButton.addTarget(self, action: #selector(didTapEmailButton), for: .touchUpInside)
         contactUsView.chatButton.addTarget(self, action: #selector(didTapChatButton), for: .touchUpInside)
         contactUsView.sendMessageButton.addTarget(self, action: #selector(didTapSendMessageButton), for: .touchUpInside)
-        contactUsView.closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
+        contactUsView.backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
     // MARK: - Actions
@@ -62,7 +62,7 @@ final class RumContactUsViewController: LoadingInheritageController {
         UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
     }
     
-    @objc func didTapCloseButton() {
+    @objc func didTapBackButton() {
         dismiss(animated: true)
     }
     
@@ -81,7 +81,7 @@ final class RumContactUsViewController: LoadingInheritageController {
             self.model = model
         case .failure(let error):
             print("Log error: \(error.logMessage)")
-            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
+            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
     
@@ -109,14 +109,14 @@ final class RumContactUsViewController: LoadingInheritageController {
         removeLoadingView()
         switch result {
         case .success:
-            handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
+            showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
         case .failure(let error):
             print("Log error: \(error.logMessage)")
-            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
+            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
         }
     }
     
-    private func handleAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
+    private func showAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
         Globals.showAlertMessage(title: title, message: message, targetVC: self) {
             shouldDismiss ? self.dismiss(animated: true) : nil
         }

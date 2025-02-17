@@ -13,12 +13,18 @@ protocol LuaResetPasswordViewModelProtocol {
 }
 
 final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
+    
+    private let networkManager: LuaNetworkManager
+    
+    init(networkManager: LuaNetworkManager) {
+        self.networkManager = networkManager
+    }
 
     func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String) async throws {
         do {
             try validateConnectivity(emailInputted: emailInputted)
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
-            sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
+            try sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
         } catch _ as LuaNetworkError {
             throw LuaNetworkError.noInternetConnection
         } catch {
@@ -26,12 +32,13 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         }
     }
     
-    private func sendPasswordResetRequest(targetViewController: UIViewController, parameters: [String : String]) {
-        BadNetworkLayer.shared.resetPassword(targetViewController, parameters: parameters) { succes in // need to refactor
-            if succes {
-                
+    private func sendPasswordResetRequest(targetViewController: UIViewController, parameters: [String : String]) throws {
+        Task {
+            do {
+                let _: Data = try await networkManager.request(.authTarget(.resetPassword))
+            } catch {
+                throw error
             }
-            // show alert
         }
     }
     

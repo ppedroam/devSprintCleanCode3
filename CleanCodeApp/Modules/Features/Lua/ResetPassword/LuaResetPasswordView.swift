@@ -1,16 +1,6 @@
 import UIKit
 
-protocol LuaResetPasswordViewProtocol {
-    func configurePasswordRecoveryButton(target: Any, selector: Selector)
-    func configureLoginButton(target: Any, selector: Selector)
-    func configureHelpButton(target: Any, selector: Selector)
-    func configureCreateAccountButton(target: Any, selector: Selector)
-    func configureCloseButton(target: Any, selector: Selector)
-    func configureEmailTextFieldDidBeginEditing(target: Any, selector: Selector)
-    func configureEmailTextFieldOnEditing(target: Any, selector: Selector)
-}
-
-class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
+class LuaResetPasswordView: UIView {
     
     // MARK: - UI Components
     private lazy var scrollView: UIScrollView = {
@@ -97,7 +87,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         return button
     }()
     
-    private lazy var loginButton: UIButton = {
+    public lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("LOGIN", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15)
@@ -111,7 +101,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         return button
     }()
     
-    private lazy var helpButton: UIButton = {
+    public lazy var helpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("PRECISO DE AJUDA", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15)
@@ -125,7 +115,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         return button
     }()
     
-    private lazy var createAccountButton: UIButton = {
+    public lazy var createAccountButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("CRIAR UMA CONTA", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15)
@@ -139,7 +129,7 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
         return button
     }()
     
-    private lazy var closeButton: UIButton = {
+    public lazy var closeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "xmark.app.fill"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -255,34 +245,15 @@ class LuaResetPasswordView: UIView, LuaResetPasswordViewProtocol {
     }
     // MARK: - Target configuration
     public func configurePasswordRecoveryButton(target: Any, selector: Selector) {
-        passwordRecoveryButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    public func configureLoginButton(target: Any, selector: Selector) {
+     
         loginButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    public func configureHelpButton(target: Any, selector: Selector) {
         helpButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    public func configureCreateAccountButton(target: Any, selector: Selector) {
         createAccountButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    public func configureCloseButton(target: Any, selector: Selector) {
         closeButton.addTarget(target, action: selector, for: .touchUpInside)
-    }
-    
-    public func configureEmailTextFieldDidBeginEditing(target: Any, selector: Selector) {
         emailTextField.addTarget(target, action: selector, for: .editingDidBegin)
-    }
-   
-    public func configureEmailTextFieldOnEditing(target: Any, selector: Selector) {
         emailTextField.addTarget(target, action: selector, for: .editingChanged)
-    }
-    
-    public func configureEmailTextFieldDidEndEditing(target: Any, selector: Selector) {
         emailTextField.addTarget(target, action: selector, for: .editingDidEnd)
     }
+    
+   
 }

@@ -4,8 +4,8 @@ final class LuaResetPasswordViewController: UIViewController, LuaAlertHandlerPro
     
     typealias ViewCode = LuaResetPasswordView
     internal let viewCode = LuaResetPasswordView()
-    private var viewModel: LuaResetPasswordViewModelProtocol
-    private var coordinator: LuaCoordinatorProtocol
+    private let viewModel: LuaResetPasswordViewModelProtocol
+    private let coordinator: LuaCoordinatorProtocol
     private var hasRequestedRecovery = false
     
     init(viewModel: LuaResetPasswordViewModelProtocol, coordinator: LuaBasicCoordinator) {
@@ -85,17 +85,17 @@ final class LuaResetPasswordViewController: UIViewController, LuaAlertHandlerPro
 private extension LuaResetPasswordViewController {
     
     func configureButtons() {
-        viewCode.configureHelpButton(target: self, selector: #selector(onHelpButtonTapped) )
-        viewCode.configureCloseButton(target: self, selector: #selector(closeButtonTapped))
-        viewCode.configureLoginButton(target: self, selector: #selector(onLoginButtonTapped))
-        viewCode.configureCreateAccountButton(target: self, selector: #selector(onCreateAccountButtonTapped))
-        viewCode.configurePasswordRecoveryButton(target: self, selector: #selector(onPasswordRecoveryButtonTapped))
+        viewCode.loginButton.addTarget(self, action: #selector(onLoginButtonTapped), for: .touchUpInside)
+        viewCode.helpButton.addTarget(self, action: #selector(onHelpButtonTapped), for: .touchUpInside)
+        viewCode.createAccountButton.addTarget(self, action: #selector(onCreateAccountButtonTapped), for: .touchUpInside)
+        viewCode.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        viewCode.passwordRecoveryButton.addTarget(target, action:  #selector(onPasswordRecoveryButtonTapped), for: .touchUpInside)
     }
     
     func configureTextField() {
-        viewCode.configureEmailTextFieldOnEditing(target: self, selector: #selector(onEmailTextFieldEdit))
-        viewCode.configureEmailTextFieldDidBeginEditing(target: self, selector: #selector(emailTextFieldDidBeginEditing))
-        viewCode.configureEmailTextFieldDidEndEditing(target: self, selector: #selector(emailTextFieldDidEndEditing))
+        viewCode.emailTextField.addTarget(self, action:  #selector(emailTextFieldDidBeginEditing), for: .editingDidBegin)
+        viewCode.emailTextField.addTarget(self, action:  #selector(onEmailTextFieldEdit), for: .editingChanged)
+        viewCode.emailTextField.addTarget(self, action:  #selector(emailTextFieldDidEndEditing), for: .editingDidEnd)
     }
     
     @IBAction func closeButtonTapped(_ sender: Any) {

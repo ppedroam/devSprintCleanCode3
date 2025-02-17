@@ -8,15 +8,28 @@
 
 final class LuaContactUsViewModel {
     
-    private let networkManager = LuaNetworkManager()
+    private let networkManager: LuaNetworkManager
+    public var contactUsModel: ContactUsModel?
     
+    init(networkManager: LuaNetworkManager) {
+        self.networkManager = networkManager
+    }
     
-    func sendMessage(message: String, mail: String) throws {
-        
+    func sendMessage(message: String, mail: String) async throws {
+        do {
+            let params = makeSendParams(message: message, mail: mail)
+            let response: [String: String] = try await networkManager.request(.sendContactUsMessage(params))
+            print(response)
+        } catch {
+            throw error
+        }
+    }
+    
+    func fetchContactUsData() async throws {
         Task {
             do {
-                let params = makeSendParams(message: message, mail: mail)
-                let response: [String: String] = try await  networkManager.request(.sendContactUsMessage(params))
+                contactUsModel = try await networkManager.request(.getContactUsData)
+                print(contactUsModel)
             } catch {
                 throw error
             }

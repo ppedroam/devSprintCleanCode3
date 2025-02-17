@@ -7,6 +7,7 @@
 
 public struct LuaResetPasswordViewModelFactory {
     static func makeLuaResetPasswordViewModel() -> LuaResetPasswordViewModelProtocol {
-        return LuaResetPasswordViewModel()
+        let viewModel = LuaResetPasswordViewModel(networkManager: LuaNetworkManager())
+        return viewModel
     }
 }

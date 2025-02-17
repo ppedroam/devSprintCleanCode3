@@ -6,7 +6,7 @@
 //
 
 struct LuaContactUsViewModelFactory {
-    static func makeLuaContactUsViewModel() -> LuaContactUsViewModel {
+    static func makeLuaContactUsViewModel() -> LuaContactUsViewModelProtocol {
         let viewModel = LuaContactUsViewModel(networkManager: LuaNetworkManager())
         return viewModel
     }

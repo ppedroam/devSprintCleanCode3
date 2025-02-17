@@ -5,8 +5,13 @@
 //  Created by Gabriel Amaral on 15/02/25.
 //
 
+protocol LuaContactUsViewModelProtocol {
+    var contactUsModel: ContactUsModel? { get }
+    func sendMessage(message: String, mail: String) async throws
+    func fetchContactUsData() async throws
+}
 
-final class LuaContactUsViewModel {
+final class LuaContactUsViewModel: LuaContactUsViewModelProtocol {
     
     private let networkManager: LuaNetworkManager
     public var contactUsModel: ContactUsModel?
@@ -15,7 +20,7 @@ final class LuaContactUsViewModel {
         self.networkManager = networkManager
     }
     
-    func sendMessage(message: String, mail: String) async throws {
+    public func sendMessage(message: String, mail: String) async throws {
         do {
             let params = makeSendParams(message: message, mail: mail)
             let response: [String: String] = try await networkManager.request(.sendContactUsMessage(params))
@@ -25,7 +30,7 @@ final class LuaContactUsViewModel {
         }
     }
     
-    func fetchContactUsData() async throws {
+    public func fetchContactUsData() async throws {
         Task {
             do {
                 contactUsModel = try await networkManager.request(.getContactUsData)

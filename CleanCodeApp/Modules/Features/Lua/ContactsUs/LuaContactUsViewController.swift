@@ -10,9 +10,9 @@ import UIKit
 final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
     typealias ViewCode = LuaContactUsView
     internal let viewCode = LuaContactUsView()
-    private let viewModel: LuaContactUsViewModel
+    private let viewModel: LuaContactUsViewModelProtocol
     
-    init(viewModel: LuaContactUsViewModel) {
+    init(viewModel: LuaContactUsViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

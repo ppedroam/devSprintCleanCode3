@@ -161,20 +161,44 @@ class LuaResetPasswordView: UIView {
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         addSubviewsToContentView()
-        addSubviewsTosuccessView()
         addConstraintsToUIComponents()
     }
     
     private func addSubviewsToContentView() {
-        [smokeImageView, passwordRecoverySuccessView, emailLabel, emailTextField, passwordRecoveryButton, loginButton, helpButton, createAccountButton, closeButton].forEach {  contentView.addSubview($0) }
+        [smokeImageView, passwordRecoverySuccessView, emailLabel, emailTextField, passwordRecoveryButton, closeButton].forEach { contentView.addSubview($0) }
     }
     
-    private func addSubviewsTosuccessView() {
-        [successLabel, emailSentLabel].forEach { passwordRecoverySuccessView.addSubview($0) }
+    private func createSuccessContentStack() -> UIStackView {
+        let successContentStack = UIStackView(arrangedSubviews: [successLabel, emailSentLabel])
+        successContentStack.axis = .vertical
+        successContentStack.spacing = 0
+        successContentStack.isLayoutMarginsRelativeArrangement = true
+        successContentStack.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+        return successContentStack
+    }
+    
+    private func createButtonsStack() -> UIStackView {
+        let buttonsStack =  UIStackView(arrangedSubviews: [loginButton, helpButton, createAccountButton])
+        buttonsStack.axis = .vertical
+        buttonsStack.spacing = 20
+        
+        return buttonsStack
     }
     
     func addConstraintsToUIComponents() {
+      
+        let successContentStack = createSuccessContentStack()
+       
+        let buttonsStack = createButtonsStack()
+       
+        [successContentStack, buttonsStack].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        passwordRecoverySuccessView.addSubview(successContentStack)
+        contentView.addSubview(buttonsStack)
+
         NSLayoutConstraint.activate([
+           
             scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -196,16 +220,16 @@ class LuaResetPasswordView: UIView {
             passwordRecoverySuccessView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             passwordRecoverySuccessView.heightAnchor.constraint(equalToConstant: 138),
             
-            successLabel.topAnchor.constraint(equalTo: passwordRecoverySuccessView.topAnchor),
-            successLabel.leadingAnchor.constraint(equalTo: passwordRecoverySuccessView.leadingAnchor),
-            successLabel.trailingAnchor.constraint(equalTo: passwordRecoverySuccessView.trailingAnchor),
+            // Success Content Stack (replaces individual label constraints)
+            successContentStack.topAnchor.constraint(equalTo: passwordRecoverySuccessView.topAnchor),
+            successContentStack.leadingAnchor.constraint(equalTo: passwordRecoverySuccessView.leadingAnchor),
+            successContentStack.trailingAnchor.constraint(equalTo: passwordRecoverySuccessView.trailingAnchor),
+            successContentStack.bottomAnchor.constraint(equalTo: passwordRecoverySuccessView.bottomAnchor),
+            
+            // Fixed heights
             successLabel.heightAnchor.constraint(equalToConstant: 98),
             
-            emailSentLabel.topAnchor.constraint(equalTo: successLabel.bottomAnchor),
-            emailSentLabel.leadingAnchor.constraint(equalTo: passwordRecoverySuccessView.leadingAnchor),
-            emailSentLabel.trailingAnchor.constraint(equalTo: passwordRecoverySuccessView.trailingAnchor),
-            emailSentLabel.bottomAnchor.constraint(equalTo: passwordRecoverySuccessView.bottomAnchor, constant: -10),
-            
+            // Rest of the layout (unchanged)
             emailLabel.topAnchor.constraint(equalTo: smokeImageView.bottomAnchor, constant: 70),
             emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             emailLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
@@ -221,21 +245,14 @@ class LuaResetPasswordView: UIView {
             passwordRecoveryButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             passwordRecoveryButton.heightAnchor.constraint(equalToConstant: 48),
             
-            loginButton.topAnchor.constraint(equalTo: passwordRecoveryButton.bottomAnchor, constant: 84),
-            loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            buttonsStack.topAnchor.constraint(equalTo: passwordRecoveryButton.bottomAnchor, constant: 84),
+            buttonsStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            buttonsStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            buttonsStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
+            
             loginButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            helpButton.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 20),
-            helpButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            helpButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             helpButton.heightAnchor.constraint(equalToConstant: 48),
-            
-            createAccountButton.topAnchor.constraint(equalTo: helpButton.bottomAnchor, constant: 20),
-            createAccountButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            createAccountButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             createAccountButton.heightAnchor.constraint(equalToConstant: 48),
-            createAccountButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
             
             closeButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             closeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),

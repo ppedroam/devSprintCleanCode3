@@ -7,8 +7,6 @@
 
 
 protocol FozResetPasswordManaging: AnyObject {
-    var onPasswordResetSuccess: ((String) -> Void)? { get set }
-    var onPasswordResetFailure: ((String) -> Void)? { get set }
-    func performPasswordReset(withEmail email: String?)
+    func performPasswordReset(withEmail email: String?) async throws -> String
     func isEmailValid(_ email: String?) -> Bool
 }

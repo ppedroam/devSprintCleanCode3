@@ -9,9 +9,6 @@ import Foundation
 
 class FozResetPasswordViewModel: FozResetPasswordManaging {
 
-    var onPasswordResetSuccess: ((String) -> Void)?
-    var onPasswordResetFailure: ((String) -> Void)?
-
     private let resetPasswordService: FozResetPasswordServicing
     private let emailValidator: EmailValidating
 
@@ -20,37 +17,26 @@ class FozResetPasswordViewModel: FozResetPasswordManaging {
         self.emailValidator = emailValidator
     }
 
-    func performPasswordReset(withEmail email: String?) {
-        guard let email = email?.trimmingCharacters(in: .whitespaces), !email.isEmpty else {
-             onPasswordResetFailure?("Informe um e-mail válido")
-             return
-         }
+    func isEmailValid(_ email: String?) -> Bool {
+        return emailValidator.isValid(email)
+    }
 
-        if !isEmailValid(email){
-            onPasswordResetFailure?("E-mail inválido")
-            return
+    func performPasswordReset(withEmail email: String?) async throws -> String {
+        guard let email = email?.trimmingCharacters(in: .whitespaces),
+              !email.isEmpty else {
+            throw ResetPasswordError.custom("E-mail inválido")
         }
 
-        guard ConnectivityManager.shared.isConnected else {
-            onPasswordResetFailure?("Sem conexão com a internet")
-            return
-        }
-
-        let parameters = ["email": email]
-
-        resetPasswordService.performPasswordReset(with: parameters) { [weak self] success in
-            DispatchQueue.main.async {
+        return try await withCheckedThrowingContinuation { continuation in
+            resetPasswordService.performPasswordReset(with: ["email": email]) { success in
                 if success {
-                    self?.onPasswordResetSuccess?(email)
+                    continuation.resume(returning: email)
                 } else {
-                    self?.onPasswordResetFailure?("Falha ao recuperar a senha.")
+                    continuation.resume(throwing: ResetPasswordError.custom("Falha ao resetar a senha."))
                 }
             }
         }
     }
-    
-
-    func isEmailValid(_ email: String?) -> Bool {
-        return emailValidator.isValid(email)
-    }
 }
+
+

@@ -31,22 +31,29 @@ class FozResetPasswordViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupBindings(with: viewModel)
         configureRecoverPasswordView()
     }
 
-    private func setupBindings(with viewModel: FozResetPasswordManaging) {
-        viewModel.onPasswordResetSuccess = { [weak self] email in
-            self?.handlePasswordResetSuccess(withEmail: email)
-        }
-        viewModel.onPasswordResetFailure = { [weak self] errorMessage in guard let self = self else { return }
-            if errorMessage == "Sem conexão com a internet" {
-                Globals.showNoInternetCOnnection(controller: self)
-            } else {
-                Globals.alertMessage(title: "Ops…", message: errorMessage, targetVC: self)
+
+    private func checkPasswordReset(with viewModel: FozResetPasswordManaging) {
+        Task {
+            do {
+                let email = try await viewModel.performPasswordReset(withEmail: emailTextfield.text)
+                handlePasswordResetSuccess(withEmail: email)
+            } catch let error as ResetPasswordError {
+                switch error {
+                case .noInternet:
+                    Globals.showNoInternetCOnnection(controller: self)
+                case .custom(let message):
+                    Globals.alertMessage(title: "Ops…", message: message, targetVC: self)
+                }
+            } catch {
+                handlePasswordResetFailure()
             }
         }
     }
+
+
 
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -59,8 +66,7 @@ class FozResetPasswordViewController: UIViewController {
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
         view.endEditing(true)
-        viewModel.performPasswordReset(withEmail: emailTextfield.text)
-
+        checkPasswordReset(with: viewModel)
     }
 
 

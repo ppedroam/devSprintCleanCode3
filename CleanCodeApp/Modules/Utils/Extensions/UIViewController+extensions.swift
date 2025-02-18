@@ -5,12 +5,12 @@ extension UIViewController {
         let loadingController = LoadingController()
         loadingController.modalPresentationStyle = .fullScreen
         loadingController.modalTransitionStyle = .crossDissolve
-        self.present(loadingController, animated: true)
+        self.present(loadingController, animated: false)
     }
 
     func stopLoading() {
         if let presentedController = presentedViewController as? LoadingController {
-            presentedController.dismiss(animated: true)
+            presentedController.dismiss(animated: false)
         }
     }
 

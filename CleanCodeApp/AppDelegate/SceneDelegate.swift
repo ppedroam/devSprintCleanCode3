@@ -17,7 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         self.window = UIWindow(frame: UIScreen.main.bounds)
-        let rootViewController = getRootViewController(forUser: .jorgeRoberto)
+
+        let rootViewController = getRootViewController(forUser: .gabrielEirado)
+      
         self.window?.rootViewController = UINavigationController(rootViewController: rootViewController)
         self.window?.windowScene = windowScene
         self.window?.makeKeyAndVisible()
@@ -50,7 +52,7 @@ func getRootViewController(forUser user: Users) -> UIViewController {
     }
     let storyboard = UIStoryboard(name: "\(userIdentifier)User", bundle: nil)
     let vc = storyboard.instantiateViewController(withIdentifier: "\(userIdentifier)LoginViewController")
-    return vc
+    return LuaResetPasswordViewControllerFactory.makeLuaResetPasswordViewController()
 }
 
 enum Users {

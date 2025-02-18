@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum CurrencyType: CaseIterable {
+enum CurrencyTypeI: CaseIterable {
     case brl, usd, eur
     
     var identifier: String {
@@ -35,7 +35,7 @@ enum CurrencyType: CaseIterable {
     }
 }
 
-class HomeViewController: UIViewController, UITextFieldDelegate {
+class HomeViewControllerI: UIViewController, UITextFieldDelegate {
     
     private var selectedCurrencyFrom: CurrencyType = .brl
     private var selectedCurrencyTo: CurrencyType = .usd

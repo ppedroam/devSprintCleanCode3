@@ -27,12 +27,12 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        FetchContactUsData()
+        fetchContactUsData()
         configureButtons()
         hideKeyboardWhenTappedAround()
     }
     
-    private func FetchContactUsData() {
+    private func fetchContactUsData() {
         Task {
             do {
                 await luaShowLoading()

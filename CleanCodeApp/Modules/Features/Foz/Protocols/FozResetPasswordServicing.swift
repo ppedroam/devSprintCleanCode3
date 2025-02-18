@@ -6,6 +6,6 @@
 //
 import Foundation
 
-protocol ResetPasswordServicing {
+protocol FozResetPasswordServicing {
     func performPasswordReset(with parameters: [String: String], completion: @escaping (Bool) -> Void)
 }

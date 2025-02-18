@@ -7,15 +7,15 @@
 
 import Foundation
 
-class FozResetPasswordViewModel: ResetPasswordManaging {
+class FozResetPasswordViewModel: FozResetPasswordManaging {
 
     var onPasswordResetSuccess: ((String) -> Void)?
     var onPasswordResetFailure: ((String) -> Void)?
 
-    private let resetPasswordService: ResetPasswordServicing
+    private let resetPasswordService: FozResetPasswordServicing
     private let emailValidator: EmailValidating
 
-    init(resetPasswordService: ResetPasswordServicing, emailValidator: EmailValidating) {
+    init(resetPasswordService: FozResetPasswordServicing, emailValidator: EmailValidating) {
         self.resetPasswordService = resetPasswordService
         self.emailValidator = emailValidator
     }

@@ -8,9 +8,7 @@
 import Foundation
 import UIKit
 
-protocol Coordinating {
-    var navigationController: UINavigationController { get set }
-    func make()
+protocol FozResetPasswordCoordinating: AnyObject {
     func showContactUs()
     func showCreateAccount() 
 }

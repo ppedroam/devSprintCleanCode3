@@ -6,7 +6,7 @@
 //
 
 
-protocol ResetPasswordManaging: AnyObject {
+protocol FozResetPasswordManaging: AnyObject {
     var onPasswordResetSuccess: ((String) -> Void)? { get set }
     var onPasswordResetFailure: ((String) -> Void)? { get set }
     func performPasswordReset(withEmail email: String?)

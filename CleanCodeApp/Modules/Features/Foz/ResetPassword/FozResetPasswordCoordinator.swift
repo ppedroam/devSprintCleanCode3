@@ -8,30 +8,18 @@
 import UIKit
 import Foundation
 
-final class FozResetPasswordCoordinator: Coordinating {
-    var navigationController: UINavigationController
-
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
-    }
-
-
-    func make(){
-        let resetPasswordVC = FozResetPasswordFactory().createResetPasswordViewController()
-        resetPasswordVC.coordinator = self
-        navigationController.pushViewController(resetPasswordVC, animated: true)
-        
-    }
+final class FozResetPasswordCoordinator: FozResetPasswordCoordinating {
+    weak var viewController: UIViewController?
 
     func showContactUs() {
-        let contactUsVC = FozContactUsViewController()
+        let contactUsVC = FozResetPasswordFactory().make()
         contactUsVC.modalPresentationStyle = .fullScreen
-        navigationController.pushViewController(contactUsVC, animated: true)
+        viewController?.navigationController?.pushViewController(contactUsVC, animated: true)
     }
 
     func showCreateAccount() {
-        let createAccountVC = FozCreateAccountViewController()
+        let createAccountVC = FozResetPasswordFactory().make()
         createAccountVC.modalPresentationStyle = .fullScreen
-        navigationController.pushViewController(createAccountVC, animated: true)
+        viewController?.navigationController?.pushViewController(createAccountVC, animated: true)
     }
 }

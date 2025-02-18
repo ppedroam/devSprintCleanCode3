@@ -15,20 +15,27 @@ class FozResetPasswordViewController: UIViewController {
     private var didUserPutEmail: String = ""
     private var didUserPressRecoverPasswordButton: Bool = false
 
-    var viewModel: ResetPasswordManaging?
-    var coordinator: Coordinating?
+    var viewModel: FozResetPasswordManaging
+    weak var coordinator: FozResetPasswordCoordinating?
 
+    init(viewModel: FozResetPasswordManaging, coordinator: FozResetPasswordCoordinating){
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        guard let viewModel = viewModel else {
-            fatalError("ResetPasswordViewModel não injetada. Faça isso antes de carregar a VC")
-        }
         setupBindings(with: viewModel)
         configureRecoverPasswordView()
     }
 
-    private func setupBindings(with viewModel: ResetPasswordManaging) {
+    private func setupBindings(with viewModel: FozResetPasswordManaging) {
         viewModel.onPasswordResetSuccess = { [weak self] email in
             self?.handlePasswordResetSuccess(withEmail: email)
         }
@@ -52,7 +59,7 @@ class FozResetPasswordViewController: UIViewController {
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
         view.endEditing(true)
-        viewModel?.performPasswordReset(withEmail: emailTextfield.text)
+        viewModel.performPasswordReset(withEmail: emailTextfield.text)
 
     }
 
@@ -90,7 +97,7 @@ class FozResetPasswordViewController: UIViewController {
     }
 
     private func isFormValid() -> Bool {
-        if (viewModel?.isEmailValid(didUserPutEmail)) != nil {
+        if viewModel.isEmailValid(didUserPutEmail){
             return true
         }
         else {

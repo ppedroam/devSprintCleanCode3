@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 
 
-class ResetPasswordService: ResetPasswordServicing {
+class ResetPasswordService: FozResetPasswordServicing {
 
     private weak var presenter: UIViewController?
 

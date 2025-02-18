@@ -14,8 +14,19 @@ class CeuResetPasswordViewController: UIViewController {
 
     private var email = ""
     private var isEmailRecovered = false
-    var ceuResetPasswordViewModel: CeuResetPasswordViewModel?
-    var ceuResetPasswordCoordinator: CeuResetPasswordCoordinator?
+    private let ceuResetPasswordViewModel: CeuResetPasswordViewModelProtocol
+    private let ceuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol
+
+    init?(coder: NSCoder, ceuResetPasswordViewModel: CeuResetPasswordViewModelProtocol, ceuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol) {
+        self.ceuResetPasswordViewModel = ceuResetPasswordViewModel
+        self.ceuResetPasswordCoordinator = ceuResetPasswordCoordinator
+        super.init(coder: coder)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented. Use init(coder:viewModel:coordinator:) instead.")
+    }
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +49,7 @@ private extension CeuResetPasswordViewController {
         if isEmailRecovered {
             dismiss(animated: true)
         } else {
-            ceuResetPasswordViewModel?.startRecoverPasswordWith(email: emailTextfield?.text)
+            ceuResetPasswordViewModel.startRecoverPasswordWith(email: emailTextfield?.text)
         }
     }
 
@@ -47,11 +58,11 @@ private extension CeuResetPasswordViewController {
     }
 
     @IBAction func helpButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.showContactUsViewController()
+        ceuResetPasswordCoordinator.showContactUsViewController()
     }
 
     @IBAction func createAccountButton(_ sender: Any) {
-        ceuResetPasswordCoordinator?.showCreateAccountViewController()
+        ceuResetPasswordCoordinator.showCreateAccountViewController()
     }
 
     // MARK: - Setup Views
@@ -144,7 +155,7 @@ extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
     }
 
     func handleResetPasswordRequestError() {
-        ceuResetPasswordCoordinator?.showAlert()
+        ceuResetPasswordCoordinator.showAlert()
     }
 
     func validateForm() throws {
@@ -163,11 +174,11 @@ extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
     }
 
     func showAlertWith(message: String) {
-        ceuResetPasswordCoordinator?.showAlertWith(message: message)
+        ceuResetPasswordCoordinator.showAlertWith(message: message)
     }
 
     func showNoInternetConnectionAlert() {
-        ceuResetPasswordCoordinator?.showNoInternetConnectionAlert()
+        ceuResetPasswordCoordinator.showNoInternetConnectionAlert()
     }
 }
 

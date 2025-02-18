@@ -9,18 +9,17 @@ import UIKit
 enum CeuResetPasswordFactory {
     static func make() -> UIViewController {
         let storyboard = UIStoryboard(name: "CeuUser", bundle: nil)
-        let ceuResetPasswordViewController = storyboard.instantiateViewController(withIdentifier: "CeuResetPasswordViewController") as! CeuResetPasswordViewController
-        ceuResetPasswordViewController.modalPresentationStyle = .fullScreen
 
         let ceuResetPasswordViewModel = CeuResetPasswordViewModel()
+        var ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
+
+        let ceuResetPasswordViewController = storyboard.instantiateViewController(identifier: "CeuResetPasswordViewController") { coder in
+            CeuResetPasswordViewController(coder: coder, ceuResetPasswordViewModel: ceuResetPasswordViewModel, ceuResetPasswordCoordinator: ceuResetPasswordCoordinator)
+        }
+        ceuResetPasswordViewController.modalPresentationStyle = .fullScreen
+
+        ceuResetPasswordCoordinator.viewController = ceuResetPasswordViewController
         ceuResetPasswordViewModel.delegate = ceuResetPasswordViewController
 
-        var ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
-        ceuResetPasswordCoordinator.viewController = ceuResetPasswordViewController
-
-        ceuResetPasswordViewController.ceuResetPasswordViewModel = ceuResetPasswordViewModel
-        ceuResetPasswordViewController.ceuResetPasswordCoordinator = ceuResetPasswordCoordinator
-
         return ceuResetPasswordViewController
-    }
-}
+    }}

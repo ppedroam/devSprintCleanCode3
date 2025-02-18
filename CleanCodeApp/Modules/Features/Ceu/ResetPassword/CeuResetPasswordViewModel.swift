@@ -14,7 +14,12 @@ protocol CeuResetPasswordViewModelDelegate where Self: UIViewController {
     func showNoInternetConnectionAlert()
 }
 
-class CeuResetPasswordViewModel {
+protocol CeuResetPasswordViewModelProtocol {
+    var delegate: CeuResetPasswordViewModelDelegate? { get set }
+    func startRecoverPasswordWith(email: String?)
+}
+
+class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
 
     func startRecoverPasswordWith(email: String?) {

@@ -9,17 +9,17 @@ import UIKit
 struct CeuResetPasswordCoordinator {
     weak var viewController: UIViewController?
 
-    func setupContactUsViewController() {
-        let viewController = CeuContactUsViewController()
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.modalTransitionStyle = .coverVertical
-        viewController.present(viewController, animated: true, completion: nil)
+    func showContactUsViewController() {
+        let ceuContactUsViewController = CeuContactUsViewController()
+        ceuContactUsViewController.modalPresentationStyle = .fullScreen
+        ceuContactUsViewController.modalTransitionStyle = .coverVertical
+        self.viewController?.present(ceuContactUsViewController, animated: true, completion: nil)
     }
 
-    func setupCreateAccountViewController() {
-        let viewController = CeuCreateAccountViewController()
-        viewController.modalPresentationStyle = .fullScreen
-        viewController.present(viewController, animated: true)
+    func showCreateAccountViewController() {
+        let ceuCreateAccountViewController = CeuCreateAccountViewController()
+        ceuCreateAccountViewController.modalPresentationStyle = .fullScreen
+        self.viewController?.present(ceuCreateAccountViewController, animated: true)
     }
 
     func showAlert() {
@@ -27,5 +27,15 @@ struct CeuResetPasswordCoordinator {
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         self.viewController?.present(alertController, animated: true)
+    }
+
+    func showAlertWith(message: String) {
+        guard let viewController = viewController else { return }
+        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
+    }
+
+    func showNoInternetConnectionAlert() {
+        guard let viewController = viewController else { return }
+        Globals.showNoInternetCOnnection(controller: viewController)
     }
 }

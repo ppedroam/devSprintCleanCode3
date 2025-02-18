@@ -21,6 +21,11 @@ protocol CeuResetPasswordViewModelProtocol {
 
 class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
+    private let networkLayer: CeuBadNetworkLayerProtocol
+
+    init(networkLayer: CeuBadNetworkLayerProtocol = CeuBadNetworkLayer()) {
+        self.networkLayer = networkLayer
+    }
 
     func startRecoverPasswordWith(email: String?) {
         do {
@@ -58,7 +63,7 @@ private extension CeuResetPasswordViewModel {
 
     func makeResetPasswordRequest(parameters: [String : String]) {
         guard let delegate = delegate else { return }
-        BadNetworkLayer.shared.resetPassword(delegate, parameters: parameters) { (success) in
+        networkLayer.resetPassword(delegate, parameters: parameters) { (success) in
             if success {
                 self.delegate?.handleResetPasswordRequestSuccess()
                 return

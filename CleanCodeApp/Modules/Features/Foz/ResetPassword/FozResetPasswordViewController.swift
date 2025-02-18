@@ -1,42 +1,36 @@
 import UIKit
 
 class FozResetPasswordViewController: UIViewController {
-    
+
     @IBOutlet weak var emailTextfield: UITextField!
     @IBOutlet weak var recoverPasswordButton: UIButton!
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var helpButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
 
-    @IBOutlet weak var textLabel: UILabel!
-    @IBOutlet weak var viewSuccess: UIView!
-    @IBOutlet weak var emailLabel: UILabel!
-
-    var userEmail = ""
-    var userPressedRecoveryButton = false
     @IBOutlet weak var verifyUserEmailLabel: UILabel!
     @IBOutlet weak var passwordRecoveredSuccessView: UIView!
     @IBOutlet weak var emailDisplayLabel: UILabel!
-    
+
     var didUserPutEmail: String = ""
     var didUserPressRecoverPasswordButton: Bool = false
-    
+
     private let emailValidator: EmailValidating = EmailValidatorUseCase()
-    
-    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureRecoverPasswordView()
     }
-    
+
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
-    
+
     @IBAction func closeButtonAction(_ sender: Any) {
         dismiss(animated: true)
     }
-    
+
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
         if !didUserPressRecoverPasswordButton {
@@ -45,32 +39,32 @@ class FozResetPasswordViewController: UIViewController {
         else {
             dismiss(animated: true)
         }
-        
+
         view.endEditing(true)
     }
-    
+
     private func validateRecovering(){
         guard validateForm() else {
             return
         }
-        
+
         checkUserConnection()
-        
+
         guard let email = emailTextfield.text?.trimmingCharacters(in: .whitespaces), !email.isEmpty else {
             return
         }
-        
+
         let parameters = ["email": email]
         performPasswordReset(with: parameters, email: email)
     }
-    
+
     private func checkUserConnection (){
         guard ConnectivityManager.shared.isConnected else {
             Globals.showNoInternetCOnnection(controller: self)
             return
         }
     }
-    
+
     private func performPasswordReset(with parameters: [String: String], email: String) {
         BadNetworkLayer.shared.resetPassword(self, parameters: parameters) { [weak self] success in
             DispatchQueue.main.async {
@@ -79,7 +73,7 @@ class FozResetPasswordViewController: UIViewController {
             }
         }
     }
-    
+
     private func handlePasswordResetSuccess(withEmail email: String) {
         didUserPressRecoverPasswordButton = true
         emailTextfield.isHidden = true
@@ -88,7 +82,7 @@ class FozResetPasswordViewController: UIViewController {
         emailDisplayLabel.text = email
         recoverPasswordButton.setTitle("Voltar", for: .normal)
     }
-    
+
     private func handlePasswordResetFailure() {
         let alertController = UIAlertController(
             title: "Ops…",
@@ -98,67 +92,68 @@ class FozResetPasswordViewController: UIViewController {
         alertController.addAction(UIAlertAction(title: "OK", style: .default))
         present(alertController, animated: true)
     }
-    
-    
+
+
     @IBAction func loginButton(_ sender: Any) {
         dismiss(animated: true)
     }
-    
+
     @IBAction func helpButton(_ sender: Any) {
         let vc = FozContactUsViewController()
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .coverVertical
         self.present(vc, animated: true, completion: nil)
     }
-    
+
     @IBAction func createAccountButton(_ sender: Any) {
         let newVc = FozCreateAccountViewController()
         newVc.modalPresentationStyle = .fullScreen
         present(newVc, animated: true)
     }
-    
+
     func validateForm() -> Bool {
         let isEmailValid = emailValidator.isValid(emailTextfield.text)
-        
+
         if isEmailValid {
             return true
         }
-        
+
         else {
             setupErrorMessage()
             return false
         }
-        
+
     }
-    
+
     private func setupErrorMessage(){
         emailTextfield.setErrorColor()
-        textLabel.textColor = .red
-        textLabel.text = "Verifique o e-mail informado"
+        verifyUserEmailLabel.textColor = .red
+        verifyUserEmailLabel.text = "Verifique o e-mail informado"
     }
 }
 
+
 // MARK: - Comportamentos de layout
 extension FozResetPasswordViewController {
-    
+
     func configureRecoverPasswordView() {
         recoverPasswordButton.applyPrimaryButtonStyle()
-        
+
         loginButton.applySecondaryButtonStyle()
-        
+
         helpButton.applySecondaryButtonStyle()
-        
+
         createAccountButton.applySecondaryButtonStyle()
-        
+
         emailTextfield.setDefaultColor()
-        
+
         if !didUserPutEmail.isEmpty {
             emailTextfield.text = didUserPutEmail
             emailTextfield.isEnabled = false
         }
         updateRecoverPasswordButtonState()
     }
-    
+
     @IBAction func emailEditingDidBegin(_ sender: Any) {
         emailTextfield.setEditingColor()
     }
@@ -167,31 +162,8 @@ extension FozResetPasswordViewController {
         emailTextfield.setEditingColor()
         updateRecoverPasswordButtonState()
     }
-    
-    @IBAction func emailEndEditing(_ sender: Any) {
-        emailTextfield.setDefaultColor()
-    }
-    
-    // MARK: Button Styler
-    func stylePrimaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.backgroundColor = .blue
-        button.setTitleColor(.white, for: .normal)
-    }
-    
-    func styleSecondaryButton(_ button: UIButton){
-        button.layer.cornerRadius = button.bounds.height / 2
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.blue.cgColor
-        button.backgroundColor = .white
-        button.setTitleColor(.blue, for: .normal)
-    }
-    
-}
 
-extension FozResetPasswordViewController {
-    
-    func emailEditingDidEnd(_ sender: Any) {
+    @IBAction func emailEditingDidEnd(_ sender: Any) {
         emailTextfield.setDefaultColor()
     }
 

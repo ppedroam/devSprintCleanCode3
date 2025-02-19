@@ -62,8 +62,7 @@ private extension CeuResetPasswordViewModel {
     }
 
     func makeResetPasswordRequest(parameters: [String : String]) {
-        guard let delegate = delegate else { return }
-        var resetPasswordRequest: NetworkRequest = ResetPasswordRequest()
+        let resetPasswordRequest: NetworkRequest = ResetPasswordRequest()
 
         networkManager.request(resetPasswordRequest) { (result: Result<ResetPasswordResponse, Error>) in
             switch result {
@@ -73,13 +72,6 @@ private extension CeuResetPasswordViewModel {
                 self.delegate?.handleResetPasswordRequestError()
             }
         }
-//        networkLayer.resetPassword(delegate, parameters: parameters) { (success) in
-//            if success {
-//                self.delegate?.handleResetPasswordRequestSuccess()
-//                return
-//            }
-//            self.delegate?.handleResetPasswordRequestError()
-//        }
     }
 }
 
@@ -89,6 +81,6 @@ struct ResetPasswordResponse: Decodable {
 }
 
 class ResetPasswordRequest: NetworkRequest {
-    var pathURL: String = ""
-    var method: HTTPMethod = .get
+    var pathURL: String = Endpoints.Auth.resetPassword
+    var method: HTTPMethod = .post
 }

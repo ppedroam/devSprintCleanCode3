@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CeuResetPasswordCoordinatorProtocol {
-    var viewController: UIViewController? { get set }
+    var viewController: CeuResetPasswordViewController? { get set }
     func showContactUsViewController()
     func showCreateAccountViewController()
     func showAlert()
@@ -16,8 +16,9 @@ protocol CeuResetPasswordCoordinatorProtocol {
     func showNoInternetConnectionAlert()
 }
 
-struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlobalsProtocol {
-    weak var viewController: UIViewController?
+
+class CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlobalsProtocol {
+    weak var viewController: CeuResetPasswordViewController?
 
     func showContactUsViewController() {
         let ceuContactUsViewController = CeuContactUsViewController()
@@ -29,14 +30,18 @@ struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlob
     func showCreateAccountViewController() {
         let ceuCreateAccountViewController = CeuCreateAccountViewController()
         ceuCreateAccountViewController.modalPresentationStyle = .fullScreen
-        self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        }
     }
 
     func showAlert() {
         let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
-        self.viewController?.present(alertController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(alertController, animated: true)
+        }
     }
 
     func showAlertWith(message: String) {

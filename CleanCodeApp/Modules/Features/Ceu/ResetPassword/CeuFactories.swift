@@ -10,13 +10,13 @@ enum CeuResetPasswordFactory {
     static func make() -> UIViewController {
         let storyboard = UIStoryboard(name: "CeuUser", bundle: nil)
 
-        var ceuResetPasswordViewModel = CeuResetPasswordViewModel()
-        var ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
+        let ceuResetPasswordViewModel = CeuResetPasswordViewModel()
+        let ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
 
         let ceuResetPasswordViewController = storyboard.instantiateViewController(identifier: "CeuResetPasswordViewController") { coder in
             CeuResetPasswordViewController(
                 coder: coder,
-                ceuResetPasswordViewModel: CeuResetPasswordViewModel(),
+                ceuResetPasswordViewModel: ceuResetPasswordViewModel,
                 ceuResetPasswordCoordinator: ceuResetPasswordCoordinator
             )
         }
@@ -26,4 +26,5 @@ enum CeuResetPasswordFactory {
         ceuResetPasswordViewModel.delegate = ceuResetPasswordViewController
 
         return ceuResetPasswordViewController
-    }}
+    }
+}

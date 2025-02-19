@@ -15,7 +15,16 @@ final class RumContactUsViewController: LoadingInheritageController {
     private lazy var contactUsView = RumContactUsView()
     
     // MARK: - Services
-    private let contactUsService = RumContactUsAPIService()
+    private let contactUsService: RumContactAPIServicing
+    
+    init(service: RumContactAPIServicing) {
+        self.contactUsService = service
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     override func loadView() {
@@ -34,36 +43,7 @@ final class RumContactUsViewController: LoadingInheritageController {
         contactUsView.emailButton.addTarget(self, action: #selector(didTapEmailButton), for: .touchUpInside)
         contactUsView.chatButton.addTarget(self, action: #selector(didTapChatButton), for: .touchUpInside)
         contactUsView.sendMessageButton.addTarget(self, action: #selector(didTapSendMessageButton), for: .touchUpInside)
-        contactUsView.closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
-    }
-    
-    // MARK: - Actions
-    @objc func didTapPhoneButton() {
-        guard let tel = model?.phone, let url = URL(string: "tel://\(tel)") else { return }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-    }
-    
-    @objc func didTapEmailButton() {
-        guard let mail = model?.mail, let url = URL(string: "mailto:\(mail)") else { return }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-    }
-    
-    @objc func didTapChatButton() {
-        guard let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { return }
-        UIApplication.shared.canOpenURL(whatsappURL) ? openWhatsapp(whatsappURL) : openAppStore()
-    }
-    
-    private func openWhatsapp(_ whatsappURL: URL) {
-        UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-    }
-    
-    private func openAppStore() {
-        guard let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { return }
-        UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
-    }
-    
-    @objc func didTapCloseButton() {
-        dismiss(animated: true)
+        contactUsView.backButton.addTarget(self, action: #selector(didTapBackButton), for: .touchUpInside)
     }
     
     func fetchData() {
@@ -81,7 +61,7 @@ final class RumContactUsViewController: LoadingInheritageController {
             self.model = model
         case .failure(let error):
             print("Log error: \(error.logMessage)")
-            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
+            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
         }
     }
     
@@ -109,16 +89,47 @@ final class RumContactUsViewController: LoadingInheritageController {
         removeLoadingView()
         switch result {
         case .success:
-            handleAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
+            showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
         case .failure(let error):
             print("Log error: \(error.logMessage)")
-            handleAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
+            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
         }
     }
     
-    private func handleAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
+    private func showAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
         Globals.showAlertMessage(title: title, message: message, targetVC: self) {
             shouldDismiss ? self.dismiss(animated: true) : nil
         }
+    }
+}
+
+// MARK: - Button Actions
+private extension RumContactUsViewController {
+    @objc func didTapPhoneButton() {
+        guard let tel = model?.phone, let url = URL(string: "tel://\(tel)") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
+    
+    @objc func didTapEmailButton() {
+        guard let mail = model?.mail, let url = URL(string: "mailto:\(mail)") else { return }
+        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+    }
+    
+    @objc func didTapChatButton() {
+        guard let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { return }
+        UIApplication.shared.canOpenURL(whatsappURL) ? openWhatsapp(whatsappURL) : openAppStore()
+    }
+    
+    private func openWhatsapp(_ whatsappURL: URL) {
+        UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
+    }
+    
+    private func openAppStore() {
+        guard let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { return }
+        UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
+    }
+    
+    @objc func didTapBackButton() {
+        dismiss(animated: true)
     }
 }

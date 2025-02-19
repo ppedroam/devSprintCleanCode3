@@ -16,7 +16,7 @@ protocol CeuResetPasswordCoordinatorProtocol {
     func showNoInternetConnectionAlert()
 }
 
-struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol {
+struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlobalsProtocol {
     weak var viewController: UIViewController?
 
     func showContactUsViewController() {
@@ -41,11 +41,11 @@ struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol {
 
     func showAlertWith(message: String) {
         guard let viewController = viewController else { return }
-        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
+        return self.alertMessage(title: "Ops...", message: message, targetVC: viewController, action: nil)
     }
 
     func showNoInternetConnectionAlert() {
         guard let viewController = viewController else { return }
-        Globals.showNoInternetCOnnection(controller: viewController)
+        self.showNoInternetCOnnection(controller: viewController)
     }
 }

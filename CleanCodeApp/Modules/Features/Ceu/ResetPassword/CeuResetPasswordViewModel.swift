@@ -21,6 +21,11 @@ protocol CeuResetPasswordViewModelProtocol {
 
 class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
+    private let networkManager: NetworkManagerProtocol
+
+    init(networkManager: NetworkManagerProtocol = NetworkManager()) {
+        self.networkManager = networkManager
+    }
 
     func startRecoverPasswordWith(email: String?) {
         do {
@@ -58,13 +63,32 @@ private extension CeuResetPasswordViewModel {
 
     func makeResetPasswordRequest(parameters: [String : String]) {
         guard let delegate = delegate else { return }
-        BadNetworkLayer.shared.resetPassword(delegate, parameters: parameters) { (success) in
-            if success {
+        var resetPasswordRequest: NetworkRequest = ResetPasswordRequest()
+
+        networkManager.request(resetPasswordRequest) { (result: Result<ResetPasswordResponse, Error>) in
+            switch result {
+            case .success(_):
                 self.delegate?.handleResetPasswordRequestSuccess()
-                return
+            case .failure(_):
+                self.delegate?.handleResetPasswordRequestError()
             }
-            self.delegate?.handleResetPasswordRequestError()
         }
+//        networkLayer.resetPassword(delegate, parameters: parameters) { (success) in
+//            if success {
+//                self.delegate?.handleResetPasswordRequestSuccess()
+//                return
+//            }
+//            self.delegate?.handleResetPasswordRequestError()
+//        }
     }
 }
 
+struct ResetPasswordResponse: Decodable {
+    let success: Bool
+    let message: String?
+}
+
+class ResetPasswordRequest: NetworkRequest {
+    var pathURL: String = ""
+    var method: HTTPMethod = .get
+}

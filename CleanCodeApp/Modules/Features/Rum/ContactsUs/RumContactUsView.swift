@@ -10,7 +10,7 @@ import UIKit
 final class RumContactUsView: UIView {
     // MARK: - UI Components
     
-    lazy var headerStackView: UIStackView = {
+    private lazy var headerStackView: UIStackView = {
         let headerStackView = UIStackView()
         headerStackView.axis = .vertical
         headerStackView.spacing = 30
@@ -18,7 +18,7 @@ final class RumContactUsView: UIView {
         return headerStackView
     }()
     
-    lazy var headerButtonsStackView: UIStackView = {
+    private lazy var headerButtonsStackView: UIStackView = {
         let headerButtonsStackView = UIStackView()
         headerButtonsStackView.axis = .horizontal
         headerButtonsStackView.distribution = .equalCentering
@@ -26,7 +26,7 @@ final class RumContactUsView: UIView {
         return headerButtonsStackView
     }()
     
-    lazy var screenTitle: UILabel = {
+    private lazy var screenTitle: UILabel = {
         let screenTitle = UILabel()
         screenTitle.textColor = .black
         screenTitle.font = UIFont.systemFont(ofSize: 24, weight: .semibold)
@@ -59,7 +59,7 @@ final class RumContactUsView: UIView {
         return chatButton
     }()
     
-    lazy var centerStackView: UIStackView = {
+    private lazy var centerStackView: UIStackView = {
         let centerStackView = UIStackView()
         centerStackView.axis = .vertical
         centerStackView.spacing = 20
@@ -67,7 +67,7 @@ final class RumContactUsView: UIView {
         return centerStackView
     }()
     
-    lazy var textViewTitle: UILabel = {
+    private lazy var textViewTitle: UILabel = {
         let textViewTitle = UILabel()
         textViewTitle.textColor = .black
         textViewTitle.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
@@ -85,7 +85,7 @@ final class RumContactUsView: UIView {
         return textView
     }()
     
-    lazy var bottomStackView: UIStackView = {
+    private lazy var bottomStackView: UIStackView = {
         let bottomStackView = UIStackView()
         bottomStackView.axis = .vertical
         bottomStackView.spacing = 20

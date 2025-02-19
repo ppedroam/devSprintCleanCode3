@@ -15,7 +15,16 @@ final class RumContactUsViewController: LoadingInheritageController {
     private lazy var contactUsView = RumContactUsView()
     
     // MARK: - Services
-    private let contactUsService = RumContactUsAPIService()
+    private let contactUsService: RumContactAPIServicing
+    
+    init(service: RumContactAPIServicing) {
+        self.contactUsService = service
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     override func loadView() {

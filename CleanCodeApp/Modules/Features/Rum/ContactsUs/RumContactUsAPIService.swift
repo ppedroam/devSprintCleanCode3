@@ -7,7 +7,12 @@
 
 import Foundation
 
-final class RumContactUsAPIService {
+protocol RumContactAPIServicing {
+    func fetchContactUsData() async -> Result<ContactUsModel, RumContactUsError>
+    func sendMessage(parameters: [String: String]) async -> Result<Void, RumContactUsError>
+}
+
+final class RumContactUsAPIService: RumContactAPIServicing {
     func fetchContactUsData() async -> Result<ContactUsModel, RumContactUsError> {
         let url = Endpoints.contactUs
         return await withCheckedContinuation { continuation in

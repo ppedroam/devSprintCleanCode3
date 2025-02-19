@@ -160,8 +160,8 @@ final class ContactUSView: UIView {
     }
 }
 
-extension ContactUSView {
-    private func createContactButtonsStackView() -> UIStackView {
+private extension ContactUSView {
+    func createContactButtonsStackView() -> UIStackView {
         let stackView = UIStackView(
             arrangedSubviews: [
                 phoneButton,
@@ -181,7 +181,7 @@ extension ContactUSView {
         return stackView
     }
 
-    private func createMessageStackView() -> UIStackView {
+    func createMessageStackView() -> UIStackView {
         let stackView = UIStackView(
             arrangedSubviews: [
                 messageLabel,
@@ -193,7 +193,7 @@ extension ContactUSView {
         return stackView
     }
 
-    private func createCTAStackView() -> UIStackView {
+    func createCTAStackView() -> UIStackView {
         let stackView = UIStackView(
             arrangedSubviews: [
                 sendMessageButton,

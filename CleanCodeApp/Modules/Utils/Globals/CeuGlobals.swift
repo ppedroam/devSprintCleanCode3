@@ -7,7 +7,7 @@ protocol CeuGlobalsProtocol {
     func showNoInternetCOnnection(controller: UIViewController)
 }
 
-class CeuGlobals: CeuGlobalsProtocol {
+extension CeuGlobalsProtocol {
 
     @available(*, deprecated, message: "usar showAlertMessage")
     func alertMessage(title: String, message: String, targetVC: UIViewController, action: (() -> Void)? = nil) {

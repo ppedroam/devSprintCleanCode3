@@ -33,4 +33,15 @@ enum CurrencyType: CaseIterable {
         case .eur: return "Euros"
         }
     }
+    
+    func currencyHistory() -> String {
+        switch self {
+        case .brl:
+            return "O Real (BRL) foi introduzido em 1994 como parte do Plano Real para estabilizar a economia brasileira."
+        case .usd:
+            return "O Dólar Americano (USD) foi criado em 1792 e é a moeda de reserva mais usada no mundo."
+        case .eur:
+            return "O Euro (EUR) foi introduzido em 1999 e é a moeda oficial da Zona do Euro, utilizada por vários países da União Europeia."
+        }
+    }
 }

@@ -1,20 +1,30 @@
 import UIKit
 
 final class LuzLoginViewController: UIViewController {
+    private let viewModel: LuzLoginViewModel
 
     @IBOutlet weak var heightLabelError: NSLayoutConstraint!
     @IBOutlet weak var errorLabel: UILabel!
-    
+
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
-    
+
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var createAccountButton: UIButton!
     @IBOutlet weak var showPasswordButton: UIButton!
 
     var showPassword = true
     var errorInLogin = false
-    
+
+    init(viewModel: LuzLoginViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupDebugConfiguration()
@@ -22,63 +32,54 @@ final class LuzLoginViewController: UIViewController {
         validateSession()
         validateButton()
     }
-    
+
     public override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
     func setupDebugConfiguration() {
-        #if DEBUG
-            emailTextField.text = "clean.code@devpass.com"
-            passwordTextField.text = "111111"
-        #endif
+        viewModel.setupDebugConfiguration(
+            for: emailTextField,
+            passwordTextField: passwordTextField
+        )
     }
 
     func validateSession() {
-        guard UserDefaultsManager.UserInfos.shared.readSesion() != nil else { return }
-        setupHomeViewController()
+        viewModel.validateSession { [weak self] in
+            self?.setupHomeViewController()
+        }
     }
 
     func checkConnectionInternet() {
-        if !ConnectivityManager.shared.isConnected {
-            let alertController = UIAlertController(
-                title: "Sem conexão",
-                message: "Conecte-se à internet para tentar novamente",
-                preferredStyle: .alert
-            )
-            let alertAction = UIAlertAction(
-                title: "Ok",
-                style: .default
-            )
-            alertController.addAction(alertAction)
-            present(alertController, animated: true)
+        viewModel.checkConnectionInternet { [weak self] alert in
+            self?.present(alert, animated: true)
         }
     }
 
     // MARK: - IBActions
-    @IBAction func loginDidTap(_ sender: Any) {
+    @IBAction func didTapLogin(_ sender: Any) {
         checkConnectionInternet()
         emailTextField.setDefaultColor()
         passwordTextField.setDefaultColor()
         showLoading()
 
-        AF.shared.request(
-            Endpoints.Auth.login,
-            method: .get,
-            parameters: makeParams(),
-            headers: nil
-        ) { result in
-            self.stopLoading()
-            switch result {
-            case .success(let data):
-                self.handleSuccess(data)
-            case .failure:
-                self.handleError()
+        Task {
+            do {
+                let data = try await viewModel.login(
+                    email: emailTextField.text,
+                    password: passwordTextField.text
+                )
+                stopLoading()
+                try viewModel.handleLoginSuccess(data: data)
+                Task { @MainActor in self.setupHomeViewController() }
+            } catch {
+                debugPrint("error: \(error.localizedDescription)")
+                handleError()
             }
         }
     }
-    
-    @IBAction func showPasswordDidTap(_ sender: Any) {
+
+    @IBAction func didTapShowPassword(_ sender: Any) {
         showPassword.toggle()
         passwordTextField.isSecureTextEntry = !showPassword
         let imageName = showPassword ? "eye.slash" : "eye"
@@ -87,18 +88,15 @@ final class LuzLoginViewController: UIViewController {
             for: .normal
         )
     }
-    
-    @IBAction func resetPasswordDidTap(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "LuzUser", bundle: nil)
-        let viewController = storyboard.instantiateViewController(
-            withIdentifier: "LuzResetPasswordViewController"
-        ) as! LuzResetPasswordViewController
+
+    @IBAction func didTapResetPassword(_ sender: Any) {
+        let viewController = LuzResetPasswordFactory.make()
         viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true)
     }
-    
-    
-    @IBAction func createAccountDidTap(_ sender: Any) {
+
+
+    @IBAction func didTapCreateAccount(_ sender: Any) {
         let controller = LuzCreateAccountViewController()
         controller.modalPresentationStyle = .fullScreen
         present(controller, animated: true)
@@ -160,11 +158,11 @@ private extension LuzLoginViewController {
     @IBAction func emailBeginEditing(_ sender: Any) {
         errorInLogin ? resetErrorLogin(emailTextField) : emailTextField.setEditingColor()
     }
-    
+
     @IBAction func emailEditing(_ sender: Any) {
         validateButton()
     }
-    
+
     @IBAction func emailEndEditing(_ sender: Any) {
         emailTextField.setDefaultColor()
     }
@@ -172,15 +170,15 @@ private extension LuzLoginViewController {
     @IBAction func passwordBeginEditing(_ sender: Any) {
         errorInLogin ? resetErrorLogin(passwordTextField) : passwordTextField.setEditingColor()
     }
-    
+
     @IBAction func passwordEditing(_ sender: Any) {
         validateButton()
     }
-    
+
     @IBAction func passwordEndEditing(_ sender: Any) {
         passwordTextField.setDefaultColor()
     }
-    
+
     func setErrorLogin(_ message: String) {
         errorInLogin = true
         heightLabelError.constant = 20
@@ -188,7 +186,7 @@ private extension LuzLoginViewController {
         emailTextField.setErrorColor()
         passwordTextField.setErrorColor()
     }
-    
+
     func resetErrorLogin(_ textField: UITextField) {
         heightLabelError.constant = 0
         if textField == emailTextField {
@@ -204,19 +202,18 @@ private extension LuzLoginViewController {
 // MARK: - Validate
 extension LuzLoginViewController {
     func validateButton() {
-        do {
-            try LuzLoginEmailValidator.validate(emailTextField.text)
-            enableButton()
-        } catch {
-            disableButton()
-        }
+        viewModel.validateButton(
+            email: emailTextField.text,
+            enable: enableButton,
+            disable: disableButton
+        )
     }
-    
+
     func disableButton() {
         loginButton.backgroundColor = .gray
         loginButton.isEnabled = false
     }
-    
+
     func enableButton() {
         loginButton.backgroundColor = .blue
         loginButton.isEnabled = true
@@ -225,17 +222,6 @@ extension LuzLoginViewController {
 
 // MARK: - Handlers
 extension LuzLoginViewController {
-    func handleSuccess(_ data: Data) {
-        do {
-            let session = try JSONDecoder().decode(Session.self, from: data)
-            Task { @MainActor in self.setupHomeViewController() }
-            UserDefaultsManager.UserInfos.shared.save(session: session, user: nil)
-        } catch {
-            debugPrint("error: \(error.localizedDescription)")
-            self.showErrorAlert()
-        }
-    }
-
     func handleError() {
         setErrorLogin("E-mail ou senha incorretos")
         showErrorAlert()
@@ -250,29 +236,13 @@ extension LuzLoginViewController {
     }
 }
 
-// MARK: - MakeParams
-extension LuzLoginViewController {
-    func makeParams() -> [String: String] {
-        guard
-            let emailTextField = emailTextField.text,
-            let passwordTextField = passwordTextField.text
-        else { return [:] }
-
-        return [
-            "email": emailTextField,
-            "password": passwordTextField
-        ]
-    }
-}
-
 // MARK: - Setup HomeViewController
 extension LuzLoginViewController {
     func setupHomeViewController() {
-        let navigationController = UINavigationController(rootViewController: LuzHomeViewController())
         let scenes = UIApplication.shared.connectedScenes
         let windowScene = scenes.first as? UIWindowScene
         let window = windowScene?.windows.first
-        window?.rootViewController = navigationController
-        window?.makeKeyAndVisible()
+        let homeCoordinator = LuzHomeCoordinator(window: window)
+        homeCoordinator.start()
     }
 }

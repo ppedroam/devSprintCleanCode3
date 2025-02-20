@@ -11,7 +11,7 @@ class MelContactUsViewController: LoadingInheritageController {
     var contactModel: ContactUsModel?
     var contactUsView: MelContactUsScreen?
     private let urlHandler: MelURLHandler = MelURLHandler()
-    private let contactUs: MelContactUsService = MelContactUsService()
+    private let contactUsService: MelContactUsService = MelContactUsService()
     
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
     
@@ -81,14 +81,14 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func prepareAndSendMessage(email: String, message: String) {
         let parameters = createMessageParameters(email: email, message: message)
-        contactUs.sendContactUsMessage(parameters) { [weak self] result in
+        contactUsService.sendContactUsMessage(parameters) { [weak self] result in
             guard let self = self else { return }
             self.removeLoadingView()
-            self.handleResponse(result)
+            self.handleSendContactResponse(result)
         }
     }
     
-    private func handleResponse(_ result: Result<Data, Error>) {
+    private func handleSendContactResponse(_ result: Result<Data, Error>) {
         switch result {
         case .success:
             presentSuccessAlert()
@@ -116,7 +116,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func fetchAndProcessContactData() {
         melLoadingView.showLoadingView()
-        contactUs.fetchContactData() { [weak self] result in
+        contactUsService.fetchContactData() { [weak self] result in
             guard let self = self else { return }
             self.melLoadingView.removeLoadingView()
             switch result {

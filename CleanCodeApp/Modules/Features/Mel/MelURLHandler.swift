@@ -17,7 +17,7 @@ final class MelURLHandler {
         return UIApplication.shared.canOpenURL(url)
     }
     
-    public func getWhatsAppURL(phoneNumber: String?) throws -> URL {
+    public func makeWhatsAppURL(for phoneNumber: String?) throws -> URL {
         guard let phoneNumber = phoneNumber else { throw ChatError.invalidPhoneNumber }
         guard let url = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else {
             throw ChatError.invalidURL
@@ -25,7 +25,7 @@ final class MelURLHandler {
         return url
     }
     
-    public func getAppStoreURL() throws -> URL {
+    public func makeWhatsAppURL() throws -> URL {
         guard let url = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else {
             throw ChatError.invalidURL
         }

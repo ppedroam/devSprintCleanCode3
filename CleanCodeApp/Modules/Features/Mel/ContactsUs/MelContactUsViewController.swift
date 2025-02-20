@@ -8,22 +8,22 @@
 import UIKit
 
 class MelContactUsViewController: LoadingInheritageController {
-    var model: ContactUsModel?
-    var screen: MelContactUsScreen?
+    var contactModel: ContactUsModel?
+    var contactUsView: MelContactUsScreen?
     private let urlHandler: MelURLHandler = MelURLHandler()
-    private let service: MelContactUsService = MelContactUsService()
+    private let contactUs: MelContactUsService = MelContactUsService()
     
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        screen?.configureDelegate(delegate: self)
+        contactUsView?.setDelegate(delegate: self)
         fetchAndProcessContactData()
     }
     
     override func loadView() {
-        self.screen = MelContactUsScreen()
-        view = screen
+        self.contactUsView = MelContactUsScreen()
+        view = contactUsView
     }
     
     deinit {
@@ -33,25 +33,25 @@ class MelContactUsViewController: LoadingInheritageController {
 
 // MARK: - Functions
 extension MelContactUsViewController: MelContactUsScreenDelegate {
-    func didTapPhoneButton() {
-        guard let tel = model?.phone,
+    func didTapPhoneCallButton() {
+        guard let tel = contactModel?.phone,
               let url = URL(string: "tel://\(tel)") else { return }
         urlHandler.openURL(url)
     }
     
     func didTapEmailButton() {
-        guard let mail = model?.mail,
+        guard let mail = contactModel?.mail,
               let url = URL(string: "mailto:\(mail)") else { return }
         urlHandler.openURL(url)
     }
     
     func didTapChatButton() {
         do {
-            let whatsAppURL = try urlHandler.getWhatsAppURL(phoneNumber: model?.phone)
+            let whatsAppURL = try urlHandler.makeWhatsAppURL(for: contactModel?.phone)
             if urlHandler.canOpenURL(whatsAppURL) {
                 urlHandler.openURL(whatsAppURL)
             } else {
-                let appStoreURL = try urlHandler.getAppStoreURL()
+                let appStoreURL = try urlHandler.makeWhatsAppURL()
                 urlHandler.openURL(appStoreURL)
             }
         } catch {
@@ -60,7 +60,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     }
     
     func didTapSendMessageButton(message: String) {
-        guard !message.isEmpty, let email = model?.mail else { return }
+        guard !message.isEmpty, let email = contactModel?.mail else { return }
         melLoadingView.showLoadingView()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.melLoadingView.removeLoadingView()
@@ -81,7 +81,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func prepareAndSendMessage(email: String, message: String) {
         let parameters = createMessageParameters(email: email, message: message)
-        service.sendRequest(parameters) { [weak self] result in
+        contactUs.sendContactUsMessage(parameters) { [weak self] result in
             guard let self = self else { return }
             self.removeLoadingView()
             self.handleResponse(result)
@@ -91,13 +91,13 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     private func handleResponse(_ result: Result<Data, Error>) {
         switch result {
         case .success:
-            showSuccessAlert()
+            presentSuccessAlert()
         case .failure:
-            showErrorAlert()
+            presentErrorAlert()
         }
     }
     
-    private func showSuccessAlert() {
+    private func presentSuccessAlert() {
         Globals.alertMessage(title: MelContactUsStrings.successAlertTitle.rawValue,
                              message: MelContactUsStrings.successAlertMessage.rawValue,
                              targetVC: self) {
@@ -105,7 +105,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
         }
     }
     
-    private func showErrorAlert(mustDismiss: Bool = false) {
+    private func presentErrorAlert(mustDismiss: Bool = false) {
         Globals.alertMessage(title: MelContactUsStrings.errorAlertTitle.rawValue,
                              message: MelContactUsStrings.errorAlertMessage.rawValue,
                              targetVC: self)
@@ -116,15 +116,15 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func fetchAndProcessContactData() {
         melLoadingView.showLoadingView()
-        service.fetchContactData() { [weak self] result in
+        contactUs.fetchContactData() { [weak self] result in
             guard let self = self else { return }
             self.melLoadingView.removeLoadingView()
             switch result {
             case .success(let contactModel):
-                self.model = contactModel
+                self.contactModel = contactModel
             case .failure(let error):
                 print("Erro na API: \(error.localizedDescription)")
-                self.showErrorAlert(mustDismiss: true)
+                self.presentErrorAlert(mustDismiss: true)
             }
         }
     }

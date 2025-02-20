@@ -8,7 +8,7 @@
 import UIKit
 
 protocol MelContactUsScreenDelegate: AnyObject {
-    func didTapPhoneButton()
+    func didTapPhoneCallButton()
     func didTapEmailButton()
     func didTapChatButton()
     func didTapSendMessageButton(message: String)
@@ -19,14 +19,14 @@ class MelContactUsScreen: UIView {
     
     private weak var delegate: MelContactUsScreenDelegate?
     
-    private lazy var textView: UITextView = {
+    private lazy var messageTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.text = MelContactUsStrings.placeholderMessage.rawValue
         return textView
     }()
     
-    private lazy var titleLabel: UILabel = {
+    private lazy var channelTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
@@ -35,12 +35,12 @@ class MelContactUsScreen: UIView {
         return label
     }()
     
-    private lazy var phoneButton: UIButton = {
+    private lazy var phoneCallButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .systemGray4
         button.layer.cornerRadius = 10
-        button.addTarget(self, action: #selector(phoneClick), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapPhoneCallButton), for: .touchUpInside)
         return button
     }()
     
@@ -49,7 +49,7 @@ class MelContactUsScreen: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .systemGray4
         button.layer.cornerRadius = 10
-        button.addTarget(self, action: #selector(emailClick), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapEmailButton), for: .touchUpInside)
         return button
     }()
     
@@ -58,11 +58,11 @@ class MelContactUsScreen: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.backgroundColor = .systemGray4
         button.layer.cornerRadius = 10
-        button.addTarget(self, action: #selector(chatClicked), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapChatButton), for: .touchUpInside)
         return button
     }()
     
-    private lazy var messageLabel: UILabel = {
+    private lazy var alternativeMessageLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
@@ -81,7 +81,7 @@ class MelContactUsScreen: UIView {
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
         button.setContentHuggingPriority(.required, for: .horizontal)
-        button.addTarget(self, action: #selector(messageSend), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapSendMessageButton), for: .touchUpInside)
         return button
     }()
     
@@ -94,7 +94,7 @@ class MelContactUsScreen: UIView {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.blue.cgColor
         button.layer.cornerRadius = 10
-        button.addTarget(self, action: #selector(close), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
         return button
     }()
     
@@ -115,52 +115,52 @@ class MelContactUsScreen: UIView {
 // MARK: - Button actions
 extension MelContactUsScreen {
     @objc
-    private func phoneClick() {
-        delegate?.didTapPhoneButton()
+    private func didTapPhoneCallButton() {
+        delegate?.didTapPhoneCallButton()
     }
     
     @objc
-    private func emailClick() {
+    private func didTapEmailButton() {
         delegate?.didTapEmailButton()
     }
     
     @objc
-    private func chatClicked() {
+    private func didTapChatButton() {
         delegate?.didTapChatButton()
     }
     
     @objc
-    private func messageSend() {
+    private func didTapSendMessageButton() {
         endEditing(true)
-        delegate?.didTapSendMessageButton(message: textView.text)
+        delegate?.didTapSendMessageButton(message: messageTextView.text)
     }
     
     @objc
-    private func close() {
+    private func didTapCloseButton() {
         delegate?.didTapCloseButton()
     }
 }
 
 // MARK: - Functions
 extension MelContactUsScreen {
-    public func configureDelegate(delegate: MelContactUsScreenDelegate?) {
+    public func setDelegate(delegate: MelContactUsScreenDelegate?) {
         self.delegate = delegate
     }
     
-    private func symbolConfiguration() {
+    private func configureButtonSymbols() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 36)
-        configureButtonImage(phoneButton,
+        setButtonImage(phoneCallButton,
                              with: MelSystemImage.phone.rawValue,
                              buttonSymbolConfiguration: symbolConfig)
-        configureButtonImage(emailButton,
+        setButtonImage(emailButton,
                              with: MelSystemImage.envelope.rawValue,
                              buttonSymbolConfiguration: symbolConfig)
-        configureButtonImage(chatButton,
+        setButtonImage(chatButton,
                              with: MelSystemImage.message.rawValue,
                              buttonSymbolConfiguration: symbolConfig)
     }
     
-    private func configureButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {
+    private func setButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {
         let image = UIImage(systemName: systemNameImage)?.withConfiguration(buttonSymbolConfiguration)
         button.setImage(image, for: .normal)
     }
@@ -169,29 +169,29 @@ extension MelContactUsScreen {
 // MARK: - ViewCode Protocol Conformance
 extension MelContactUsScreen: MelViewCode {
     func addSubviews() {
-        addSubview(titleLabel)
-        addSubview(phoneButton)
+        addSubview(channelTitleLabel)
+        addSubview(phoneCallButton)
         addSubview(emailButton)
         addSubview(chatButton)
-        addSubview(messageLabel)
-        addSubview(textView)
+        addSubview(alternativeMessageLabel)
+        addSubview(messageTextView)
         addSubview(sendMessageButton)
         addSubview(closeButton)
     }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 30),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            channelTitleLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 30),
+            channelTitleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            channelTitleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            phoneButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
-            emailButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
-            chatButton.centerYAnchor.constraint(equalTo: phoneButton.centerYAnchor),
+            phoneCallButton.topAnchor.constraint(equalTo: channelTitleLabel.bottomAnchor, constant: 30),
+            emailButton.centerYAnchor.constraint(equalTo: phoneCallButton.centerYAnchor),
+            chatButton.centerYAnchor.constraint(equalTo: phoneCallButton.centerYAnchor),
             
-            phoneButton.widthAnchor.constraint(equalToConstant: 80),
-            phoneButton.heightAnchor.constraint(equalToConstant: 80),
-            phoneButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            phoneCallButton.widthAnchor.constraint(equalToConstant: 80),
+            phoneCallButton.heightAnchor.constraint(equalToConstant: 80),
+            phoneCallButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             
             emailButton.widthAnchor.constraint(equalToConstant: 80),
             emailButton.heightAnchor.constraint(equalToConstant: 80),
@@ -201,14 +201,14 @@ extension MelContactUsScreen: MelViewCode {
             chatButton.heightAnchor.constraint(equalToConstant: 80),
             chatButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            messageLabel.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 30),
-            messageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            messageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            alternativeMessageLabel.topAnchor.constraint(equalTo: phoneCallButton.bottomAnchor, constant: 30),
+            alternativeMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            alternativeMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             
-            textView.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 20),
-            textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            textView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            textView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
+            messageTextView.topAnchor.constraint(equalTo: alternativeMessageLabel.bottomAnchor, constant: 20),
+            messageTextView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            messageTextView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            messageTextView.bottomAnchor.constraint(equalTo: sendMessageButton.topAnchor, constant: -30),
             
             sendMessageButton.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
             sendMessageButton.heightAnchor.constraint(equalToConstant: 40),
@@ -224,6 +224,6 @@ extension MelContactUsScreen: MelViewCode {
     
     func setupStyle() {
         backgroundColor = .systemGray6
-        symbolConfiguration()
+        configureButtonSymbols()
     }
 }

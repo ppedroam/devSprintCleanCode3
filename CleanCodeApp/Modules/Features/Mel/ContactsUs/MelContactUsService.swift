@@ -26,7 +26,7 @@ final class MelContactUsService {
         return try decoder.decode(ContactUsModel.self, from: data)
     }
     
-    public func sendRequest(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
+    public func sendContactUsMessage(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
         let url = Endpoints.sendMessage
         AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
             completion(result)

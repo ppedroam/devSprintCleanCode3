@@ -40,7 +40,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray6
-        contactUsView.textView.text  = "Escreva sua mensagem aqui"
+        contactUsView.textView.text  = SolContactUsStrings.writheHereYourMessage
         callConfigureActionsButtonsByType ()
         
         viewModel.fetchData()
@@ -114,7 +114,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
     
     func displayGlobalAlertMessage() {
-        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        Globals.alertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
     }
 }
 
@@ -128,7 +128,7 @@ private extension SolContactUsViewController {
             viewModel.requestSendMessage(parameters: parameters)
         }
         catch {
-            Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+            Globals.alertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
         }
     }
     

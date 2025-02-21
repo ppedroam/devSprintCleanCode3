@@ -8,7 +8,7 @@
 import UIKit
 
 protocol LuaResetPasswordViewModelProtocol {
-    func validateEmailFormat(inputedEmail: String) -> Bool
+    func validateEmailFormat(inputtedEmail: String) -> Bool
     func startPasswordReseting(targetViewController: UIViewController, emailInputted: String) async throws
 }
 
@@ -45,10 +45,10 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         }
     }
     
-    func validateEmailFormat(inputedEmail: String) -> Bool {
-        let isEmailFormatValid = inputedEmail.contains(".") &&
-        inputedEmail.contains("@") &&
-        inputedEmail.count > 5
+    func validateEmailFormat(inputtedEmail: String) -> Bool {
+        let isEmailFormatValid = inputtedEmail.contains(".") &&
+        inputtedEmail.contains("@") &&
+        inputtedEmail.count > 5
         return isEmailFormatValid
     }
 }

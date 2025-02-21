@@ -129,7 +129,7 @@ private extension LuaContactUsViewController {
             throw LuaPersonalInfoError.invalidPhoneNumber
         }
         do {
-            try openExternalApp(appURLTarget: .phone(phoneNumer))
+            try openExternalApp(appURLTarget: PhoneTarget.init(phoneNumer: phoneNumer))
         }
         catch let error as LuaUIApplicationURLError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
@@ -141,7 +141,7 @@ private extension LuaContactUsViewController {
             throw LuaPersonalInfoError.invalidPhoneNumber
         }
         do {
-            try openExternalApp(appURLTarget: .whatsapp(phoneNumer))
+            try openExternalApp(appURLTarget: WhatsappTarget.init(whatsappNumber: phoneNumer))
         }
         catch let error as LuaUIApplicationURLError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
@@ -153,14 +153,14 @@ private extension LuaContactUsViewController {
             throw LuaPersonalInfoError.invalidMail
         }
         do {
-            try openExternalApp(appURLTarget: .mail(mail))
+            try openExternalApp(appURLTarget: MailTarget.init(mail: mail))
         }
         catch let error as LuaUIApplicationURLError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
         }
     }
     
-    func openExternalApp(appURLTarget: LuaAppURLTarget) throws {
+    func openExternalApp(appURLTarget: LuaUrlTargetsProtocol) throws {
         guard let url = appURLTarget.url else {
             throw LuaUIApplicationURLError.invalidAppURL
         }

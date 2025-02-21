@@ -10,9 +10,8 @@ import UIKit
 class MelContactUsViewController: LoadingInheritageController {
     var contactModel: ContactUsModel?
     var contactUsView: MelContactUsScreen?
-    private let urlHandler: MelURLHandler = MelURLHandler()
+    private let appOpener = ExternalAppOpener(application: UIApplication.shared)
     private let contactUsService: MelContactUsService = MelContactUsService()
-    
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
     
     override func viewDidLoad() {
@@ -34,28 +33,43 @@ class MelContactUsViewController: LoadingInheritageController {
 // MARK: - Functions
 extension MelContactUsViewController: MelContactUsScreenDelegate {
     func didTapPhoneCallButton() {
-        guard let tel = contactModel?.phone,
-              let url = URL(string: "tel://\(tel)") else { return }
-        urlHandler.openURL(url)
+        guard let tel = contactModel?.phone else { return }
+        let telephoneUrlCreator = TelephoneUrlCreator(number: tel)
+        Task {
+            do {
+                try await appOpener.openUrl(telephoneUrlCreator)
+            } catch {
+                print("Erro ao abrir URL: \(error)")
+            }
+        }
     }
     
     func didTapEmailButton() {
-        guard let mail = contactModel?.mail,
-              let url = URL(string: "mailto:\(mail)") else { return }
-        urlHandler.openURL(url)
+        guard let mail = contactModel?.mail else { return }
+        let emailUrlCreator = EmailUrlCreator(email: mail)
+        Task {
+            do {
+                try await appOpener.openUrl(emailUrlCreator)
+            } catch {
+                print("Erro ao abrir URL: \(error)")
+            }
+        }
     }
     
     func didTapChatButton() {
-        do {
-            let whatsAppURL = try urlHandler.makeWhatsAppURL(for: contactModel?.phone)
-            if urlHandler.canOpenURL(whatsAppURL) {
-                urlHandler.openURL(whatsAppURL)
-            } else {
-                let appStoreURL = try urlHandler.makeWhatsAppURL()
-                urlHandler.openURL(appStoreURL)
+        guard let phone = contactModel?.phone else {
+            print("Número de telefone inválido")
+            return
+        }
+        let whatsappUrlCreator = WhatsppUrlCreator(phoneNumber: phone)
+        let appStoreUrlCreator = MelWhatsAppAppStoreUrlCreator()
+        Task {
+            do {
+                try await appOpener.openUrl(whatsappUrlCreator)
+            } catch {
+                print("Erro ao abrir WhatsApp: \(error). Tentando abrir a App Store...")
+                try? await appOpener.openUrl(appStoreUrlCreator)
             }
-        } catch {
-            print("Erro ao tentar abrir o chat: \(error)")
         }
     }
     

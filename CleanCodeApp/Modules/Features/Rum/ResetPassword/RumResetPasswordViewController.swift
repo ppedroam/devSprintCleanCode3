@@ -74,6 +74,7 @@ class RumResetPasswordViewController: UIViewController {
     @IBAction func helpButton(_ sender: Any) {
         let service = RumContactUsAPIService()
         let vc = RumContactUsViewController(service: service)
+        service.delegate = vc
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .coverVertical
         self.present(vc, animated: true, completion: nil)

@@ -52,19 +52,8 @@ final class RumContactUsViewController: LoadingInheritageController {
     func fetchData() {
         showLoadingView()
         Task {
-            let result = await contactUsService.fetchContactUsData()
-            handleFetchResult(result)
-        }
-    }
-
-    private func handleFetchResult(_ result: Result<ContactUsModel, RumContactUsError>) {
-        removeLoadingView()
-        switch result {
-        case .success(let model):
-            self.model = model
-        case .failure(let error):
-            print("Log error: \(error.logMessage)")
-            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro", shouldDismiss: true)
+            self.model = await contactUsService.fetchContactUsData()
+            removeLoadingView()
         }
     }
     
@@ -83,25 +72,8 @@ final class RumContactUsViewController: LoadingInheritageController {
     private func sendMessage(parameters: [String: String]) {
         showLoadingView()
         Task {
-            let result = await contactUsService.sendMessage(parameters: parameters)
-            handleSendMessageResult(result)
-        }
-    }
-    
-    private func handleSendMessageResult(_ result: Result<Void, RumContactUsError>) {
-        removeLoadingView()
-        switch result {
-        case .success:
-            showAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", shouldDismiss: true)
-        case .failure(let error):
-            print("Log error: \(error.logMessage)")
-            showAlertMessage(title: "Ops..", message: "Ocorreu algum erro")
-        }
-    }
-    
-    private func showAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
-        Globals.showAlertMessage(title: title, message: message, targetVC: self) {
-            shouldDismiss ? self.dismiss(animated: true) : nil
+            await contactUsService.sendMessage(parameters: parameters)
+            removeLoadingView()
         }
     }
 }
@@ -125,5 +97,13 @@ private extension RumContactUsViewController {
     
     @objc func didTapBackButton() {
         dismiss(animated: true)
+    }
+}
+
+extension RumContactUsViewController: RumContactUsAPIServiceDelegate {
+    func showAlertMessage(title: String, message: String, shouldDismiss: Bool = false) {
+        Globals.showAlertMessage(title: title, message: message, targetVC: self) {
+            shouldDismiss ? self.dismiss(animated: true) : nil
+        }
     }
 }

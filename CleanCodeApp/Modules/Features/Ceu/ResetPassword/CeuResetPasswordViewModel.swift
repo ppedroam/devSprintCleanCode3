@@ -32,7 +32,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
             try delegate?.validateForm()
             try verifyInternetConnection()
 
-            try makeResetPasswordRequest(email: email)
+            makeResetPasswordRequest(email: email)
         } catch CeuCommonsErrors.invalidEmail {
             delegate?.showAlertWith(message: CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
         } catch {
@@ -50,13 +50,13 @@ private extension CeuResetPasswordViewModel {
         }
     }
 
-    func makeResetPasswordRequest(email: String?) throws {
-        try resetPasswordService.resetPassword(email: email) { (result: Result<CeuResetPasswordResponse, Error>) in
-            switch result {
-            case .success(_):
-                self.delegate?.handleResetPasswordRequestSuccess()
-            case .failure(_):
-                self.delegate?.handleResetPasswordRequestError()
+    func makeResetPasswordRequest(email: String?) {
+        Task { @MainActor in
+            do {
+                _ = try await resetPasswordService.resetPassword(email: email)
+                delegate?.handleResetPasswordRequestSuccess()
+            } catch {
+                delegate?.handleResetPasswordRequestError()
             }
         }
     }

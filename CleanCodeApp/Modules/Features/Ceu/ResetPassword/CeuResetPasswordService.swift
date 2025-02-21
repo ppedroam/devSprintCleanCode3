@@ -6,7 +6,7 @@
 //
 
 protocol CeuResetPasswordServiceProtocol {
-    func resetPassword(email: String?, completion: @escaping (Result<CeuResetPasswordResponse, Error>) -> Void) throws
+    func resetPassword(email: String?) async throws -> CeuResetPasswordResponse
 }
 
 class CeuResetPasswordService: CeuResetPasswordServiceProtocol {
@@ -16,11 +16,20 @@ class CeuResetPasswordService: CeuResetPasswordServiceProtocol {
         self.networkManager = networkManager
     }
 
-    func resetPassword(email: String?, completion: @escaping (Result<CeuResetPasswordResponse, any Error>) -> Void) throws {
+    func resetPassword(email: String?) async throws -> CeuResetPasswordResponse {
         let parameters = try setupResetPasswordRequestParameters(email: email)
         let resetPasswordRequest: NetworkRequest = ResetPasswordRequest()
 
-        networkManager.request(resetPasswordRequest, completion: completion)
+        return try await withCheckedThrowingContinuation { continuation in
+            networkManager.request(resetPasswordRequest) { (result: Result<CeuResetPasswordResponse, Error>) in
+                switch result {
+                case .success(let response):
+                    continuation.resume(returning: response)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 
     private func setupResetPasswordRequestParameters(email: String?) throws -> [String: String] {

@@ -16,9 +16,12 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     // MARK: - Services
     private let contactUsService: RumContactAPIServicing
+    private let externalAppLinkService: RumExternalAppLinkServicing
     
-    init(service: RumContactAPIServicing) {
+    init(service: RumContactAPIServicing,
+         externalAppLinkService: RumExternalAppLinkServicing = RumExternalAppLinkService()) {
         self.contactUsService = service
+        self.externalAppLinkService = externalAppLinkService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -101,32 +104,23 @@ final class RumContactUsViewController: LoadingInheritageController {
             shouldDismiss ? self.dismiss(animated: true) : nil
         }
     }
-    
-    private func openExternalAppLink(_ externalLink: RumExternalLinkHandler) {
-        guard let url = externalLink.url else { return }
-        if UIApplication.shared.canOpenURL(url) {
-            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        } else if let fallbackURL = externalLink.fallbackURL {
-            UIApplication.shared.open(fallbackURL, options: [:], completionHandler: nil)
-        }
-    }
 }
 
 // MARK: - Button Actions
 private extension RumContactUsViewController {
     @objc func didTapPhoneButton() {
         guard let phoneNumber = model?.phone else { return }
-        openExternalAppLink(.phone(phoneNumber))
+        externalAppLinkService.openExternalAppLink(.phone(phoneNumber))
     }
     
     @objc func didTapEmailButton() {
         guard let mail = model?.mail else { return }
-        openExternalAppLink(.email(mail))
+        externalAppLinkService.openExternalAppLink(.email(mail))
     }
     
     @objc func didTapChatButton() {
         guard let phoneNumber = model?.phone else { return }
-        openExternalAppLink(.whatsapp(phoneNumber))
+        externalAppLinkService.openExternalAppLink(.whatsapp(phoneNumber))
     }
     
     @objc func didTapBackButton() {

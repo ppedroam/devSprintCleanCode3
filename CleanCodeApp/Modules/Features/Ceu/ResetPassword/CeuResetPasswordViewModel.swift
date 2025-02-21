@@ -35,9 +35,9 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
             let parameters = try setupResetPasswordRequestParameters(email: email)
             makeResetPasswordRequest(parameters: parameters)
         } catch CeuCommonsErrors.invalidEmail {
-            delegate?.showAlertWith(message: "Verifique o e-mail informado.")
+            delegate?.showAlertWith(message: CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
         } catch {
-            delegate?.showAlertWith(message: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            delegate?.showAlertWith(message: CeuResetPasswordStrings.somethingWentWrongErrorMessage.localized())
         }
     }
 }

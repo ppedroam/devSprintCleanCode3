@@ -24,7 +24,7 @@ class CeuResetPasswordViewController: UIViewController {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented. Use init(coder:viewModel:coordinator:) instead.")
+        fatalError(CeuResetPasswordStrings.initFatalErrorMessage.localized())
     }
 
 
@@ -150,8 +150,7 @@ extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
         self.verifyEmailLabel.isHidden = true
         self.recoveryPasswordSuccessView.isHidden = false
         self.emailErrorLabel.text = self.emailTextfield.text?.trimmingCharacters(in: .whitespaces)
-        self.recoverPasswordButton.titleLabel?.text = "REENVIAR E-MAIL"
-        self.recoverPasswordButton.setTitle("Voltar", for: .normal)
+        self.recoverPasswordButton.setTitle(CeuResetPasswordStrings.goBack.localized(), for: .normal)
     }
 
     func handleResetPasswordRequestError() {
@@ -168,7 +167,7 @@ extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
         guard isEmailValid else {
             emailTextfield.setErrorColor()
             verifyEmailLabel.textColor = .red
-            verifyEmailLabel.text = "Verifique o e-mail informado"
+            verifyEmailLabel.text = CeuResetPasswordStrings.verifyEmailErrorMessage.localized()
             throw CeuCommonsErrors.invalidEmail
         }
     }

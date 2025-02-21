@@ -101,32 +101,32 @@ final class RumContactUsViewController: LoadingInheritageController {
             shouldDismiss ? self.dismiss(animated: true) : nil
         }
     }
+    
+    private func openExternalAppLink(_ externalLink: RumExternalLinkHandler) {
+        guard let url = externalLink.url else { return }
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        } else if let fallbackURL = externalLink.fallbackURL {
+            UIApplication.shared.open(fallbackURL, options: [:], completionHandler: nil)
+        }
+    }
 }
 
 // MARK: - Button Actions
 private extension RumContactUsViewController {
     @objc func didTapPhoneButton() {
-        guard let tel = model?.phone, let url = URL(string: "tel://\(tel)") else { return }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        guard let phoneNumber = model?.phone else { return }
+        openExternalAppLink(.phone(phoneNumber))
     }
     
     @objc func didTapEmailButton() {
-        guard let mail = model?.mail, let url = URL(string: "mailto:\(mail)") else { return }
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        guard let mail = model?.mail else { return }
+        openExternalAppLink(.email(mail))
     }
     
     @objc func didTapChatButton() {
-        guard let phoneNumber = model?.phone, let whatsappURL = URL(string: "whatsapp://send?phone=\(phoneNumber)&text=Oi)") else { return }
-        UIApplication.shared.canOpenURL(whatsappURL) ? openWhatsapp(whatsappURL) : openAppStore()
-    }
-    
-    private func openWhatsapp(_ whatsappURL: URL) {
-        UIApplication.shared.open(whatsappURL, options: [:], completionHandler: nil)
-    }
-    
-    private func openAppStore() {
-        guard let appStoreURL = URL(string: "https://apps.apple.com/app/whatsapp-messenger/id310633997") else { return }
-        UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
+        guard let phoneNumber = model?.phone else { return }
+        openExternalAppLink(.whatsapp(phoneNumber))
     }
     
     @objc func didTapBackButton() {

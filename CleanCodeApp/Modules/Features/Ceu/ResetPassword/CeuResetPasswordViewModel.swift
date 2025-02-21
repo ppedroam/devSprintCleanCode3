@@ -21,10 +21,10 @@ protocol CeuResetPasswordViewModelProtocol {
 
 class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
-    private let networkManager: NetworkManagerProtocol
+    private let resetPasswordService: CeuResetPasswordServiceProtocol
 
-    init(networkManager: NetworkManagerProtocol = NetworkManager()) {
-        self.networkManager = networkManager
+    init(resetPasswordService: CeuResetPasswordServiceProtocol = CeuResetPasswordService(networkManager: NetworkManager())) {
+        self.resetPasswordService = resetPasswordService
     }
 
     func startRecoverPasswordWith(email: String?) {
@@ -32,8 +32,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
             try delegate?.validateForm()
             try verifyInternetConnection()
 
-            let parameters = try setupResetPasswordRequestParameters(email: email)
-            makeResetPasswordRequest(parameters: parameters)
+            try makeResetPasswordRequest(email: email)
         } catch CeuCommonsErrors.invalidEmail {
             delegate?.showAlertWith(message: CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
         } catch {
@@ -43,16 +42,6 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
 }
 
 private extension CeuResetPasswordViewModel {
-    func setupResetPasswordRequestParameters(email: String?) throws -> [String: String] {
-        guard let email = email else { throw CeuCommonsErrors.invalidData }
-
-        let emailUser = email.trimmingCharacters(in: .whitespaces)
-        let parameters = [
-            "email": emailUser
-        ]
-
-        return parameters
-    }
 
     func verifyInternetConnection() throws {
         if !ConnectivityManager.shared.isConnected {
@@ -61,10 +50,8 @@ private extension CeuResetPasswordViewModel {
         }
     }
 
-    func makeResetPasswordRequest(parameters: [String : String]) {
-        let resetPasswordRequest: NetworkRequest = ResetPasswordRequest()
-
-        networkManager.request(resetPasswordRequest) { (result: Result<ResetPasswordResponse, Error>) in
+    func makeResetPasswordRequest(email: String?) throws {
+        try resetPasswordService.resetPassword(email: email) { (result: Result<CeuResetPasswordResponse, Error>) in
             switch result {
             case .success(_):
                 self.delegate?.handleResetPasswordRequestSuccess()
@@ -73,14 +60,4 @@ private extension CeuResetPasswordViewModel {
             }
         }
     }
-}
-
-struct ResetPasswordResponse: Decodable {
-    let success: Bool
-    let message: String?
-}
-
-class ResetPasswordRequest: NetworkRequest {
-    var pathURL: String = Endpoints.Auth.resetPassword
-    var method: HTTPMethod = .post
 }

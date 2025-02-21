@@ -10,13 +10,27 @@ struct LuaRegistrationFormInput {
     let passwordConfirmation: String
 }
 
+struct LuaUserInformation {
+    var name: String
+    var email: String
+    var password: String
+    var phoneNumber: String
+    var document: String
+    var documentType: String
+}
+
 protocol LuaCreateAccountViewModelProtocol {
     var user: User? { get set }
     func validateFormAllForms(with input: LuaRegistrationFormInput) throws
+    func updateUserProperties(with info: LuaUserInformation)
 }
 
 final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
     public var user: User?
+    
+    init(user: User? = nil) {
+        self.user = user
+    }
     
     public func validateFormAllForms(with input: LuaRegistrationFormInput) throws {
         do {
@@ -30,14 +44,36 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         }
     }
     
-    public func updateUserProperties() {
-        user.documentType = documentType
-        user.phoneNumber = inputtedPhone
-        user.name = self.nameTextField.text!
-        user.document = document
+    public func updateUserProperties(with info: LuaUserInformation) {
+        user?.name = info.name
+        user?.phoneNumber = info.phoneNumber
+        user?.email =  info.email
+        user?.password = info.password
+        user?.document = info.document
+        user?.documentType = info.documentType
     }
+}
+
+// MARK: - API
+private extension LuaCreateAccountViewModel {
     
-    private  func validateName(_ name: String) throws {
+    func startCreateAuthUser() {
+        let user = [
+            "name": user?.name,
+            "phone_number": user?.phoneNumber,
+            "document": user?.document,
+            "document_type": user?.documentType,
+            "email": user?.email,
+            "password": user?.password,
+            "token_id_push": UUID.init().uuidString
+        ]
+        //        self.createUser(user) // call create API
+    }
+}
+
+// MARK: - Form Validations
+private extension LuaCreateAccountViewModel {
+    func validateName(_ name: String) throws {
         let fullNameComponents = name.components(separatedBy: " ")
         let isFullName = fullNameComponents.count > 1
         
@@ -47,7 +83,7 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.invalidName
     }
     
-    private  func validatePhoneNumber(_ phone: String) throws {
+    func validatePhoneNumber(_ phone: String) throws {
         let isNumberFormatValid = phone.count == 11
         if phone.isNotEmpty && isNumberFormatValid {
             return
@@ -55,17 +91,17 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.invalidPhone
     }
     
-    private  func validateIdentityDocumentInfo(_ IdInfo: String) throws { // need to validate if is CPF OR CNPJ
+    func validateIdentityDocumentInfo(_ IdInfo: String) throws { // need to validate if is CPF OR CNPJ
         if IdInfo.isNotEmpty {
             return
         }
         throw LuaCreateAccountFormError.invalidIdInfo
     }
     
-    private  func validateEmail(_ email: String, confirmation emailConfirmation: String) throws { // need to create a different error for email dismatch
+    func validateEmail(_ email: String, confirmation emailConfirmation: String) throws { // need to create a different error for email dismatch
         let isEmailFormatValid = email.contains(".") &&
-                                 email.contains("@") &&
-                                 email.count > 5
+        email.contains("@") &&
+        email.count > 5
         let isEmailConfirmationIqual = email == emailConfirmation
         if isEmailFormatValid && isEmailConfirmationIqual {
             return
@@ -73,15 +109,14 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.invalidEmail
     }
     // MARK: - Password Validation
-    private func validatePassword(_ password: String, confirmation passwordConfirmation: String) throws {
+    func validatePassword(_ password: String, confirmation passwordConfirmation: String) throws {
         try validatePasswordCapitalLetter(password)
         try validatePasswordNumber(password)
         try validatePasswordLength(password)
         try validatePasswordMatch(password, confirmation: passwordConfirmation)
     }
     
-  
-    private func validatePasswordCapitalLetter(_ password: String) throws {
+    func validatePasswordCapitalLetter(_ password: String) throws {
         let uppercaseLetters = CharacterSet.uppercaseLetters
         let hasUppercase = password.rangeOfCharacter(from: uppercaseLetters) != nil
         if hasUppercase {
@@ -90,7 +125,7 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.passwordMissingUppercase
     }
     
-    private func validatePasswordNumber(_ password: String) throws {
+    func validatePasswordNumber(_ password: String) throws {
         let numbers = CharacterSet.decimalDigits
         let hasNumber = password.rangeOfCharacter(from: numbers) != nil
         if hasNumber {
@@ -99,14 +134,14 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.passwordMissingNumber
     }
     
-    private func validatePasswordLength(_ password: String) throws {
+    func validatePasswordLength(_ password: String) throws {
         if password.count >= 6 {
             return
         }
         throw LuaCreateAccountFormError.passwordTooShort
     }
     
-    private func validatePasswordMatch(_ password: String, confirmation passwordConfirmation: String) throws {
+    func validatePasswordMatch(_ password: String, confirmation passwordConfirmation: String) throws {
         let isPasswordConfirmationIqual = password == passwordConfirmation
         if isPasswordConfirmationIqual {
             return
@@ -114,3 +149,5 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         throw LuaCreateAccountFormError.passwordMismatch
     }
 }
+
+

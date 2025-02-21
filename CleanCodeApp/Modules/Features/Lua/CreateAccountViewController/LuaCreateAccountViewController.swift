@@ -163,12 +163,38 @@ class LuaCreateAccountViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    @IBAction func createAccountButton(_ sender: Any) {
+    @IBAction func createAccountButtonTapped(_ sender: Any) {
         if isFormValid() {
             updateUserProperty()
             updateMessagingToken() { token in
                 self.startCreateAuthUser(with: token)
             }
+        }
+    }
+    
+    func startAccountCreation() {
+        do {
+            try viewModel.validateFormAllForms(with: LuaRegistrationFormInput(
+                name: inputtedName,
+                phone: inputtedPhone,
+                identityDocumentInfo: inputtedIdInfo,
+                email: inputtedEmail,
+                emailConfirmation: inputtedEmailConfirmation,
+                password: inputtedPassword,
+                passwordConfirmation: inputtedPasswordlConfirmation))
+            
+            viewModel.updateUserProperties(with: LuaUserInformation(
+                name: inputtedName,
+                email: inputtedEmail,
+                password: inputtedPassword,
+                phoneNumber: inputtedPhone,
+                document: inputtedIdInfo,
+                documentType: "a"))
+            
+        } catch let error as LuaCreateAccountFormError{
+            handleValidationError(error)
+        } catch {
+            
         }
     }
     
@@ -329,7 +355,7 @@ class LuaCreateAccountViewController: UIViewController {
         textfieldReturnKeyManager?.start(textfields: textFields,
                                          lastKeyType: .go,
                                          completionLastKey: {
-            self.createAccountButton(self.createButton ?? UIButton())
+            self.createAccountButtonTapped(self.createButton ?? UIButton())
         })
     }
     func validateFields() {
@@ -344,19 +370,6 @@ class LuaCreateAccountViewController: UIViewController {
                 completion(result)
             }
         }
-    }
-    
-    func startCreateAuthUser(with token: String) {
-        let user = [
-            "name": self.nameTextField.text!,
-            "phone_number": self.inputtedPhone,
-            "document": self.document,
-            "document_type": self.documentType,
-            "email": self.emailTextField.text!,
-            "password": self.passwordTextField.text!,
-            "token_id_push": token
-        ]
-        self.createUser(user)
     }
     
     func disableCreateButton() {

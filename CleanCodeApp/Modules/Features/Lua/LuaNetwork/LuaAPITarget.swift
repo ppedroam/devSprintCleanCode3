@@ -10,7 +10,7 @@ import Foundation
 public enum LuaAPIAuthTarget {
     case login
     case createUser
-    case resetPassword
+    case resetPassword([String:String])
 }
 
 public enum LuaAPITarget {

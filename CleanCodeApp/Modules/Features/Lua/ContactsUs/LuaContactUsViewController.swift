@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
+final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol {
     typealias ViewCode = LuaContactUsView
     internal let viewCode = LuaContactUsView()
     private let viewModel: LuaContactUsViewModelProtocol
@@ -40,7 +40,7 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
                 await luaStopLoading()
             } catch {
                 await luaStopLoading()
-                showAlertError(error: error, from: self, alertTitle: "Ocorreu algum erro")
+                showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorTitle)
                 self.dismiss(animated: true)
             }
         }
@@ -48,7 +48,7 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
     
     private func startSendMessageProcess() {
         view.endEditing(true)
-        let hasMessage = viewCode.textInputted.isNotEmpty && viewCode.textInputted != "Escreva sua mensagem aqui"
+        let hasMessage = viewCode.textInputted.isNotEmpty && viewCode.textInputted != LuaContactUsStrings.textFieldDefaultMessage
         if hasMessage {
             let message = viewCode.textInputted
             guard let mail = viewModel.contactUsModel?.mail else {
@@ -57,7 +57,7 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
             sendMessage(message: message, mail: mail)
             return
         }
-        showAlert(alertTitle: "Mensagem vazia", message: "Por favor, escreva uma mensagem antes de enviar.", viewController: self)
+        showAlert(alertTitle: LuaContactUsStrings.emptyMessageTitle , message: LuaContactUsStrings.emptyMessageDescription, viewController: self)
     }
     
     private func sendMessage(message: String, mail: String) {
@@ -65,12 +65,12 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
             do {
                 await luaShowLoading()
                 try await viewModel.sendMessage(message: message, mail: mail)
-                await luaStopLoading()
-                showAlert(alertTitle: "Sucesso..", message: "Sua mensagem foi enviada com sucesso.", viewController: self)
+                showAlert(alertTitle: LuaContactUsStrings.defaultSuccessTitle, message: LuaContactUsStrings.defaultSuccessDescription, viewController: self)
             } catch {
-                stopLoading()
-                showAlertError(error: error, from: self, alertTitle: "Erro ao enviar mensagem")
+                await luaStopLoading()
+                showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.sendMessageErrorDescription)
             }
+            await luaStopLoading()
         }
     }
 }
@@ -96,7 +96,7 @@ private extension LuaContactUsViewController {
         } catch let error as LuaPersonalInfoError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     
@@ -106,7 +106,7 @@ private extension LuaContactUsViewController {
         } catch let error as LuaPersonalInfoError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     
@@ -116,7 +116,7 @@ private extension LuaContactUsViewController {
         } catch let error as LuaPersonalInfoError {
             showAlertError(error: error, from: self, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     

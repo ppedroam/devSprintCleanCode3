@@ -15,6 +15,7 @@ enum LuaNetworkError: Error {
     case serverError // 500
     case unknown
     case noInternetConnection
+    case anyUnintendedResponse
 }
 
 extension LuaNetworkError: LocalizedError {

@@ -9,7 +9,7 @@ import UIKit
 
 protocol LuaResetPasswordViewModelProtocol {
     func validateEmailFormat(inputedEmail: String) -> Bool
-    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String) async throws
+    func startPasswordReseting(targetViewController: UIViewController, emailInputted: String) async throws
 }
 
 final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
@@ -20,25 +20,15 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         self.networkManager = networkManager
     }
 
-    func startPasswordResetRequest(targetViewController: UIViewController, emailInputted: String) async throws {
+    func startPasswordReseting(targetViewController: UIViewController, emailInputted: String) async throws {
         do {
             try validateConnectivity(emailInputted: emailInputted)
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
-            try sendPasswordResetRequest(targetViewController: targetViewController, parameters: passwordParameters)
+            let _: Data = try await networkManager.request(.authTarget(.resetPassword(passwordParameters)))
         } catch _ as LuaNetworkError {
             throw LuaNetworkError.noInternetConnection
         } catch {
             throw error
-        }
-    }
-    
-    private func sendPasswordResetRequest(targetViewController: UIViewController, parameters: [String : String]) throws {
-        Task {
-            do {
-                let _: Data = try await networkManager.request(.authTarget(.resetPassword))
-            } catch {
-                throw error
-            }
         }
     }
     

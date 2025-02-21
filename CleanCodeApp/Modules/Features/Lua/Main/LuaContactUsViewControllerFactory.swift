@@ -9,7 +9,7 @@ import UIKit
 
 public struct LuaContactUsViewControllerFactory {
     static func makeLuaContactUsViewController() -> UIViewController {
-        let viewModel = LuaContactUsViewModelFactory.makeLuaContactUsViewModel()
+        let viewModel = LuaContactUsViewModel(networkManager: LuaNetworkManager())
         let luaContactUsViewController = LuaContactUsViewController(viewModel: viewModel)
         luaContactUsViewController.modalPresentationStyle = .fullScreen
         luaContactUsViewController.modalTransitionStyle = .coverVertical

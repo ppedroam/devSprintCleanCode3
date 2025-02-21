@@ -23,7 +23,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
     private let resetPasswordService: CeuResetPasswordServiceProtocol
 
-    init(resetPasswordService: CeuResetPasswordServiceProtocol = CeuResetPasswordService(networkManager: NetworkManager())) {
+    init(resetPasswordService: CeuResetPasswordServiceProtocol) {
         self.resetPasswordService = resetPasswordService
     }
 

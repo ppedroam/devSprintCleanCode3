@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CeuResetPasswordCoordinatorProtocol {
-    var viewController: UIViewController? { get set }
+    var viewController: CeuResetPasswordViewController? { get set }
     func showContactUsViewController()
     func showCreateAccountViewController()
     func showAlert()
@@ -16,8 +16,9 @@ protocol CeuResetPasswordCoordinatorProtocol {
     func showNoInternetConnectionAlert()
 }
 
-struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol {
-    weak var viewController: UIViewController?
+
+class CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlobalsProtocol {
+    weak var viewController: CeuResetPasswordViewController?
 
     func showContactUsViewController() {
         let ceuContactUsViewController = CeuContactUsViewController()
@@ -29,23 +30,27 @@ struct CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol {
     func showCreateAccountViewController() {
         let ceuCreateAccountViewController = CeuCreateAccountViewController()
         ceuCreateAccountViewController.modalPresentationStyle = .fullScreen
-        self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        }
     }
 
     func showAlert() {
         let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
-        self.viewController?.present(alertController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(alertController, animated: true)
+        }
     }
 
     func showAlertWith(message: String) {
         guard let viewController = viewController else { return }
-        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
+        return self.alertMessage(title: "Ops...", message: message, targetVC: viewController, action: nil)
     }
 
     func showNoInternetConnectionAlert() {
         guard let viewController = viewController else { return }
-        Globals.showNoInternetCOnnection(controller: viewController)
+        self.showNoInternetCOnnection(controller: viewController)
     }
 }

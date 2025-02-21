@@ -11,18 +11,15 @@ import UIKit
 // TODO: Puxar Tarefa 6, farei isso num outro commit
 class ResetPasswordService: FozResetPasswordServicing {
 
-    private weak var presenter: UIViewController?
+    func performPasswordReset(from presenter: UIViewController,
+                             with parameters: [String: String],
+                             completion: @escaping (Bool) -> Void) {
 
-    init(presenter: UIViewController) {
-        self.presenter = presenter
-    }
-
-    func performPasswordReset(with parameters: [String: String], completion: @escaping (Bool) -> Void) {
-        guard let presenter = presenter else {
-            completion(false)
-            return
-        }
-
-        BadNetworkLayer.shared.resetPassword(presenter, parameters: parameters, completionHandler: completion)
+        BadNetworkLayer.shared.resetPassword(
+            presenter,
+            parameters: parameters,
+            completionHandler: completion
+        )
     }
 }
+

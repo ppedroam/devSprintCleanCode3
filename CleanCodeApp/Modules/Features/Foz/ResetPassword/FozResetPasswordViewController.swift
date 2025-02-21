@@ -2,6 +2,7 @@ import UIKit
 
 class FozResetPasswordViewController: UIViewController {
 
+    // MARK: - IBOutlets
     @IBOutlet weak var emailTextfield: UITextField!
     @IBOutlet weak var recoverPasswordButton: UIButton!
     @IBOutlet weak var loginButton: UIButton!
@@ -12,33 +13,38 @@ class FozResetPasswordViewController: UIViewController {
     @IBOutlet weak var passwordRecoveredSuccessView: UIView!
     @IBOutlet weak var emailDisplayLabel: UILabel!
 
+    // MARK: - Variáveis
     private var didUserPutEmail: String = ""
     private var didUserPressRecoverPasswordButton: Bool = false
 
     var viewModel: FozResetPasswordManaging
     weak var coordinator: FozResetPasswordCoordinating?
 
-    init(viewModel: FozResetPasswordManaging, coordinator: FozResetPasswordCoordinating){
+    // MARK: - Init para Storyboard
+    init?(coder: NSCoder,
+          viewModel: FozResetPasswordManaging,
+          coordinator: FozResetPasswordCoordinating) {
         self.viewModel = viewModel
         self.coordinator = coordinator
-        super.init(nibName: nil, bundle: nil)
+        super.init(coder: coder)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureRecoverPasswordView()
     }
 
-
-    private func checkPasswordReset(with viewModel: FozResetPasswordManaging) {
+    private func checkPasswordReset() {
         Task {
             do {
-                let email = try await viewModel.performPasswordReset(withEmail: emailTextfield.text)
+                let email = try await viewModel.performPasswordReset(
+                    from: self,
+                    withEmail: emailTextfield.text
+                )
                 handlePasswordResetSuccess(withEmail: email)
             } catch let error as ResetPasswordError {
                 switch error {
@@ -53,8 +59,6 @@ class FozResetPasswordViewController: UIViewController {
         }
     }
 
-
-
     open override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
@@ -66,7 +70,7 @@ class FozResetPasswordViewController: UIViewController {
     // MARK: Recover Password
     @IBAction func recoverPasswordButton(_ sender: Any) {
         view.endEditing(true)
-        checkPasswordReset(with: viewModel)
+        checkPasswordReset()
     }
 
 

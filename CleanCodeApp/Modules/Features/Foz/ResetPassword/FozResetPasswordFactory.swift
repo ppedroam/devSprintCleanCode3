@@ -7,37 +7,36 @@
 
 import UIKit
 
+enum FozResetPasswordFactory{
 
-final class FozResetPasswordFactory: FozResetPasswordFactorying {
-
-    func make() -> UIViewController {
-         let resetPasswordVC = FozResetPasswordFactory().createResetPasswordViewController()
-
-        let coordinator = FozResetPasswordCoordinator()
-        coordinator.viewController = resetPasswordVC
-
-        return resetPasswordVC
-     }
-
-    func createResetPasswordViewController() -> UIViewController {
-
+    static func make() -> UIViewController {
         let storyboard = UIStoryboard(name: "FozUser", bundle: nil)
 
-        guard let viewController = storyboard.instantiateViewController(withIdentifier: "FozResetPasswordViewController") as? FozResetPasswordViewController else {
-            fatalError("FozResetPasswordViewController não encontrado no Storyboard.")
-        }
-
-        let resetPasswordService = ResetPasswordService(presenter: viewController)
-
+        let resetPasswordService = ResetPasswordService()
         let emailValidator = EmailValidatorUseCase()
-        
-        let viewModel = FozResetPasswordViewModel(resetPasswordService: resetPasswordService, emailValidator: emailValidator)
+        let viewModel = FozResetPasswordViewModel(
+            resetPasswordService: resetPasswordService,
+            emailValidator: emailValidator
+        )
 
-        viewController.viewModel = viewModel
+        let coordinator = FozResetPasswordCoordinator()
+
+        let viewController = storyboard.instantiateViewController(
+            identifier: "FozResetPasswordViewController",
+            creator: { coder in
+                FozResetPasswordViewController(
+                    coder: coder,
+                    viewModel: viewModel,
+                    coordinator: coordinator
+                )
+            }
+        )
+
+
+        coordinator.viewController = viewController
 
         return viewController
     }
-    
 }
 
 

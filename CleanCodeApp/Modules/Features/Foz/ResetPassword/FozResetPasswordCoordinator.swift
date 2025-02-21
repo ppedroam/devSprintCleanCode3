@@ -12,13 +12,13 @@ final class FozResetPasswordCoordinator: FozResetPasswordCoordinating {
     weak var viewController: UIViewController?
 
     func showContactUs() {
-        let contactUsVC = FozResetPasswordFactory().make()
+        let contactUsVC = FozResetPasswordFactory.make()
         contactUsVC.modalPresentationStyle = .fullScreen
         viewController?.navigationController?.pushViewController(contactUsVC, animated: true)
     }
 
     func showCreateAccount() {
-        let createAccountVC = FozResetPasswordFactory().make()
+        let createAccountVC = FozResetPasswordFactory.make()
         createAccountVC.modalPresentationStyle = .fullScreen
         viewController?.navigationController?.pushViewController(createAccountVC, animated: true)
     }

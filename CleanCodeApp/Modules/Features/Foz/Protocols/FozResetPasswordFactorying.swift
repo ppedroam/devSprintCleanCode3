@@ -7,8 +7,4 @@
 
 import UIKit
 
-protocol FozResetPasswordFactorying {
-    func make() -> UIViewController
 
-    func createResetPasswordViewController() -> UIViewController
-}

@@ -12,12 +12,15 @@ class MelContactUsViewController: UIViewController {
     private var contactUsView: MelContactUsView?
     private let appOpener: ExternalAppOpening
     private let contactUsService: MelContactUsServiceProtocol
-    private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
+    private let melLoadingView: MelLoadingViewProtocol
     
     init(appOpener: ExternalAppOpening = ExternalAppOpener(application: UIApplication.shared),
-         contactUsService: MelContactUsServiceProtocol = MelContactUsService(networking: MelNetworkManager())) {
+         contactUsService: MelContactUsServiceProtocol = MelContactUsService(networking: MelNetworkManager()),
+         melLoadingView: MelLoadingViewProtocol = MelLoadingView()
+    ) {
         self.appOpener = appOpener
         self.contactUsService = contactUsService
+        self.melLoadingView = melLoadingView
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -89,7 +92,7 @@ extension MelContactUsViewController: MelContactUsViewDelegate {
         melLoadingView.showLoadingView()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let self = self else { return }
-            self.melLoadingView.removeLoadingView()
+            self.melLoadingView.hideLoadingView()
         }
         prepareAndSendMessage(email: email, message: message)
     }
@@ -109,7 +112,7 @@ extension MelContactUsViewController: MelContactUsViewDelegate {
         let parameters = createMessageParameters(email: email, message: message)
         contactUsService.sendContactUsMessage(parameters) { [weak self] result in
             guard let self = self else { return }
-            self.melLoadingView.removeLoadingView()
+            self.melLoadingView.hideLoadingView()
             self.handleSendContactResponse(result)
         }
     }
@@ -144,7 +147,7 @@ extension MelContactUsViewController: MelContactUsViewDelegate {
         melLoadingView.showLoadingView()
         contactUsService.fetchContactData() { [weak self] result in
             guard let self = self else { return }
-            self.melLoadingView.removeLoadingView()
+            self.melLoadingView.hideLoadingView()
             switch result {
             case .success(let contactModel):
                 self.contactModel = contactModel

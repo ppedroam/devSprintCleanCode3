@@ -21,7 +21,8 @@ final class MelContactUsService: MelContactUsServiceProtocol {
     
     public func fetchContactData(completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
         let url = Endpoints.contactUs
-        networking.request(url, method: .get, parameters: nil, headers: nil) { result in
+        networking.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
+            guard let self = self else { return }
             do {
                 let data = try result.get()
                 let contactModel = try self.decodeContactData(data)

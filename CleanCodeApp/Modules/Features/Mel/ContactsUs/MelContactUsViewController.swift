@@ -10,9 +10,20 @@ import UIKit
 class MelContactUsViewController: UIViewController {
     private var contactModel: ContactUsModel?
     private var contactUsView: MelContactUsView?
-    private let appOpener = ExternalAppOpener(application: UIApplication.shared)
-    private let contactUsService: MelContactUsService = MelContactUsService()
+    private let appOpener: ExternalAppOpening
+    private let contactUsService: MelContactUsServiceProtocol
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
+    
+    init(appOpener: ExternalAppOpening = ExternalAppOpener(application: UIApplication.shared),
+         contactUsService: MelContactUsServiceProtocol = MelContactUsService(networking: MelNetworkManager())) {
+        self.appOpener = appOpener
+        self.contactUsService = contactUsService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

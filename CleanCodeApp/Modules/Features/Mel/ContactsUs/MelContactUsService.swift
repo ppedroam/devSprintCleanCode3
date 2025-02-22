@@ -7,10 +7,21 @@
 
 import Foundation
 
-final class MelContactUsService {
+protocol MelContactUsServiceProtocol: AnyObject {
+    func fetchContactData(completion: @escaping (Result<ContactUsModel, Error>) -> Void)
+    func sendContactUsMessage(_ parameters: [String: String], completion: @escaping (Result<Data, Error>) -> Void)
+}
+
+final class MelContactUsService: MelContactUsServiceProtocol {
+    private let networking: Networking
+    
+    init(networking: Networking) {
+        self.networking = networking
+    }
+    
     public func fetchContactData(completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
         let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
+        networking.request(url, method: .get, parameters: nil, headers: nil) { result in
             do {
                 let data = try result.get()
                 let contactModel = try self.decodeContactData(data)
@@ -28,7 +39,7 @@ final class MelContactUsService {
     
     public func sendContactUsMessage(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
         let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
+        networking.request(url, method: .post, parameters: parameters, headers: nil) { result in
             completion(result)
         }
     }

@@ -123,15 +123,3 @@ private extension GameViewController6 {
         }
     }
 }
-
-protocol UIApplicationProxy {
-    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any]) async -> Bool
-}
-
-extension UIApplicationProxy {
-    func open(_ url: URL) async -> Bool {
-        await open(url, options: [:])
-    }
-}
-
-extension UIApplication: UIApplicationProxy {}

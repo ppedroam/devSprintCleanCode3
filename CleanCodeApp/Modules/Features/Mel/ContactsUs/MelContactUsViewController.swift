@@ -8,22 +8,21 @@
 import UIKit
 
 class MelContactUsViewController: LoadingInheritageController {
-    var model: ContactUsModel?
-    var screen: MelContactUsScreen?
-    private let urlHandler: MelURLHandler = MelURLHandler()
-    private let service: MelContactUsService = MelContactUsService()
-    
+    var contactModel: ContactUsModel?
+    var contactUsView: MelContactUsScreen?
+    private let appOpener = ExternalAppOpener(application: UIApplication.shared)
+    private let contactUsService: MelContactUsService = MelContactUsService()
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        screen?.configureDelegate(delegate: self)
+        contactUsView?.setDelegate(delegate: self)
         fetchAndProcessContactData()
     }
     
     override func loadView() {
-        self.screen = MelContactUsScreen()
-        view = screen
+        self.contactUsView = MelContactUsScreen()
+        view = contactUsView
     }
     
     deinit {
@@ -33,34 +32,49 @@ class MelContactUsViewController: LoadingInheritageController {
 
 // MARK: - Functions
 extension MelContactUsViewController: MelContactUsScreenDelegate {
-    func didTapPhoneButton() {
-        guard let tel = model?.phone,
-              let url = URL(string: "tel://\(tel)") else { return }
-        urlHandler.openURL(url)
+    func didTapPhoneCallButton() {
+        guard let tel = contactModel?.phone else { return }
+        let telephoneUrlCreator = TelephoneUrlCreator(number: tel)
+        Task {
+            do {
+                try await appOpener.openUrl(telephoneUrlCreator)
+            } catch {
+                print("Erro ao abrir URL: \(error)")
+            }
+        }
     }
     
     func didTapEmailButton() {
-        guard let mail = model?.mail,
-              let url = URL(string: "mailto:\(mail)") else { return }
-        urlHandler.openURL(url)
+        guard let mail = contactModel?.mail else { return }
+        let emailUrlCreator = EmailUrlCreator(email: mail)
+        Task {
+            do {
+                try await appOpener.openUrl(emailUrlCreator)
+            } catch {
+                print("Erro ao abrir URL: \(error)")
+            }
+        }
     }
     
     func didTapChatButton() {
-        do {
-            let whatsAppURL = try urlHandler.getWhatsAppURL(phoneNumber: model?.phone)
-            if urlHandler.canOpenURL(whatsAppURL) {
-                urlHandler.openURL(whatsAppURL)
-            } else {
-                let appStoreURL = try urlHandler.getAppStoreURL()
-                urlHandler.openURL(appStoreURL)
+        guard let phone = contactModel?.phone else {
+            print("Número de telefone inválido")
+            return
+        }
+        let whatsappUrlCreator = WhatsppUrlCreator(phoneNumber: phone)
+        let appStoreUrlCreator = MelWhatsAppAppStoreUrlCreator()
+        Task {
+            do {
+                try await appOpener.openUrl(whatsappUrlCreator)
+            } catch {
+                print("Erro ao abrir WhatsApp: \(error). Tentando abrir a App Store...")
+                try? await appOpener.openUrl(appStoreUrlCreator)
             }
-        } catch {
-            print("Erro ao tentar abrir o chat: \(error)")
         }
     }
     
     func didTapSendMessageButton(message: String) {
-        guard !message.isEmpty, let email = model?.mail else { return }
+        guard !message.isEmpty, let email = contactModel?.mail else { return }
         melLoadingView.showLoadingView()
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.melLoadingView.removeLoadingView()
@@ -81,23 +95,23 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func prepareAndSendMessage(email: String, message: String) {
         let parameters = createMessageParameters(email: email, message: message)
-        service.sendRequest(parameters) { [weak self] result in
+        contactUsService.sendContactUsMessage(parameters) { [weak self] result in
             guard let self = self else { return }
             self.removeLoadingView()
-            self.handleResponse(result)
+            self.handleSendContactResponse(result)
         }
     }
     
-    private func handleResponse(_ result: Result<Data, Error>) {
+    private func handleSendContactResponse(_ result: Result<Data, Error>) {
         switch result {
         case .success:
-            showSuccessAlert()
+            presentSuccessAlert()
         case .failure:
-            showErrorAlert()
+            presentErrorAlert()
         }
     }
     
-    private func showSuccessAlert() {
+    private func presentSuccessAlert() {
         Globals.alertMessage(title: MelContactUsStrings.successAlertTitle.rawValue,
                              message: MelContactUsStrings.successAlertMessage.rawValue,
                              targetVC: self) {
@@ -105,7 +119,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
         }
     }
     
-    private func showErrorAlert(mustDismiss: Bool = false) {
+    private func presentErrorAlert(mustDismiss: Bool = false) {
         Globals.alertMessage(title: MelContactUsStrings.errorAlertTitle.rawValue,
                              message: MelContactUsStrings.errorAlertMessage.rawValue,
                              targetVC: self)
@@ -116,15 +130,15 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     
     private func fetchAndProcessContactData() {
         melLoadingView.showLoadingView()
-        service.fetchContactData() { [weak self] result in
+        contactUsService.fetchContactData() { [weak self] result in
             guard let self = self else { return }
             self.melLoadingView.removeLoadingView()
             switch result {
             case .success(let contactModel):
-                self.model = contactModel
+                self.contactModel = contactModel
             case .failure(let error):
                 print("Erro na API: \(error.localizedDescription)")
-                self.showErrorAlert(mustDismiss: true)
+                self.presentErrorAlert(mustDismiss: true)
             }
         }
     }

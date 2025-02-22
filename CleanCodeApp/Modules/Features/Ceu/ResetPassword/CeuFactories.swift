@@ -11,10 +11,14 @@ enum CeuResetPasswordFactory {
         let storyboard = UIStoryboard(name: "CeuUser", bundle: nil)
 
         let ceuResetPasswordViewModel = CeuResetPasswordViewModel()
-        var ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
+        let ceuResetPasswordCoordinator = CeuResetPasswordCoordinator()
 
         let ceuResetPasswordViewController = storyboard.instantiateViewController(identifier: "CeuResetPasswordViewController") { coder in
-            CeuResetPasswordViewController(coder: coder, ceuResetPasswordViewModel: ceuResetPasswordViewModel, ceuResetPasswordCoordinator: ceuResetPasswordCoordinator)
+            CeuResetPasswordViewController(
+                coder: coder,
+                ceuResetPasswordViewModel: ceuResetPasswordViewModel,
+                ceuResetPasswordCoordinator: ceuResetPasswordCoordinator
+            )
         }
         ceuResetPasswordViewController.modalPresentationStyle = .fullScreen
 
@@ -22,4 +26,5 @@ enum CeuResetPasswordFactory {
         ceuResetPasswordViewModel.delegate = ceuResetPasswordViewController
 
         return ceuResetPasswordViewController
-    }}
+    }
+}

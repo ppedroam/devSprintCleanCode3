@@ -46,10 +46,12 @@ private extension CeuResetPasswordViewController {
     }
 
     @IBAction func recoverPasswordButton(_ sender: Any) {
-        if isEmailRecovered {
-            dismiss(animated: true)
-        } else {
-            ceuResetPasswordViewModel.startRecoverPasswordWith(email: emailTextfield?.text)
+        Task { @MainActor in
+            if isEmailRecovered {
+                dismiss(animated: true)
+            } else {
+                await ceuResetPasswordViewModel.startRecoverPasswordWith(email: emailTextfield?.text)
+            }
         }
     }
 

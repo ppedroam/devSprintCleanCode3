@@ -6,7 +6,7 @@
 //
 import UIKit
 
-protocol CeuResetPasswordViewModelDelegate where Self: UIViewController {
+protocol CeuResetPasswordViewModelDelegate: AnyObject {
     func handleResetPasswordRequestSuccess()
     func handleResetPasswordRequestError()
     func validateForm() throws
@@ -31,7 +31,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
         do {
             try delegate?.validateForm()
             try verifyInternetConnection()
-
+            
             makeResetPasswordRequest(email: email)
         } catch CeuCommonsErrors.invalidEmail {
             delegate?.showAlertWith(message: CeuResetPasswordStrings.verifyEmailErrorMessage.localized())

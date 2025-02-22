@@ -11,7 +11,7 @@ import XCTest
 class NetworkManagerMock: NetworkManagerProtocol {
     var shouldReturnError = false
     var wasCalled = false
-    var response = CeuResetPasswordResponse(
+    var responseMock = CeuResetPasswordResponse(
         success: true,
         message: "Success message!"
     )
@@ -23,7 +23,7 @@ class NetworkManagerMock: NetworkManagerProtocol {
             completion(.failure(NetworkError.networkError))
             return
         }
-        completion(.success(response as! T))
+        completion(.success(responseMock as! T))
     }
     
 

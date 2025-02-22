@@ -158,18 +158,15 @@ extension CeuResetPasswordViewController: CeuResetPasswordViewModelDelegate {
     }
 
     func validateForm() throws {
-        guard let isEmailValid = emailTextfield.text?.isEmailValid() else {
-            throw CeuCommonsErrors.invalidEmail
-        }
-
         self.view.endEditing(true)
 
-        guard isEmailValid else {
+        guard let isEmailValid = emailTextfield.text?.isEmailValid(), isEmailValid else {
             emailTextfield.setErrorColor()
             verifyEmailLabel.textColor = .red
             verifyEmailLabel.text = CeuResetPasswordStrings.verifyEmailErrorMessage.localized()
             throw CeuCommonsErrors.invalidEmail
         }
+
     }
 
     func showAlertWith(message: String) {

@@ -22,16 +22,21 @@ protocol CeuResetPasswordViewModelProtocol {
 class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
     private let resetPasswordService: CeuResetPasswordServiceProtocol
+    private let connectivityManager: ConnectivityManagerProxy
 
-    init(resetPasswordService: CeuResetPasswordServiceProtocol) {
+    init(
+        resetPasswordService: CeuResetPasswordServiceProtocol,
+        connectivityManager: ConnectivityManagerProxy = ConnectivityManager.shared
+    ) {
         self.resetPasswordService = resetPasswordService
+        self.connectivityManager = connectivityManager
     }
 
     func startRecoverPasswordWith(email: String?) {
         do {
             try delegate?.validateForm()
             try verifyInternetConnection()
-            
+
             makeResetPasswordRequest(email: email)
         } catch CeuCommonsErrors.invalidEmail {
             delegate?.showAlertWith(message: CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
@@ -44,7 +49,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
 private extension CeuResetPasswordViewModel {
 
     func verifyInternetConnection() throws {
-        if !ConnectivityManager.shared.isConnected {
+        if !connectivityManager.isConnected {
             delegate?.showNoInternetConnectionAlert()
             throw CeuCommonsErrors.networkError
         }

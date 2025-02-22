@@ -55,7 +55,7 @@ class CeuResetPasswordServiceTests: XCTestCase {
             XCTFail("resetPassword function should return an error.")
         } catch {
             XCTAssertEqual(error as? CeuCommonsErrors, CeuCommonsErrors.invalidData)
-            XCTAssertEqual(networkManagerMock?.wasCalled, false)
+            XCTAssertFalse(networkManagerMock?.wasCalled ?? true)
         }
     }
 
@@ -71,7 +71,7 @@ class CeuResetPasswordServiceTests: XCTestCase {
             XCTFail("resetPassword function should return an error.")
         } catch {
             XCTAssertEqual(error as? NetworkError, NetworkError.networkError)
-            XCTAssertEqual(networkManagerMock?.wasCalled, true)
+            XCTAssertTrue(networkManagerMock?.wasCalled ?? false)
         }
     }
 

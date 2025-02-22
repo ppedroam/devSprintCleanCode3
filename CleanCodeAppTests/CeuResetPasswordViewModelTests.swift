@@ -110,7 +110,7 @@ class CeuResetPasswordViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithMessage, CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled, true)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled ?? false)
     }
 
     // TODO: Create mock to ConnectivityManager
@@ -122,8 +122,8 @@ class CeuResetPasswordViewModelTests: XCTestCase {
         sut?.startRecoverPasswordWith(email: "jorge@devsprint.com")
 
         // Then
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showNoInternetConnectionAlertWasCalled, true)
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled, true)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showNoInternetConnectionAlertWasCalled ?? false)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled ?? false)
         XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithMessage, CeuResetPasswordStrings.somethingWentWrongErrorMessage.localized())
     }
 
@@ -142,26 +142,26 @@ class CeuResetPasswordViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         // Then
-        XCTAssertEqual(self.ceuResetPasswordServiceMock?.wasCalled, true)
-        XCTAssertEqual(self.ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestErrorWasCalled, true)
+        XCTAssertTrue(self.ceuResetPasswordServiceMock?.wasCalled ?? false)
+        XCTAssertTrue(self.ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestErrorWasCalled ?? false)
     }
 
     func test_when_makeResetPasswordRequest_return_success_handleResetPasswordRequestSuccess_should_be_called() {
         // Given
         ceuResetPasswordServiceMock?.shouldReturnError = false
-        let exp = expectation(description: "request done")
+        let expectation = expectation(description: "request resetPassword done")
 
         ceuResetPasswordViewModelDelegateMock?.onHandleResetPasswordRequestSuccess = {
-            exp.fulfill()
+            expectation.fulfill()
         }
 
         // When
         sut?.startRecoverPasswordWith(email: "jorge@devsprint.com")
 
-        wait(for: [exp], timeout: 1)
+        wait(for: [expectation], timeout: 1)
 
         // Then
-        XCTAssertEqual(ceuResetPasswordServiceMock?.wasCalled, true)
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestSuccessWasCalled, true)
+        XCTAssertTrue(ceuResetPasswordServiceMock?.wasCalled ?? false)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestSuccessWasCalled ?? false)
     }
 }

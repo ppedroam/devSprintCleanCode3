@@ -21,15 +21,17 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     var model: ContactUsModel?
     
     private let viewModel: SolContactUsViewModel
-    private let contactUsView = SolContactUsView()
+    private let contactUsView: SolContactUsView
     
     override func loadView() {
         view = contactUsView
     }
     
-    init (viewModel: SolContactUsViewModel){
+    init (viewModel: SolContactUsViewModel,
+          contactUsView: SolContactUsView = SolContactUsView()){
         self.viewModel = viewModel
-        super.init(nibName: "SolContactUsViewController", bundle: nil)
+        self.contactUsView = contactUsView
+        super.init(nibName: nil, bundle: nil)
         self.viewModel.viewController = self
     }
     
@@ -78,7 +80,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     
     
     private func showAlertMessage(title: String, message: String, dissmiss: Bool) {
-        Globals.alertMessage(title: title, message: message, targetVC: self) {
+        Globals.showAlertMessage(title: title, message: message, targetVC: self) {
             self.dismiss(animated: dissmiss)
         }
     }
@@ -114,7 +116,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
     
     func displayGlobalAlertMessage() {
-        Globals.alertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
+        Globals.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
     }
 }
 
@@ -128,7 +130,7 @@ private extension SolContactUsViewController {
             viewModel.requestSendMessage(parameters: parameters)
         }
         catch {
-            Globals.alertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
+            Globals.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
         }
     }
     

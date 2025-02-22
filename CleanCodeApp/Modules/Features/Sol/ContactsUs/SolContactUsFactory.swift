@@ -10,7 +10,8 @@ import UIKit
 enum SolContactUsFactory {
     static func make() -> UIViewController {
         let viewModel = SolContactUsViewModel()
-        let rootViewController = SolContactUsViewController(viewModel: viewModel)
+        let view = SolContactUsView()
+        let rootViewController = SolContactUsViewController(viewModel: viewModel, contactUsView: view)
         return rootViewController
     }
 }

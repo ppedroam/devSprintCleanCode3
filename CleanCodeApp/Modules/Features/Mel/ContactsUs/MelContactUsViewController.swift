@@ -7,9 +7,9 @@
 
 import UIKit
 
-class MelContactUsViewController: LoadingInheritageController {
-    var contactModel: ContactUsModel?
-    var contactUsView: MelContactUsScreen?
+class MelContactUsViewController: UIViewController {
+    private var contactModel: ContactUsModel?
+    private var contactUsView: MelContactUsView?
     private let appOpener = ExternalAppOpener(application: UIApplication.shared)
     private let contactUsService: MelContactUsService = MelContactUsService()
     private let melLoadingView: LoadingInheritageController = LoadingInheritageController()
@@ -21,7 +21,7 @@ class MelContactUsViewController: LoadingInheritageController {
     }
     
     override func loadView() {
-        self.contactUsView = MelContactUsScreen()
+        self.contactUsView = MelContactUsView()
         view = contactUsView
     }
     
@@ -31,7 +31,7 @@ class MelContactUsViewController: LoadingInheritageController {
 }
 
 // MARK: - Functions
-extension MelContactUsViewController: MelContactUsScreenDelegate {
+extension MelContactUsViewController: MelContactUsViewDelegate {
     func didTapPhoneCallButton() {
         guard let tel = contactModel?.phone else { return }
         let telephoneUrlCreator = TelephoneUrlCreator(number: tel)
@@ -76,7 +76,8 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
     func didTapSendMessageButton(message: String) {
         guard !message.isEmpty, let email = contactModel?.mail else { return }
         melLoadingView.showLoadingView()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            guard let self = self else { return }
             self.melLoadingView.removeLoadingView()
         }
         prepareAndSendMessage(email: email, message: message)
@@ -97,7 +98,7 @@ extension MelContactUsViewController: MelContactUsScreenDelegate {
         let parameters = createMessageParameters(email: email, message: message)
         contactUsService.sendContactUsMessage(parameters) { [weak self] result in
             guard let self = self else { return }
-            self.removeLoadingView()
+            self.melLoadingView.removeLoadingView()
             self.handleSendContactResponse(result)
         }
     }

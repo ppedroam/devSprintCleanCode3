@@ -7,7 +7,7 @@
 
 import Foundation
 protocol SolContactUsViewModelProtocol: AnyObject {
-    func fetchData()
+    func fetchContactData()
     func requestSendMessage(parameters:[ String: String])
 }
 
@@ -20,7 +20,7 @@ class SolContactUsViewModel: SolContactUsViewModelProtocol {
         self.networkManager = networkManager
     }
     
-    func fetchData() {
+    func fetchContactData() {
         self.viewController?.callLoadingView()
         Task {
             let _: () = await fetchContactUsData()

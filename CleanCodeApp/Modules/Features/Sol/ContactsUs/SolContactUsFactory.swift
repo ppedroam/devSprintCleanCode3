@@ -11,8 +11,13 @@ enum SolContactUsFactory {
     static func make() -> UIViewController {
         let viewModel = SolContactUsViewModel()
         let view = SolContactUsView()
-        let rootViewController = SolContactUsViewController(viewModel: viewModel, contactUsView: view)
+        let globalAlerts = ImplementGlobals()
+        let rootViewController = SolContactUsViewController(viewModel: viewModel, contactUsView: view, globalAlerts: globalAlerts)
         return rootViewController
     }
+}
+
+class ImplementGlobals: SolGlobalsAlertableProtocol {
+    
 }
 

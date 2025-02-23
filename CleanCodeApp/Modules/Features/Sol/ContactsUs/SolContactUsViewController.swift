@@ -22,15 +22,18 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     
     private let viewModel: SolContactUsViewModel
     private let contactUsView: SolContactUsView
+    private let globalAlerts: SolGlobalsAlertableProtocol
     
     override func loadView() {
         view = contactUsView
     }
     
     init (viewModel: SolContactUsViewModel,
-          contactUsView: SolContactUsView = SolContactUsView()){
+          contactUsView: SolContactUsView = SolContactUsView(),
+          globalAlerts: SolGlobalsAlertableProtocol = ImplementGlobals()){
         self.viewModel = viewModel
         self.contactUsView = contactUsView
+        self.globalAlerts = globalAlerts
         super.init(nibName: nil, bundle: nil)
         self.viewModel.viewController = self
     }
@@ -45,7 +48,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
         contactUsView.textView.text  = SolContactUsStrings.writheHereYourMessage
         callConfigureActionsButtonsByType ()
         
-        viewModel.fetchData()
+        viewModel.fetchContactData()
     }
     
     func callConfigureActionsButtonsByType () {
@@ -77,7 +80,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
     
     private func showAlertMessage(title: String, message: String, dissmiss: Bool) {
-        Globals.showAlertMessage(title: title, message: message, targetVC: self) {
+        globalAlerts.showAlertMessage(title: title, message: message, targetVC: self) {
             self.dismiss(animated: dissmiss)
         }
     }
@@ -112,7 +115,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
     
     func displayGlobalAlertMessage() {
-        Globals.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
+        globalAlerts.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
     }
 }
 

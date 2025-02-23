@@ -63,22 +63,18 @@ final class SolContactUsView: UIView, SolContactUsViewProtocol {
     
     lazy var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
-        sendMessageButton.backgroundColor = .blue
-        sendMessageButton.setTitle("  Enviar ", for: .normal)
-        sendMessageButton.setTitleColor(.white, for: .normal)
-        sendMessageButton.layer.cornerRadius = 10
+        sendMessageButton.applyStyleSolContactUsButton(title: SolContactUsStrings.send, backgroudColor: .blue, setTitleColor: .white)
         sendMessageButton.setContentHuggingPriority(.required, for: .horizontal)
+
         return sendMessageButton
     }()
     
+    
     lazy var closeButton: UIButton = {
         let closeButton = UIButton()
-        closeButton.setTitle("Voltar", for: .normal)
-        closeButton.setTitleColor(.blue, for: .normal)
-        closeButton.backgroundColor = .clear
+        closeButton.applyStyleSolContactUsButton(title: SolContactUsStrings.back, backgroudColor: .clear, setTitleColor: .blue)
         closeButton.layer.borderWidth = 1
         closeButton.layer.borderColor = UIColor.blue.cgColor
-        closeButton.layer.cornerRadius = 10
         return closeButton
     }()
     

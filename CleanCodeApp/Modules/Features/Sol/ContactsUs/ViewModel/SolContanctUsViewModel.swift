@@ -7,38 +7,45 @@
 
 import Foundation
 protocol SolContactUsViewModelProtocol: AnyObject {
- func fetchData()
- func requestSendMessage(parameters:[ String: String])
+    func fetchData()
+    func requestSendMessage(parameters:[ String: String])
 }
 
 class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
     weak var viewController: SolContactUsProtocol?
-    private let networkManager: NetworkManagerProtocol
+    private let networkManager: Networking
     
-    init(networkManager: NetworkManagerProtocol = NetworkManager()) {
+    init(networkManager: Networking = SolNetworkManager()) {
         self.networkManager = networkManager
     }
     
     func fetchData() {
         self.viewController?.callLoadingView()
+        Task {
+            let _: () = await fetchContactUsData()
+        }
+        
+    }
+    
+    private func fetchContactUsData() async -> () {
         let url = Endpoints.contactUs
-        let solContactUsRequest: NetworkRequest = SolContactUsRequest()
-        networkManager.request(solContactUsRequest) { [weak self] (result: Result<Data, Error>) in
-            guard let self = self else {return}
-            DispatchQueue.main.async {
+        return await withCheckedContinuation{ continuation in
+            networkManager.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
+                guard let self = self else {return}
                 self.viewController?.callRemoveLoadingView()
-            }
-            switch result {
-            case .success(let data):
-                self.decodeData(data: data)
-            case .failure(_):
-                DispatchQueue.main.async {
-                    self.viewController?.displayAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
+                switch result {
+                case .success(let data):
+                    continuation.resume(returning: self.decodeData(data: data))
+                case .failure(let error):
+                    print("error api: \(error.localizedDescription)")
+                    continuation.resume(returning: self.viewController?.displayAlertMessage(
+                        title: "Ops..",
+                        message: "Ocorreu algum erro",
+                        dissmiss: true) ?? ())
                 }
             }
         }
-
     }
     
     private func decodeData(data: Data) {
@@ -53,20 +60,14 @@ class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
     func requestSendMessage(parameters:[ String: String]) {
         let url = Endpoints.sendMessage
-        let solContactSendMessageRequest: NetworkRequest = SolContactSendMessageRequest()
-        networkManager.request(solContactSendMessageRequest) { [weak self] (result: Result<Data, Error>) in
+        networkManager.request(url, method: .post, parameters: parameters, headers: nil) { [weak self]  result in
             guard let self = self else {return}
-            DispatchQueue.main.async {
-                self.viewController?.callRemoveLoadingView()
-            }
+            self.viewController?.callRemoveLoadingView()
             switch result {
             case .success:
                 self.viewController?.displayAlertMessage(title: "Sucesso..", message: "Sua mensagem foi enviada", dissmiss: true)
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.viewController?.displayGlobalAlertMessage()
-                }
+            case .failure:
+                self.viewController?.displayGlobalAlertMessage()
             }
         }
     }

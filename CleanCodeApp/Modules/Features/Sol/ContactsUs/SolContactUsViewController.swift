@@ -76,15 +76,11 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
         }
     }
     
-    
-    
-    
     private func showAlertMessage(title: String, message: String, dissmiss: Bool) {
         Globals.showAlertMessage(title: title, message: message, targetVC: self) {
             self.dismiss(animated: dissmiss)
         }
     }
-    
     
     func sendParameters() throws -> [String: String]  {
         let email = model?.mail ?? ""

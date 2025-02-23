@@ -10,34 +10,30 @@ import Foundation
 import UIKit
 
 protocol MelLoadingViewProtocol: AnyObject {
-    func showLoadingView()
+    func showLoadingView(on view: UIView)
     func hideLoadingView()
 }
 
-class MelLoadingView: UIViewController, MelLoadingViewProtocol {
+class MelLoadingView: MelLoadingViewProtocol {
     private var loadingView: UIView = UIView()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
-    public func showLoadingView() {
+
+    func showLoadingView(on view: UIView) {
         loadingView = UIView(frame: UIScreen.main.bounds)
-        loadingView.backgroundColor = .systemGray2
-        let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
+        loadingView.backgroundColor = .systemGray2.withAlphaComponent(0.8) // Adicione transparência
+        let activityIndicator = UIActivityIndicatorView(style: .large)
         activityIndicator.center = loadingView.center
         activityIndicator.color = .blue
         activityIndicator.startAnimating()
-        
+
         loadingView.addSubview(activityIndicator)
-        view.addSubview(loadingView)
+        view.addSubview(loadingView) // Adiciona à view do controlador atual
         loadingView.alpha = 0.0
         UIView.animate(withDuration: 0.6) {
             self.loadingView.alpha = 1.0
         }
     }
-    
-    public func hideLoadingView() {
+
+    func hideLoadingView() {
         UIView.animate(withDuration: 0.6, animations: {
             self.loadingView.alpha = 0.0
         }) { _ in

@@ -10,16 +10,15 @@ import UIKit
 class MelContactUsViewController: UIViewController {
     private var viewModel: MelContactUsViewModelProtocol
     private var contactUsView: MelContactUsView?
-    private let contactUsService: MelContactUsServiceProtocol
     private let melLoadingView: MelLoadingViewProtocol
+    private let melAlertDisplay: MelAlertDisplayProtocol
     
-    init(viewModel: MelContactUsViewModelProtocol = MelContactUsViewModel(appOpener: ExternalAppOpener(application: UIApplication.shared)),
-         contactUsService: MelContactUsServiceProtocol = MelContactUsService(networking: MelNetworkManager()),
-         melLoadingView: MelLoadingViewProtocol = MelLoadingView()
-    ) {
+    init(viewModel: MelContactUsViewModelProtocol,
+         melLoadingView: MelLoadingViewProtocol,
+         melAlertDisplay: MelAlertDisplayProtocol) {
         self.viewModel = viewModel
-        self.contactUsService = contactUsService
         self.melLoadingView = melLoadingView
+        self.melAlertDisplay = melAlertDisplay
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -59,45 +58,30 @@ extension MelContactUsViewController: MelContactUsViewDelegate {
     }
     
     func didTapSendMessageButton(message: String) {
-        viewModel.sendMessageToSupport(message: message)
+        Task {
+            await viewModel.sendMessageToSupport(message: message)
+        }
     }
     
     func didTapCloseButton() {
         dismiss(animated: true)
     }
-    
-    private func displaySuccessAlert() {
-        Globals.alertMessage(title: MelContactUsStrings.successAlertTitle.rawValue,
-                             message: MelContactUsStrings.successAlertMessage.rawValue,
-                             targetVC: self) {
-            self.dismiss(animated: true)
-        }
-    }
-    
-    private func displayErrorAlert(mustDismiss: Bool) {
-        Globals.alertMessage(title: MelContactUsStrings.errorAlertTitle.rawValue,
-                             message: MelContactUsStrings.errorAlertMessage.rawValue,
-                             targetVC: self)
-        if mustDismiss {
-            self.dismiss(animated: true)
-        }
-    }
 }
 
 extension MelContactUsViewController: MelContactUsViewModelDelegate {
     func presentLoading() {
-        melLoadingView.showLoadingView()
+        melLoadingView.showLoadingView(on: self.view)
     }
     func hideLoading() {
         melLoadingView.hideLoadingView()
     }
     
     func presentErrorAlert(mustDismiss: Bool) {
-        displayErrorAlert(mustDismiss: mustDismiss)
+        melAlertDisplay.displayErrorAlert(on: self, mustDismiss: mustDismiss)
     }
     
     func presentSuccessAlert() {
-        displaySuccessAlert()
+        melAlertDisplay.displayErrorAlert(on: self, mustDismiss: true)
     }
 }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol MelContactUsViewModelDelegate: AnyObject {
+@MainActor protocol MelContactUsViewModelDelegate: AnyObject {
     func presentLoading()
     func hideLoading()
     func presentErrorAlert(mustDismiss: Bool)
@@ -20,7 +20,7 @@ protocol MelContactUsViewModelProtocol: AnyObject {
     func openPhoneForCall()
     func openEmailForMessage()
     func openWhatsAppOrRedirect()
-    func sendMessageToSupport(message: String)
+    func sendMessageToSupport(message: String) async
 }
 
 final class MelContactUsViewModel {
@@ -30,7 +30,7 @@ final class MelContactUsViewModel {
     private let contactUsService: MelContactUsServiceProtocol
     
     init(appOpener: ExternalAppOpening,
-         contactUsService: MelContactUsServiceProtocol = MelContactUsService(networking: MelNetworkManager())
+         contactUsService: MelContactUsServiceProtocol
     ) {
         self.appOpener = appOpener
         self.contactUsService = contactUsService
@@ -43,17 +43,17 @@ extension MelContactUsViewModel: MelContactUsViewModelProtocol {
     }
     
     public func fetchAndProcessContactData() {
-        delegate?.presentLoading()
-        contactUsService.fetchContactData() { [weak self] result in
-            guard let self = self else { return }
-            self.delegate?.hideLoading()
-            switch result {
-            case .success(let contactModel):
-                self.contactModel = contactModel
-            case .failure(let error):
+        Task {
+            await delegate?.presentLoading()
+
+            do {
+                let contactUsData = try await contactUsService.fetchContactData()
+                self.contactModel = contactUsData
+            } catch {
                 print("Erro na API: \(error.localizedDescription)")
-                self.delegate?.presentErrorAlert(mustDismiss: true)
+                await delegate?.presentErrorAlert(mustDismiss: true)
             }
+            await delegate?.hideLoading()
         }
     }
     
@@ -100,23 +100,26 @@ extension MelContactUsViewModel: MelContactUsViewModelProtocol {
         }
     }
     
-    func sendMessageToSupport(message: String) {
-        guard !message.isEmpty, let email = contactModel?.mail else { return }
-        delegate?.presentLoading()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            guard let self = self else { return }
-            self.delegate?.hideLoading()
+    func sendMessageToSupport(message: String) async {
+        await delegate?.presentLoading()
+        guard !message.isEmpty, let email = contactModel?.mail else {
+            await delegate?.hideLoading()
+            return
         }
-        prepareAndSendMessage(email: email, message: message)
+        await prepareAndSendMessage(email: email, message: message)
     }
     
-    private func prepareAndSendMessage(email: String, message: String) {
-        let parameters = createMessageParameters(email: email, message: message)
-        contactUsService.sendContactUsMessage(parameters) { [weak self] result in
-            guard let self = self else { return }
-            self.delegate?.hideLoading()
-            self.handleSendContactResponse(result)
-        }
+    private func prepareAndSendMessage(email: String, message: String) async {
+            do {
+                try await Task.sleep(nanoseconds: 2_000_000_000)
+                let parameters = createMessageParameters(email: email, message: message)
+                _ = try await contactUsService.sendContactUsMessage(parameters)
+                await delegate?.hideLoading()
+                await delegate?.presentSuccessAlert()
+            } catch {
+                await delegate?.hideLoading()
+                await delegate?.presentErrorAlert(mustDismiss: false)
+            }
     }
     
     private func createMessageParameters(email: String, message: String) -> [String : String] {
@@ -124,14 +127,5 @@ extension MelContactUsViewModel: MelContactUsViewModelProtocol {
             "email" : email,
             "message" : message
         ]
-    }
-    
-    private func handleSendContactResponse(_ result: Result<Data, Error>) {
-        switch result {
-        case .success:
-            delegate?.presentSuccessAlert()
-        case .failure:
-            delegate?.presentErrorAlert(mustDismiss: false)
-        }
     }
 }

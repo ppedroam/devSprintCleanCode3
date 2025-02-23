@@ -1,7 +1,6 @@
 import UIKit
 
 final class LuzResetPasswordViewController: UIViewController {
-
     @IBOutlet weak var emailTextfield: UITextField!
     @IBOutlet weak var recoverPasswordButton: UIButton!
     @IBOutlet weak var loginButton: UIButton!
@@ -15,61 +14,52 @@ final class LuzResetPasswordViewController: UIViewController {
     var email = ""
     var recoveryEmail = false
 
+    private let viewModel: LuzResetPasswordViewModel
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+        viewModel.delegate = self
     }
 
     public override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
+    init(viewModel: LuzResetPasswordViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - IBActions
     @IBAction func close(_ sender: Any) {
         dismiss(animated: true)
     }
 
-    @IBAction func recoverPasswordDidTap(_ sender: Any) {
+    @IBAction func didTapResetPassword(_ sender: Any) {
         if recoveryEmail {
             dismiss(animated: true)
             return
         }
-
-        do {
-            try FormValidator.validateEmail(emailTextfield.text)
-            try ConnectivityValidator.checkInternetConnection()
-        } catch {
-            handleError(error)
-            return
-        }
-
-        self.view.endEditing(true)
-
-        BadNetworkLayer
-            .shared
-            .resetPassword(
-                self,
-                parameters: makeParams()
-            ) { success in
-                guard success else {
-                    self.showErrorAlert()
-                    return
-                }
-                self.handleSucess()
-            }
+        guard let email = emailTextfield.text else { return }
+        viewModel.recoverPassword(from: self, email: email)
     }
 
-    @IBAction func helpDidTap(_ sender: Any) {
-        let vc = LuzContactUsViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        self.present(vc, animated: true, completion: nil)
+    @IBAction func didTapContactUS(_ sender: Any) {
+        let contactUsViewController = LuzContactUsViewController()
+        contactUsViewController.modalPresentationStyle = .fullScreen
+        contactUsViewController.modalTransitionStyle = .coverVertical
+        self.present(contactUsViewController, animated: true, completion: nil)
     }
 
-    @IBAction func createAccountDidTap(_ sender: Any) {
-        let newVc = LuzCreateAccountViewController()
-        newVc.modalPresentationStyle = .fullScreen
-        present(newVc, animated: true)
+    @IBAction func didTapCreateAccount(_ sender: Any) {
+        let createAccountViewController = LuzCreateAccountViewController()
+        createAccountViewController.modalPresentationStyle = .fullScreen
+        present(createAccountViewController, animated: true)
     }
 
     @IBAction func emailBeginEditing(_ sender: Any) {
@@ -171,30 +161,14 @@ private extension LuzResetPasswordViewController {
         alertController.addAction(action)
         self.present(alertController, animated: true)
     }
-
-    func handleError(_ error: Error) {
-        emailTextfield.setErrorColor()
-        textLabel.textColor = .red
-
-        switch error {
-        case ValidationError.emptyEmail:
-            return textLabel.text = "E-mail não pode estar vazio"
-        case ValidationError.invalidFormat:
-            return textLabel.text = "Verifique o email informado"
-        case ConnectivityError.noInternet:
-            return Globals.showNoInternetCOnnection(controller: self)
-        default:
-            textLabel.text = "Ocorreu um erro inesperado"
-        }
-    }
 }
 
-// MARK: Make Params
-private extension LuzResetPasswordViewController {
-    func makeParams() -> [String: String] {
-        let email = emailTextfield.text!.trimmingCharacters(in: .whitespaces)
-        return [
-            "email" : email
-        ]
+extension LuzResetPasswordViewController: LuzResetPasswordViewModelDelegate {
+    func showError(_ message: String) {
+        self.showErrorAlert()
+    }
+
+    func showSuccess() {
+        self.handleSucess()
     }
 }

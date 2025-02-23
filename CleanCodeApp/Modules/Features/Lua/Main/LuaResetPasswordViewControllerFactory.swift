@@ -9,7 +9,7 @@ import UIKit
 
 struct LuaResetPasswordViewControllerFactory {
     static func makeLuaResetPasswordViewController() -> UIViewController {
-        let viewModel = LuaResetPasswordViewModelFactory.makeLuaResetPasswordViewModel()
+        let viewModel = LuaResetPasswordViewModel(networkManager: LuaNetworkManager())
         let coordinator = LuaBasicCoordinator()
         let viewController = LuaResetPasswordViewController(viewModel: viewModel, coordinator: coordinator)
         viewController.modalPresentationStyle = .fullScreen

@@ -5,6 +5,7 @@ enum LuaCreateAccountFormError: Error {
     case invalidPhone
     case invalidIdInfo
     case invalidEmail
+    case emailMismatch
     case passwordMismatch
     case passwordTooShort
     case passwordMissingNumber
@@ -24,6 +25,8 @@ extension LuaCreateAccountFormError: LocalizedError {
             return "Informe seu CPF/CNPJ."
         case .invalidEmail:
             return "E-mails devem ser iguais."
+        case .emailMismatch:
+            return "Email deve ser igual."
         case .passwordMismatch:
             return "Senhas devem ser iguais."
         case .passwordTooShort:
@@ -74,6 +77,8 @@ class LuaCreateAccountViewController: UIViewController {
         }
     }
     
+    
+    
     private var inputtedPhone: String {
         
         let forbiddenSet = CharacterSet.symbols
@@ -83,11 +88,11 @@ class LuaCreateAccountViewController: UIViewController {
             .replacingOccurrences(of: "[()\\- ]", with: "", options: .regularExpression) else {
             return ""
         }
-
+        
         return phoneText.components(separatedBy: forbiddenSet).joined()
     }
     
-    private var inputtedIdInfo: String {
+    private var inputtedDocumentInfo: String {
         get {
             guard let IdInfoInput = documentTextField.text?
                 .trimmingCharacters(in: .symbols.union(.whitespacesAndNewlines))
@@ -142,16 +147,8 @@ class LuaCreateAccountViewController: UIViewController {
         return .lightContent
     }
     
-    private var viewModel: LuaCreateAccountViewModelProtocol
-    
-    init(viewModel: LuaCreateAccountViewModelProtocol) {
-        self.viewModel = viewModel
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+    var viewModel: LuaCreateAccountViewModelProtocol?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupManagers()
@@ -164,38 +161,52 @@ class LuaCreateAccountViewController: UIViewController {
     }
     
     @IBAction func createAccountButtonTapped(_ sender: Any) {
-        if isFormValid() {
-            updateUserProperty()
-            updateMessagingToken() { token in
-                self.startCreateAuthUser(with: token)
-            }
-        }
+        startAccountCreation()
     }
     
     func startAccountCreation() {
         do {
-            try viewModel.validateFormAllForms(with: LuaRegistrationFormInput(
-                name: inputtedName,
-                phone: inputtedPhone,
-                identityDocumentInfo: inputtedIdInfo,
-                email: inputtedEmail,
-                emailConfirmation: inputtedEmailConfirmation,
-                password: inputtedPassword,
-                passwordConfirmation: inputtedPasswordlConfirmation))
-            
-            viewModel.updateUserProperties(with: LuaUserInformation(
-                name: inputtedName,
-                email: inputtedEmail,
-                password: inputtedPassword,
-                phoneNumber: inputtedPhone,
-                document: inputtedIdInfo,
-                documentType: "a"))
-            
-        } catch let error as LuaCreateAccountFormError{
+           try validateAllForms()
+           updateUserInformation()
+            // show loading
+            try viewModel?.startAccountCreationProcess()
+            // move to LuaHomeViewController
+//            let vc = UINavigationController(rootViewController: LuaHomeViewController())
+//            //                    let scenes = UIApplication.shared.connectedScenes
+//            //                    let windowScene = scenes.first as? UIWindowScene
+//            //                    let window = windowScene?.windows.first
+//            //                    window?.rootViewController = vc
+//            //                    window?.makeKeyAndVisible()
+        } catch let error as LuaCreateAccountFormError  {
             handleValidationError(error)
         } catch {
             
         }
+    }
+    
+    private func validateAllForms() throws {
+        do {
+            try viewModel?.validateFormAllForms(with: LuaRegistrationFormInput(
+                name: inputtedName,
+                phone: inputtedPhone,
+                identityDocumentInfo: inputtedDocumentInfo,
+                email: inputtedEmail,
+                emailConfirmation: inputtedEmailConfirmation,
+                password: inputtedPassword,
+                passwordConfirmation: inputtedPasswordlConfirmation))
+        } catch {
+            throw error
+        }
+    }
+    
+    private func updateUserInformation()  {
+        viewModel?.updateUserInformation(with: LuaUserInformation(
+            name: inputtedName,
+            email: inputtedEmail,
+            password: inputtedPassword,
+            phoneNumber: inputtedPhone,
+            document: inputtedDocumentInfo
+        ))
     }
     
     @IBAction func nameEditing(_ sender: Any) {
@@ -358,18 +369,9 @@ class LuaCreateAccountViewController: UIViewController {
             self.createAccountButtonTapped(self.createButton ?? UIButton())
         })
     }
-    func validateFields() {
-
-    }
     
-    func updateMessagingToken(completion: @escaping (String)->Void) {
-        Messaging.messaging.token { result, error in
-            if let error = error {
-                print("[FIREBASE] - Erro ao recuperar instance ID: \(error)")
-            } else if let result = result {
-                completion(result)
-            }
-        }
+    func validateFields() {
+        
     }
     
     func disableCreateButton() {
@@ -384,7 +386,7 @@ class LuaCreateAccountViewController: UIViewController {
         createButton.isEnabled = true
     }
     
-   
+    
     private func handleValidationError(_ error: LuaCreateAccountFormError) {
         switch error {
         case .invalidName:
@@ -400,9 +402,10 @@ class LuaCreateAccountViewController: UIViewController {
             documentErrorLabel.text = error.localizedDescription
             
         case .invalidEmail:
-            emailTextField.setErrorColor()
-            emailConfirmation.setErrorColor()
-            emailErrorLabel.text = error.localizedDescription
+            setEmailError(error.localizedDescription)
+            
+        case .emailMismatch:
+            setEmailError(error.localizedDescription)
             
         case .passwordMissingUppercase:
             setPasswordError(error.localizedDescription)
@@ -415,15 +418,21 @@ class LuaCreateAccountViewController: UIViewController {
             
         case .passwordMismatch:
             setPasswordError(error.localizedDescription)
+            
         }
     }
     
+    private func setEmailError(_ message: String) {
+        emailTextField.setErrorColor()
+        emailConfirmation.setErrorColor()
+        emailErrorLabel.text = message
+    }
     private func setPasswordError(_ message: String) {
         passwordTextField.setErrorColor()
         passwordConfirmation.setErrorColor()
         passwordErrorLabel.text = message
     }
-   
+    
     
     func validateCreateButton() {
         let isValid =  !nameTextField.text!.isEmpty
@@ -438,87 +447,6 @@ class LuaCreateAccountViewController: UIViewController {
             self.enableCreateButton()
         } else {
             self.disableCreateButton()
-        }
-    }
-}
-
-// MARK: - Alamofire
-extension LuaCreateAccountViewController {
-    func createUser(_ parameters: [String : String]) {
-        if !ConnectivityManager.shared.isConnected {
-            let alertController = UIAlertController(title: "Sem conexão", message: "Conecte-se à internet para tentar novamente", preferredStyle: .alert)
-            let actin = UIAlertAction(title: "Ok", style: .default)
-            alertController.addAction(actin)
-            present(alertController, animated: true)
-            return
-        }
-        self.showLoading()
-        
-        let url = Endpoints.Auth.createUser
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-            self.stopLoading()
-            switch result {
-            case .success(let data):
-                let decoder = JSONDecoder()
-                if let session = try? decoder.decode(Session.self, from: data) {
-                    self.successedAPI(session: session)
-                } else {
-                    print("nao conseguiu decodificar")
-                }
-            case .failure(let error):
-                print("error criando conta: \(error.localizedDescription)")
-                self.showDefaultError()
-            }
-        }
-    }
-    
-    func successedAPI(session: Session) {
-        user.id = session.id
-        let userDefaults = UserDefaults.standard
-        if let encodedSession = try? JSONEncoder().encode(session) {
-            userDefaults.set(encodedSession, forKey: "sessionNewData")
-        }
-        if let encodedUser = try? JSONEncoder().encode(user){
-            userDefaults.set(encodedUser, forKey: "userNewData")
-        }
-        userDefaults.set(session.id, forKey: "userID")
-        signInFirebase(session.token)
-    }
-    
-    func showDefaultError() {
-        Globals.alertMessage(
-            title: "Ops",
-            message: "Algo de errado aconteceu. Tente novamente mais tarde.",
-            targetVC: self
-        )
-    }
-}
-
-// MARK: - Firebase
-extension LuaCreateAccountViewController {
-    func signInFirebase(_ token: String) {
-        DispatchQueue.main.async {
-            self.showLoading()
-        }
-        Auth.auth().signIn(withCustomToken: token) { (user, error) in
-            DispatchQueue.main.async {
-                self.stopLoading()
-                
-                if error != nil {
-                    Globals.alertMessage(
-                        title: "Ops",
-                        message: error!.localizedDescription,
-                        targetVC: self
-                    )
-                } else {
-                    let vc = UINavigationController(rootViewController: LuaHomeViewController())
-                    let scenes = UIApplication.shared.connectedScenes
-                    let windowScene = scenes.first as? UIWindowScene
-                    let window = windowScene?.windows.first
-                    window?.rootViewController = vc
-                    window?.makeKeyAndVisible()
-                }
-            }
         }
     }
 }

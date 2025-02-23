@@ -16,20 +16,35 @@ struct LuaUserInformation {
     var password: String
     var phoneNumber: String
     var document: String
-    var documentType: String
+}
+
+protocol LuaSessionUserDefaultsProtocol {
+    func saveSession(with session: Session, and user: User) throws
+}
+
+extension LuaSessionUserDefaultsProtocol {
+    func saveSession(with session: Session, and user: User) throws {
+        let encoder = JSONEncoder()
+        try UserDefaults.standard.set(encoder.encode(session), forKey: "sessionNewData")
+        try UserDefaults.standard.set(encoder.encode(user), forKey: "userNewData")
+        UserDefaults.standard.set(session.id, forKey: "userID")
+    }
 }
 
 protocol LuaCreateAccountViewModelProtocol {
     var user: User? { get set }
     func validateFormAllForms(with input: LuaRegistrationFormInput) throws
-    func updateUserProperties(with info: LuaUserInformation)
+    func updateUserInformation(with info: LuaUserInformation)
+    func startAccountCreationProcess() throws
 }
 
-final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
+final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol, LuaSessionUserDefaultsProtocol {
     public var user: User?
+    private let networkManager: LuaNetworkManagerProtocol
     
-    init(user: User? = nil) {
+    init(user: User? = nil, networkManager: LuaNetworkManagerProtocol) {
         self.user = user
+        self.networkManager = networkManager
     }
     
     public func validateFormAllForms(with input: LuaRegistrationFormInput) throws {
@@ -44,21 +59,37 @@ final class LuaCreateAccountViewModel: LuaCreateAccountViewModelProtocol {
         }
     }
     
-    public func updateUserProperties(with info: LuaUserInformation) {
+    public func updateUserInformation(with info: LuaUserInformation) {
         user?.name = info.name
         user?.phoneNumber = info.phoneNumber
         user?.email =  info.email
         user?.password = info.password
         user?.document = info.document
-        user?.documentType = info.documentType
+    }
+    
+    public func startAccountCreationProcess() throws {
+        Task {
+            do {
+                try validateConnectivity()
+                let userParams = createUserParams()
+                let session = try await requestUserCreation(userParams)
+                try saveSession(with: session, and: user!)
+                try await requestLogin(with: session)
+            } catch LuaNetworkError.noInternetConnection {
+                throw LuaNetworkError.noInternetConnection
+            } catch LuaNetworkError.anyUnintendedResponse {
+                throw LuaNetworkError.anyUnintendedResponse
+            } catch {
+                throw error
+            }
+        }
     }
 }
-
 // MARK: - API
 private extension LuaCreateAccountViewModel {
     
-    func startCreateAuthUser() {
-        let user = [
+    func createUserParams() -> [String: String?] {
+        let userParams = [
             "name": user?.name,
             "phone_number": user?.phoneNumber,
             "document": user?.document,
@@ -67,7 +98,30 @@ private extension LuaCreateAccountViewModel {
             "password": user?.password,
             "token_id_push": UUID.init().uuidString
         ]
-        //        self.createUser(user) // call create API
+        return userParams
+    }
+    
+    func requestLogin(with session: Session) async throws {
+        do {
+            let userSession: Session = try await networkManager.request(LuaAuthAPITarget.loginWithSession(session))
+        } catch {
+            throw LuaNetworkError.anyUnintendedResponse
+        }
+    }
+    
+    func requestUserCreation(_ userParams: [String:String?]) async throws -> Session {
+        do {
+            let userSession: Session = try await networkManager.request(LuaAuthAPITarget.createUser(userParams))
+            return userSession
+        } catch {
+            throw LuaNetworkError.anyUnintendedResponse
+        }
+    }
+    
+    private func validateConnectivity() throws {
+        guard ConnectivityManager.shared.isConnected else {
+            throw LuaNetworkError.noInternetConnection
+        }
     }
 }
 
@@ -91,23 +145,42 @@ private extension LuaCreateAccountViewModel {
         throw LuaCreateAccountFormError.invalidPhone
     }
     
-    func validateIdentityDocumentInfo(_ IdInfo: String) throws { // need to validate if is CPF OR CNPJ
-        if IdInfo.isNotEmpty {
-            return
+    func validateIdentityDocumentInfo(_ documentInfo: String) throws {
+        switch documentInfo.count {
+        case 11:
+            user?.documentType = "CPF"
+        case 14:
+            user?.documentType = "CNPJ"
+        default:
+            throw LuaCreateAccountFormError.invalidIdInfo
         }
-        throw LuaCreateAccountFormError.invalidIdInfo
+    }
+    // MARK: - Email Validation
+    func validateEmail(_ email: String, confirmation emailConfirmation: String) throws {
+        try validateEmailFormat(email)
+        try compareEmailMatch(email, confirmation: emailConfirmation)
     }
     
-    func validateEmail(_ email: String, confirmation emailConfirmation: String) throws { // need to create a different error for email dismatch
+    func validateEmailFormat(_ email: String) throws {
         let isEmailFormatValid = email.contains(".") &&
         email.contains("@") &&
         email.count > 5
-        let isEmailConfirmationIqual = email == emailConfirmation
-        if isEmailFormatValid && isEmailConfirmationIqual {
+        
+        if isEmailFormatValid {
             return
         }
         throw LuaCreateAccountFormError.invalidEmail
     }
+    
+    
+    func compareEmailMatch(_ email: String, confirmation emailConfirmation: String) throws {
+        let isEmailConfirmationIqual = email == emailConfirmation
+        if isEmailConfirmationIqual {
+            return
+        }
+        throw LuaCreateAccountFormError.emailMismatch
+    }
+    
     // MARK: - Password Validation
     func validatePassword(_ password: String, confirmation passwordConfirmation: String) throws {
         try validatePasswordCapitalLetter(password)
@@ -149,5 +222,3 @@ private extension LuaCreateAccountViewModel {
         throw LuaCreateAccountFormError.passwordMismatch
     }
 }
-
-

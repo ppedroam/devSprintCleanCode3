@@ -20,8 +20,8 @@ extension URLSession: LuaNetworkSessionProtocol {
     }
 }
 
-private protocol LuaNetworkManagerProtocol {
-    func request<T: Decodable>(_ target: LuaAPITarget) async throws -> T
+public protocol LuaNetworkManagerProtocol {
+    func request<T: Decodable>(_ target: LuaAPIEndpointProtocol) async throws -> T
 }
 
 final class LuaNetworkManager: LuaNetworkManagerProtocol {
@@ -34,7 +34,7 @@ final class LuaNetworkManager: LuaNetworkManagerProtocol {
         self.useMockData = useMockData
     }
     
-    public func request<T: Decodable>(_ target: LuaAPITarget) async throws -> T {
+    public func request<T: Decodable>(_ target: LuaAPIEndpointProtocol) async throws -> T {
         
         if useMockData {
             let data = target.dummyData

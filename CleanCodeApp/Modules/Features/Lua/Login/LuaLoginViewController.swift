@@ -100,8 +100,7 @@ class LuaLoginViewController: UIViewController {
     
     
     @IBAction func createAccountButton(_ sender: Any) {
-        let controller = LuaCreateAccountViewController()
-        controller.modalPresentationStyle = .fullScreen
+        let controller = LuaCreateAccountViewControllerFactory.makeLuaCreateAccountViewController()
         present(controller, animated: true)
     }
 }

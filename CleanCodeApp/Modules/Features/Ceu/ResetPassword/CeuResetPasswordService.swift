@@ -33,7 +33,9 @@ class CeuResetPasswordService: CeuResetPasswordServiceProtocol {
     }
 
     private func setupResetPasswordRequestParameters(email: String?) throws -> [String: String] {
-        guard let email = email else { throw CeuCommonsErrors.invalidData }
+        guard let email = email else {
+            throw CeuCommonsErrors.invalidData
+        }
 
         let emailUser = email.trimmingCharacters(in: .whitespaces)
         let parameters = [

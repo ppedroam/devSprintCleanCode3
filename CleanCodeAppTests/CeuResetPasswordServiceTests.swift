@@ -30,21 +30,16 @@ class NetworkManagerMock: NetworkManagerProtocol {
 }
 
 class CeuResetPasswordServiceTests: XCTestCase {
-    var networkManagerMock: NetworkManagerMock?
-    var sut: CeuResetPasswordServiceProtocol?
+    lazy var networkManagerMock: NetworkManagerMock = {
+        let networkManagerMock = NetworkManagerMock()
+        return networkManagerMock
+    }()
+    lazy var sut: CeuResetPasswordServiceProtocol? = {
+        let sut = CeuResetPasswordService(networkManager: self.networkManagerMock)
+        return sut
+    }()
 
-    override func setUp() {
-        networkManagerMock = NetworkManagerMock()
-        guard let networkManagerMock = networkManagerMock else { return }
-        sut = CeuResetPasswordService(networkManager: networkManagerMock)
-    }
-
-    override func tearDown() {
-        networkManagerMock = nil
-        sut = nil
-    }
-
-    func test_resetPassword_should_return_error_when_email_is_nil() async throws {
+    func testResetPassword_givenEmailIsNil_thenShouldReturnError() async throws {
         // Given
 
         // When
@@ -55,13 +50,13 @@ class CeuResetPasswordServiceTests: XCTestCase {
             XCTFail("resetPassword function should return an error.")
         } catch {
             XCTAssertEqual(error as? CeuCommonsErrors, CeuCommonsErrors.invalidData)
-            XCTAssertFalse(networkManagerMock?.wasCalled ?? true)
+            XCTAssertFalse(networkManagerMock.wasCalled)
         }
     }
 
-    func test_resetPassword_should_return_error_when_networkManager_request_fail() async throws {
+    func testResetPassword_givenApiFail_thenShouldReturnError() async throws {
         // Given
-        networkManagerMock?.shouldReturnError = true
+        networkManagerMock.shouldReturnError = true
 
         // When
         do {
@@ -71,13 +66,13 @@ class CeuResetPasswordServiceTests: XCTestCase {
             XCTFail("resetPassword function should return an error.")
         } catch {
             XCTAssertEqual(error as? NetworkError, NetworkError.networkError)
-            XCTAssertTrue(networkManagerMock?.wasCalled ?? false)
+            XCTAssertTrue(networkManagerMock.wasCalled)
         }
     }
 
     func test_resetPassword_should_return_success_when_networkManager_request_return_success() async throws {
         // Given
-        networkManagerMock?.shouldReturnError = false
+        networkManagerMock.shouldReturnError = false
 
         // When
         do {

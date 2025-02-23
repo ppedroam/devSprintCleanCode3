@@ -78,61 +78,56 @@ class ConnectivityManagerMock: ConnectivityManagerProxy {
 }
 
 class CeuResetPasswordViewModelTests: XCTestCase {
-    var ceuResetPasswordViewModelDelegateMock: CeuResetPasswordViewModelDelegateMock?
-    var ceuResetPasswordServiceMock: CeuResetPasswordServiceMock?
-    var connectivityManagerMock: ConnectivityManagerMock?
-    var sut: CeuResetPasswordViewModelProtocol?
-
-    override func setUp() {
-        ceuResetPasswordViewModelDelegateMock = CeuResetPasswordViewModelDelegateMock()
-        ceuResetPasswordServiceMock = CeuResetPasswordServiceMock()
-        connectivityManagerMock = ConnectivityManagerMock()
-        guard let ceuResetPasswordServiceMock = ceuResetPasswordServiceMock, let connectivityManagerMock = connectivityManagerMock else {
-            return XCTFail("resetPasswordServiceMock should be valid.")
-        }
-        sut = CeuResetPasswordViewModel(resetPasswordService: ceuResetPasswordServiceMock, connectivityManager: connectivityManagerMock)
-        sut?.delegate = ceuResetPasswordViewModelDelegateMock
-    }
-
-    override func tearDown() {
-        ceuResetPasswordViewModelDelegateMock = nil
-        ceuResetPasswordServiceMock = nil
-        connectivityManagerMock = nil
-        sut = nil
-    }
+    lazy var ceuResetPasswordViewModelDelegateMock: CeuResetPasswordViewModelDelegateMock = {
+        let ceuResetPasswordViewModelDelegateMock = CeuResetPasswordViewModelDelegateMock()
+        return ceuResetPasswordViewModelDelegateMock
+    }()
+    lazy var ceuResetPasswordServiceMock: CeuResetPasswordServiceMock = {
+        let ceuResetPasswordServiceMock = CeuResetPasswordServiceMock()
+        return ceuResetPasswordServiceMock
+    }()
+    lazy var connectivityManagerMock: ConnectivityManagerMock = {
+        let connectivityManagerMock = ConnectivityManagerMock()
+        return connectivityManagerMock
+    }()
+    lazy var sut: CeuResetPasswordViewModelProtocol? = {
+        let sut = CeuResetPasswordViewModel(resetPasswordService: self.ceuResetPasswordServiceMock, connectivityManager: self.connectivityManagerMock)
+        sut.delegate = self.ceuResetPasswordViewModelDelegateMock
+        return sut
+    }()
 
     func test_startRecoverPasswordWith_should_call_showAlertWith_function_when_validateForm_return_error() {
         // Given
-        ceuResetPasswordViewModelDelegateMock?.validateFormShouldReturnError = true
+        ceuResetPasswordViewModelDelegateMock.validateFormShouldReturnError = true
 
         // When
         sut?.startRecoverPasswordWith(email: nil)
 
         // Then
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithMessage, CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
-        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled ?? false)
+        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock.showAlertWithMessage, CeuResetPasswordStrings.verifyEmailErrorMessage.localized())
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock.showAlertWithWasCalled)
     }
 
     // TODO: Create mock to ConnectivityManager
     func test_startRecoverPasswordWith_should_call_showAlertWith_function_when_verifyInternetConnection_return_error() {
         // Given
-        connectivityManagerMock?.shouldReturnIsConnected = false
+        connectivityManagerMock.shouldReturnIsConnected = false
 
         // When
         sut?.startRecoverPasswordWith(email: "jorge@devsprint.com")
 
         // Then
-        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showNoInternetConnectionAlertWasCalled ?? false)
-        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.showAlertWithWasCalled ?? false)
-        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock?.showAlertWithMessage, CeuResetPasswordStrings.somethingWentWrongErrorMessage.localized())
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock.showNoInternetConnectionAlertWasCalled)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock.showAlertWithWasCalled)
+        XCTAssertEqual(ceuResetPasswordViewModelDelegateMock.showAlertWithMessage, CeuResetPasswordStrings.somethingWentWrongErrorMessage.localized())
     }
 
     func test_when_makeResetPasswordRequest_return_error_handleResetPasswordRequestError_should_be_called() {
         // Given
-        ceuResetPasswordServiceMock?.shouldReturnError = true
+        ceuResetPasswordServiceMock.shouldReturnError = true
         let expectation = expectation(description: "request resetPassword done")
 
-        ceuResetPasswordViewModelDelegateMock?.onHandleResetPasswordRequestError = {
+        ceuResetPasswordViewModelDelegateMock.onHandleResetPasswordRequestError = {
             expectation.fulfill()
         }
 
@@ -142,16 +137,16 @@ class CeuResetPasswordViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         // Then
-        XCTAssertTrue(self.ceuResetPasswordServiceMock?.wasCalled ?? false)
-        XCTAssertTrue(self.ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestErrorWasCalled ?? false)
+        XCTAssertTrue(self.ceuResetPasswordServiceMock.wasCalled)
+        XCTAssertTrue(self.ceuResetPasswordViewModelDelegateMock.handleResetPasswordRequestErrorWasCalled)
     }
 
     func test_when_makeResetPasswordRequest_return_success_handleResetPasswordRequestSuccess_should_be_called() {
         // Given
-        ceuResetPasswordServiceMock?.shouldReturnError = false
+        ceuResetPasswordServiceMock.shouldReturnError = false
         let expectation = expectation(description: "request resetPassword done")
 
-        ceuResetPasswordViewModelDelegateMock?.onHandleResetPasswordRequestSuccess = {
+        ceuResetPasswordViewModelDelegateMock.onHandleResetPasswordRequestSuccess = {
             expectation.fulfill()
         }
 
@@ -161,7 +156,7 @@ class CeuResetPasswordViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
 
         // Then
-        XCTAssertTrue(ceuResetPasswordServiceMock?.wasCalled ?? false)
-        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock?.handleResetPasswordRequestSuccessWasCalled ?? false)
+        XCTAssertTrue(ceuResetPasswordServiceMock.wasCalled)
+        XCTAssertTrue(ceuResetPasswordViewModelDelegateMock.handleResetPasswordRequestSuccessWasCalled)
     }
 }

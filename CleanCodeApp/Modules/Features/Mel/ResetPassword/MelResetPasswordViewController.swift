@@ -71,10 +71,10 @@ class MelResetPasswordViewController: UIViewController {
     }
     
     @IBAction func helpButton(_ sender: Any) {
-        let vc = MelContactUsViewController()
-        vc.modalPresentationStyle = .fullScreen
-        vc.modalTransitionStyle = .coverVertical
-        self.present(vc, animated: true, completion: nil)
+        let contactUsVC = MelContactUsViewControllerFactory.make()
+        contactUsVC.modalPresentationStyle = .fullScreen
+        contactUsVC.modalTransitionStyle = .coverVertical
+        self.present(contactUsVC, animated: true, completion: nil)
     }
     
     @IBAction func createAccountButton(_ sender: Any) {

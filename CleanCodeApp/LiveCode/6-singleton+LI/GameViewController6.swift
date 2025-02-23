@@ -31,11 +31,10 @@ final class GameViewController6: UIViewController, AlertAvailable {
     private let webView = WKWebView()
 
     private lazy var goToLauchingsButton : UIButton = {
-        let launchButton = UIButton(type: .system)
-        launchButton.setTitle("Ver lançamentos", for: .normal)
-        launchButton.addTarget(self, action: #selector(openLastLaunchingsScreen), for: .touchUpInside)
-        launchButton.translatesAutoresizingMaskIntoConstraints = false
-        return launchButton
+        let button = UIButton()// UIButton.applyStyle(title: GameViewStrings.launchingsButtonTitle)
+        button.applyStyle(title: GameViewStrings.launchingsButtonTitle)
+        button.addTarget(self, action: #selector(openLastLaunchingsScreen), for: .touchUpInside)
+        return button
     }()
     
     init(
@@ -91,7 +90,7 @@ extension GameViewController6: SetupView {
 private extension GameViewController6 {
     @objc
     func openFAQ() {
-        guard let url = URL(string: "www.faqcleancode.com") else {
+        guard let url = URL(string: GameUrls.faqUrl) else {
             return
         }
         Task.init {
@@ -117,22 +116,10 @@ private extension GameViewController6 {
             let deviceUrls = try htmlBuilder.createWebViewUrls(content: webViewContent)
             webView.loadFileURL(deviceUrls.htmlURL, allowingReadAccessTo: deviceUrls.pathURL.absoluteURL)
         } catch {
-            showAlert(title: "Oops...", message: "Tente novamente mais tarde", actionTitle: "Ok") {
+            showAlert(title: GameViewStrings.errorTitle, message: GameViewStrings.errorDescription, actionTitle: "Ok") {
                 self.dismiss(animated: true)
             }
 //            Globals.showAlertMessage(title: "Oops...", message: "Tente novamente mais tarde", targetVC: self)
         }
     }
 }
-
-protocol UIApplicationProxy {
-    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any]) async -> Bool
-}
-
-extension UIApplicationProxy {
-    func open(_ url: URL) async -> Bool {
-        await open(url, options: [:])
-    }
-}
-
-extension UIApplication: UIApplicationProxy {}

@@ -8,23 +8,23 @@
 import UIKit
 
 protocol LuaResetPasswordViewModelProtocol {
-    func validateEmailFormat(inputedEmail: String) -> Bool
+    func validateEmailFormat(inputtedEmail: String) -> Bool
     func startPasswordReseting(targetViewController: UIViewController, emailInputted: String) async throws
 }
 
 final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
     
-    private let networkManager: LuaNetworkManager
+    private let networkManager: LuaNetworkManagerProtocol
     
-    init(networkManager: LuaNetworkManager) {
+    init(networkManager: LuaNetworkManagerProtocol) {
         self.networkManager = networkManager
     }
 
     func startPasswordReseting(targetViewController: UIViewController, emailInputted: String) async throws {
         do {
-            try validateConnectivity(emailInputted: emailInputted)
+            try validateConnectivity()
             let passwordParameters = makePasswordResetParams(inputedEmail: emailInputted)
-            let _: Data = try await networkManager.request(.authTarget(.resetPassword(passwordParameters)))
+            let _: Data = try await networkManager.request(LuaAuthAPITarget.resetPassword(passwordParameters))
         } catch _ as LuaNetworkError {
             throw LuaNetworkError.noInternetConnection
         } catch {
@@ -39,16 +39,16 @@ final class LuaResetPasswordViewModel: LuaResetPasswordViewModelProtocol {
         return passwordResetParameters
     }
     
-    private func validateConnectivity(emailInputted: String) throws {
+    private func validateConnectivity() throws {
         guard ConnectivityManager.shared.isConnected else {
             throw LuaNetworkError.noInternetConnection
         }
     }
     
-    func validateEmailFormat(inputedEmail: String) -> Bool {
-        let isEmailFormatValid = inputedEmail.contains(".") &&
-        inputedEmail.contains("@") &&
-        inputedEmail.count > 5
+    func validateEmailFormat(inputtedEmail: String) -> Bool {
+        let isEmailFormatValid = inputtedEmail.contains(".") &&
+        inputtedEmail.contains("@") &&
+        inputtedEmail.count > 5
         return isEmailFormatValid
     }
 }

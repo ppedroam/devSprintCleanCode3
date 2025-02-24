@@ -60,7 +60,7 @@ final class LuaResetPasswordViewController: UIViewController, LuaViewControllerP
     }
     
     private func validateEmailFormat() throws {
-        guard viewModel.validateEmailFormat(inputedEmail: viewCode.emailInputted) else {
+        guard viewModel.validateEmailFormat(inputtedEmail: viewCode.emailInputted) else {
             throw LuaUserAccountError.invalidEmail
         }
     }

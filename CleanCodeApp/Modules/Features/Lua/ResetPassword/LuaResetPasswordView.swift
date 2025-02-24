@@ -138,7 +138,7 @@ class LuaResetPasswordView: UIView {
     
     public var emailInputted: String {
         get {
-            guard let emailInput = emailTextField.text?.trimmingCharacters(in: .whitespaces) else {
+            guard let emailInput = emailTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) else {
                 return ""
             }
             return emailInput

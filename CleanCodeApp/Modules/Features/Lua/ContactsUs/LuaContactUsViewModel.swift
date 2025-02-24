@@ -23,7 +23,7 @@ final class LuaContactUsViewModel: LuaContactUsViewModelProtocol {
     public func sendMessage(message: String, mail: String) async throws {
         do {
             let params = makeSendMessageParams(message: message, mail: mail)
-            let response: [String: String] = try await networkManager.request(.sendContactUsMessage(params))
+            let response: [String: String] = try await networkManager.request(LuaContactUsAPITarget.sendContactUsMessage(params))
             print(response)
         } catch {
             print(error.localizedDescription)
@@ -34,7 +34,7 @@ final class LuaContactUsViewModel: LuaContactUsViewModelProtocol {
     public func fetchContactUsData() async throws {
         Task {
             do {
-                contactUsModel = try await networkManager.request(.getContactUsData)
+                contactUsModel = try await networkManager.request(LuaContactUsAPITarget.getContactUsData)
                 print(contactUsModel)
             } catch {
                 print(error.localizedDescription)

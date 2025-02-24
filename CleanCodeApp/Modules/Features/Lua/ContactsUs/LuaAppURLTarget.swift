@@ -7,31 +7,48 @@
 
 import Foundation
 
-public enum LuaAppURLTarget {
-    
-    case phone(String)
-    case mail(String)
-    case whatsapp(String)
-    
+protocol LuaUrlTargetsProtocol {
+    var url: URL? { get }
+    var fallBackURL: URL? { get }
+}
+
+public struct PhoneTarget: LuaUrlTargetsProtocol {
+ 
+    var phoneNumer: String
+
     var url: URL? {
-        switch self {
-        case .phone(let phoneNumer):
-            return URL(string: "tel://\(phoneNumer)")
-            
-        case .mail(let mail):
-            return URL(string: "mailto:\(mail)")
-            
-        case .whatsapp(let whatsappNumber):
-            return URL(string:"whatsapp://send?phone=\(whatsappNumber)&text=Oi)")
-        }
+        return URL(string: "tel://\(phoneNumer)")
     }
     
     var fallBackURL: URL? {
-        switch self {
-        case .whatsapp:
-            return URL(string:"https://apps.apple.com/app/whatsapp-messenger/id310633997")
-        default:
-            return nil
-        }
+        return nil
+    }
+}
+
+
+public struct MailTarget: LuaUrlTargetsProtocol {
+ 
+    var mail: String
+
+    var url: URL? {
+        return URL(string: "mailto:\(mail)")
+    }
+    
+    var fallBackURL: URL? {
+        return nil
+    }
+}
+
+
+public struct WhatsappTarget: LuaUrlTargetsProtocol {
+ 
+    var whatsappNumber: String
+
+    var url: URL? {
+        return URL(string: "whatsapp://send?phone=\(whatsappNumber)&text=Oi)")
+    }
+    
+    var fallBackURL: URL? {
+        return URL(string:"https://apps.apple.com/app/whatsapp-messenger/id310633997")
     }
 }

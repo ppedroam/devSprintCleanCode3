@@ -59,14 +59,21 @@ final class RumContactUsViewController: LoadingInheritageController {
     
     @objc func didTapSendMessageButton() {
         view.endEditing(true)
-        let email = model?.mail ?? ""
-        if let message = contactUsView.textView.text, contactUsView.textView.text.count > 0 {
-            let parameters: [String: String] = [
-                "email": email,
-                "mensagem": message
-            ]
-            sendMessage(parameters: parameters)
-        }
+        guard let message = validatedMessage() else { return }
+        let parameters = createMessageParameters(email: model?.mail ?? "", message: message)
+        sendMessage(parameters: parameters)
+    }
+
+    private func validatedMessage() -> String? {
+        guard let message = contactUsView.textView.text, !message.isEmpty else { return nil }
+        return message
+    }
+
+    private func createMessageParameters(email: String, message: String) -> [String: String] {
+        return [
+            "email": email,
+            "mensagem": message
+        ]
     }
     
     private func sendMessage(parameters: [String: String]) {

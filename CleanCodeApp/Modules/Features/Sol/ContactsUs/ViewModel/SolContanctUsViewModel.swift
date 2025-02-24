@@ -7,28 +7,36 @@
 
 import Foundation
 protocol SolContactUsViewModelProtocol: AnyObject {
- func fetchData()
- func requestSendMessage(parameters:[ String: String])
+    func fetchContactData()
+    func requestSendMessage(parameters:[ String: String])
 }
 
 class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
-     weak var viewController: SolContactUsProtocol?
+    weak var viewController: SolContactUsViewControllerProtocol?
+    private let networkManager: Networking
     
-    func fetchData() {
+    init(networkManager: Networking = SolNetworkManager()) {
+        self.networkManager = networkManager
+    }
+    
+    func fetchContactData() {
         self.viewController?.callLoadingView()
         let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
-            guard let self = self else {return}
-            self.viewController?.callRemoveLoadingView()
-            switch result {
-            case .success(let data):
-                self.decodeData(data: data)
-            case .failure(let error):
-                print("error api: \(error.localizedDescription)")
-                self.viewController?.displayAlertMessage(title: "Ops..", message: "Ocorreu algum erro", dissmiss: true)
+            networkManager.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
+                guard let self = self else {return}
+                self.viewController?.callRemoveLoadingView()
+                switch result {
+                case .success(let data):
+                    self.decodeData(data: data)                case .failure(let error):
+                    print("error api: \(error.localizedDescription)")
+                    self.viewController?.displayAlertMessage(
+                        title: "Ops..",
+                        message: "Ocorreu algum erro",
+                        dissmiss: true)
+                }
             }
-        }
+        
     }
     
     private func decodeData(data: Data) {
@@ -43,7 +51,7 @@ class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
     func requestSendMessage(parameters:[ String: String]) {
         let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { [weak self]  result in
+        networkManager.request(url, method: .post, parameters: parameters, headers: nil) { [weak self]  result in
             guard let self = self else {return}
             self.viewController?.callRemoveLoadingView()
             switch result {
@@ -54,6 +62,18 @@ class SolContactUsViewModel: SolContactUsViewModelProtocol {
             }
         }
     }
+}
+
+struct SolContactUsRequest: NetworkRequest {
+    var baseURL: String = "www.apiQualquer.com"
+    var pathURL: String = "contactUs"
+    var method: HTTPMethod = .get
     
+}
+
+struct SolContactSendMessageRequest: NetworkRequest {
+    var baseURL: String = "www.apiQualquer.com"
+    var pathURL: String = "sendMessage"
+    var method: HTTPMethod = .post
     
 }

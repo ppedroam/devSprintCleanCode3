@@ -9,7 +9,7 @@ import UIKit
 
 //IMPLEMENTAR SINGLETO UIAPPLICATION
 
-protocol SolContactUsProtocol: AnyObject {
+protocol SolContactUsViewControllerProtocol: AnyObject {
     func callLoadingView()
     func callRemoveLoadingView()
     func showMessageReturnModel(result: ContactUsModel)
@@ -17,19 +17,24 @@ protocol SolContactUsProtocol: AnyObject {
     func displayGlobalAlertMessage()
 }
 
-class SolContactUsViewController: LoadingInheritageController, SolContactUsProtocol {
+class SolContactUsViewController: LoadingInheritageController, SolContactUsViewControllerProtocol {
     var model: ContactUsModel?
     
     private let viewModel: SolContactUsViewModel
-    private let contactUsView = SolContactUsView()
+    private let contactUsView: SolContactUsView
+    private let globalAlerts: SolGlobalsAlertableProtocol
     
     override func loadView() {
         view = contactUsView
     }
     
-    init (viewModel: SolContactUsViewModel){
+    init (viewModel: SolContactUsViewModel,
+          contactUsView: SolContactUsView = SolContactUsView(),
+          globalAlerts: SolGlobalsAlertableProtocol = ImplementGlobals()){
         self.viewModel = viewModel
-        super.init(nibName: "SolContactUsViewController", bundle: nil)
+        self.contactUsView = contactUsView
+        self.globalAlerts = globalAlerts
+        super.init(nibName: nil, bundle: nil)
         self.viewModel.viewController = self
     }
     
@@ -40,10 +45,10 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGray6
-        contactUsView.textView.text  = "Escreva sua mensagem aqui"
+        contactUsView.textView.text  = SolContactUsStrings.writheHereYourMessage
         callConfigureActionsButtonsByType ()
         
-        viewModel.fetchData()
+        viewModel.fetchContactData()
     }
     
     func callConfigureActionsButtonsByType () {
@@ -74,15 +79,11 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
         }
     }
     
-    
-    
-    
     private func showAlertMessage(title: String, message: String, dissmiss: Bool) {
-        Globals.alertMessage(title: title, message: message, targetVC: self) {
+        globalAlerts.showAlertMessage(title: title, message: message, targetVC: self) {
             self.dismiss(animated: dissmiss)
         }
     }
-    
     
     func sendParameters() throws -> [String: String]  {
         let email = model?.mail ?? ""
@@ -114,7 +115,7 @@ class SolContactUsViewController: LoadingInheritageController, SolContactUsProto
     }
     
     func displayGlobalAlertMessage() {
-        Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+        globalAlerts.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
     }
 }
 
@@ -128,7 +129,7 @@ private extension SolContactUsViewController {
             viewModel.requestSendMessage(parameters: parameters)
         }
         catch {
-            Globals.alertMessage(title: "Ops..", message: "Ocorreu algum erro", targetVC: self)
+            Globals.showAlertMessage(title: SolContactUsStrings.ops, message: SolContactUsStrings.anyErrorOcorred, targetVC: self)
         }
     }
     

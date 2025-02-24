@@ -38,7 +38,6 @@ class LoadingInheritageController: UIViewController {
             self.loadingView.removeFromSuperview()
         }
     }
-    
 }
 
 

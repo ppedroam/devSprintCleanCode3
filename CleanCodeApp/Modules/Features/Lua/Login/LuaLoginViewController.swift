@@ -94,10 +94,8 @@ class LuaLoginViewController: UIViewController {
     }
     
     @IBAction func resetPasswordButton(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "LuaUser", bundle: nil)
-        let vc = storyboard.instantiateViewController(withIdentifier: "LuaResetPasswordViewController") as! LuaResetPasswordViewController
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
+        let luaResetPasswordViewController = LuaResetPasswordViewControllerFactory.makeLuaResetPasswordViewController()
+        present(luaResetPasswordViewController, animated: true)
     }
     
     

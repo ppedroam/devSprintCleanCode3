@@ -8,22 +8,31 @@
 import UIKit
 
 public protocol LuaAlertHandlerProtocol {
-    func showAlert(alertTitle: String?, message: String, style: UIAlertController.Style?, viewController: UIViewController)
-    func showAlertError(error: Error, from viewController: UIViewController, alertTitle: String?, style: UIAlertController.Style?)
+    func showAlert(alertTitle: String?, message: String, style: UIAlertController.Style)
+    func showAlertError(error: Error, alertTitle: String?, style: UIAlertController.Style)
 }
 
-extension UIViewController: LuaAlertHandlerProtocol {
-    public func showAlertError(error: Error, from viewController: UIViewController, alertTitle: String?, style: UIAlertController.Style? = nil) {
-        let alertController = UIAlertController(title: alertTitle, message: error.localizedDescription, preferredStyle: .alert)
+extension LuaAlertHandlerProtocol where Self: UIViewController {
+    
+    public func showAlertError(error: Error, alertTitle: String? = "Error", style: UIAlertController.Style = .alert) {
+        let alertController = UIAlertController(
+            title: alertTitle,
+            message: error.localizedDescription,
+            preferredStyle: style
+        )
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
-        viewController.present(alertController, animated: true)
+        self.present(alertController, animated: true)
     }
     
-    public func showAlert(alertTitle: String?, message: String, style: UIAlertController.Style? = .alert, viewController: UIViewController) {
-        let alertController = UIAlertController(title: alertTitle, message: message, preferredStyle: style!)
+    public func showAlert(alertTitle: String?, message: String, style: UIAlertController.Style = .alert) {
+        let alertController = UIAlertController(
+            title: alertTitle,
+            message: message,
+            preferredStyle: style
+        )
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
-        viewController.present(alertController, animated: true)
+        self.present(alertController, animated: true)
     }
 }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class LuaResetPasswordViewController: UIViewController, LuaViewControllerProtocol {
+final class LuaResetPasswordViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
     
     typealias ViewCode = LuaResetPasswordView
     internal let viewCode = LuaResetPasswordView()
@@ -53,9 +53,9 @@ final class LuaResetPasswordViewController: UIViewController, LuaViewControllerP
             try await viewModel.startPasswordReseting(targetViewController: self, emailInputted: viewCode.emailInputted)
             displayPasswordResetSuccessUI()
         } catch let error as LuaNetworkError  {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
+            showAlertError(error: error, alertTitle: "Algo de errado aconteceu. Tente novamente mais tarde.")
         }
     }
     

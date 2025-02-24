@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol {
+final class LuaContactUsViewController: UIViewController, LuaViewControllerProtocol, LuaAlertHandlerProtocol {
     typealias ViewCode = LuaContactUsView
     internal let viewCode = LuaContactUsView()
     private let viewModel: LuaContactUsViewModelProtocol
@@ -40,7 +40,7 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
                 await luaStopLoading()
             } catch {
                 await luaStopLoading()
-                showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorTitle)
+                showAlertError(error: error, alertTitle: LuaContactUsStrings.defaultErrorTitle)
                 self.dismiss(animated: true)
             }
         }
@@ -57,7 +57,7 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
             sendMessage(message: message, mail: mail)
             return
         }
-        showAlert(alertTitle: LuaContactUsStrings.emptyMessageTitle , message: LuaContactUsStrings.emptyMessageDescription, viewController: self)
+        showAlert(alertTitle: LuaContactUsStrings.emptyMessageTitle , message: LuaContactUsStrings.emptyMessageDescription)
     }
     
     private func sendMessage(message: String, mail: String) {
@@ -65,10 +65,10 @@ final class LuaContactUsViewController: UIViewController, LuaViewControllerProto
             do {
                 await luaShowLoading()
                 try await viewModel.sendMessage(message: message, mail: mail)
-                showAlert(alertTitle: LuaContactUsStrings.defaultSuccessTitle, message: LuaContactUsStrings.defaultSuccessDescription, viewController: self)
+                showAlert(alertTitle: LuaContactUsStrings.defaultSuccessTitle, message: LuaContactUsStrings.defaultSuccessDescription)
             } catch {
                 await luaStopLoading()
-                showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.sendMessageErrorDescription)
+                showAlertError(error: error, alertTitle: LuaContactUsStrings.sendMessageErrorDescription)
             }
             await luaStopLoading()
         }
@@ -94,9 +94,9 @@ private extension LuaContactUsViewController {
         do {
             try openPhone()
         } catch let error as LuaPersonalInfoError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
+            showAlertError(error: error, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     
@@ -104,9 +104,9 @@ private extension LuaContactUsViewController {
         do {
             try openMail()
         } catch let error as LuaPersonalInfoError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
+            showAlertError(error: error, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     
@@ -114,9 +114,9 @@ private extension LuaContactUsViewController {
         do {
             try openWhatsapp()
         } catch let error as LuaPersonalInfoError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         } catch {
-            showAlertError(error: error, from: self, alertTitle: LuaContactUsStrings.defaultErrorDescription)
+            showAlertError(error: error, alertTitle: LuaContactUsStrings.defaultErrorDescription)
         }
     }
     
@@ -132,7 +132,7 @@ private extension LuaContactUsViewController {
             try openExternalApp(appURLTarget: .phone(phoneNumer))
         }
         catch let error as LuaUIApplicationURLError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         }
     }
     
@@ -144,7 +144,7 @@ private extension LuaContactUsViewController {
             try openExternalApp(appURLTarget: .whatsapp(phoneNumer))
         }
         catch let error as LuaUIApplicationURLError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         }
     }
     
@@ -156,7 +156,7 @@ private extension LuaContactUsViewController {
             try openExternalApp(appURLTarget: .mail(mail))
         }
         catch let error as LuaUIApplicationURLError {
-            showAlertError(error: error, from: self, alertTitle: error.errorTitle)
+            showAlertError(error: error, alertTitle: error.errorTitle)
         }
     }
     

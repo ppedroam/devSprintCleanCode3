@@ -9,7 +9,7 @@ import UIKit
 
 //IMPLEMENTAR SINGLETO UIAPPLICATION
 
-protocol SolContactUsProtocol: AnyObject {
+protocol SolContactUsViewControllerProtocol: AnyObject {
     func callLoadingView()
     func callRemoveLoadingView()
     func showMessageReturnModel(result: ContactUsModel)
@@ -17,7 +17,7 @@ protocol SolContactUsProtocol: AnyObject {
     func displayGlobalAlertMessage()
 }
 
-class SolContactUsViewController: LoadingInheritageController, SolContactUsProtocol {
+class SolContactUsViewController: LoadingInheritageController, SolContactUsViewControllerProtocol {
     var model: ContactUsModel?
     
     private let viewModel: SolContactUsViewModel

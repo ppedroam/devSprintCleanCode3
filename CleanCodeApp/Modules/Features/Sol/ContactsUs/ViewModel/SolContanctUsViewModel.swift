@@ -13,7 +13,7 @@ protocol SolContactUsViewModelProtocol: AnyObject {
 
 class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
-    weak var viewController: SolContactUsProtocol?
+    weak var viewController: SolContactUsViewControllerProtocol?
     private let networkManager: Networking
     
     init(networkManager: Networking = SolNetworkManager()) {

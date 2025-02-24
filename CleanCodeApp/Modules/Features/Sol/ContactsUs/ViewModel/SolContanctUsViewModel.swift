@@ -22,30 +22,21 @@ class SolContactUsViewModel: SolContactUsViewModelProtocol {
     
     func fetchContactData() {
         self.viewController?.callLoadingView()
-        Task {
-            let _: () = await fetchContactUsData()
-        }
-        
-    }
-    
-    private func fetchContactUsData() async -> () {
         let url = Endpoints.contactUs
-        return await withCheckedContinuation{ continuation in
             networkManager.request(url, method: .get, parameters: nil, headers: nil) { [weak self] result in
                 guard let self = self else {return}
                 self.viewController?.callRemoveLoadingView()
                 switch result {
                 case .success(let data):
-                    continuation.resume(returning: self.decodeData(data: data))
-                case .failure(let error):
+                    self.decodeData(data: data)                case .failure(let error):
                     print("error api: \(error.localizedDescription)")
-                    continuation.resume(returning: self.viewController?.displayAlertMessage(
+                    self.viewController?.displayAlertMessage(
                         title: "Ops..",
                         message: "Ocorreu algum erro",
-                        dissmiss: true) ?? ())
+                        dissmiss: true)
                 }
             }
-        }
+        
     }
     
     private func decodeData(data: Data) {

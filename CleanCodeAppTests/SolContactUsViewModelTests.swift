@@ -68,8 +68,8 @@ class SolContactUsViewModelTests: XCTestCase {
         viewModel.fetchContactData()
         
         XCTAssertTrue(mockViewController.loadingViewCalled, "Loading view should be called")
-        //XCTAssertTrue(mockViewController.removeLoadingViewCalled, "Remove loading view should be called")
-        //XCTAssertTrue(mockViewController.showMessageReturnModelCalled, "Show message should be called")
+        XCTAssertTrue(mockViewController.removeLoadingViewCalled, "Remove loading view should be called")
+        XCTAssertTrue(mockViewController.showMessageReturnModelCalled, "Show message should be called")
     }
     
     func testFetchContactDataFailure() {
@@ -78,7 +78,7 @@ class SolContactUsViewModelTests: XCTestCase {
         viewModel.fetchContactData()
         
         XCTAssertTrue(mockViewController.loadingViewCalled, "Loading view should be called")
-       // XCTAssertTrue(mockViewController.removeLoadingViewCalled, "Remove loading view should be called")
+        XCTAssertTrue(mockViewController.removeLoadingViewCalled, "Remove loading view should be called")
         XCTAssertTrue(mockViewController.alertMessageCalled, "Alert message should be called")
     }
     

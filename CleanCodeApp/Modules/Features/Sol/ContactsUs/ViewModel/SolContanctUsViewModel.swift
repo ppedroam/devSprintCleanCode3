@@ -6,9 +6,6 @@
 //
 
 import Foundation
-// TODO
-
-
 protocol SolContactUsViewModelProtocol: AnyObject {
  func fetchData()
  func requestSendMessage(parameters:[ String: String])

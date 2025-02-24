@@ -42,7 +42,3 @@ class LuaHomeViewController: UIViewController {
         window?.makeKeyAndVisible()
     }
 }
-
-class HomeView: UIView {
-    
-}

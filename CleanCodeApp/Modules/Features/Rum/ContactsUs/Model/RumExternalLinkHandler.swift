@@ -1,14 +1,13 @@
 //
-//  UrlLinks.swift
+//  RumExternalLinkHandler.swift
 //  CleanCode
 //
-//  Created by Ely Assumpcao Ndiaye on 08/02/25.
+//  Created by Rayana Prata Neves on 21/02/25.
 //
 
 import Foundation
 
-
-enum ExternalActionsHandler {
+enum RumExternalLinkHandler {
     case phone(String)
     case email(String)
     case whatsapp(String)
@@ -33,4 +32,3 @@ enum ExternalActionsHandler {
         }
     }
 }
-

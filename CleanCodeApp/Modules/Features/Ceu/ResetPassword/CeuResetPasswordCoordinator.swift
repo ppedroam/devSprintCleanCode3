@@ -6,8 +6,19 @@
 //
 
 import UIKit
-struct CeuResetPasswordCoordinator {
-    weak var viewController: UIViewController?
+
+protocol CeuResetPasswordCoordinatorProtocol {
+    var viewController: CeuResetPasswordViewController? { get set }
+    func showContactUsViewController()
+    func showCreateAccountViewController()
+    func showAlert()
+    func showAlertWith(message: String)
+    func showNoInternetConnectionAlert()
+}
+
+
+class CeuResetPasswordCoordinator: CeuResetPasswordCoordinatorProtocol, CeuGlobalsProtocol {
+    weak var viewController: CeuResetPasswordViewController?
 
     func showContactUsViewController() {
         let ceuContactUsViewController = CeuContactUsViewController()
@@ -19,23 +30,27 @@ struct CeuResetPasswordCoordinator {
     func showCreateAccountViewController() {
         let ceuCreateAccountViewController = CeuCreateAccountViewController()
         ceuCreateAccountViewController.modalPresentationStyle = .fullScreen
-        self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(ceuCreateAccountViewController, animated: true)
+        }
     }
 
     func showAlert() {
-        let alertController = UIAlertController(title: "Ops..", message: "Algo de errado aconteceu. Tente novamente mais tarde.", preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .default)
+        let alertController = UIAlertController(title: CeuResetPasswordStrings.ops.localized(), message: CeuResetPasswordStrings.somethingWentWrongErrorMessage.localized(), preferredStyle: .alert)
+        let action = UIAlertAction(title: CeuResetPasswordStrings.ok.localized(), style: .default)
         alertController.addAction(action)
-        self.viewController?.present(alertController, animated: true)
+        Task { @MainActor in
+            self.viewController?.present(alertController, animated: true)
+        }
     }
 
     func showAlertWith(message: String) {
         guard let viewController = viewController else { return }
-        return Globals.alertMessage(title: "Ops...", message: message, targetVC: viewController)
+        return self.alertMessage(title: CeuResetPasswordStrings.ops.localized(), message: message, targetVC: viewController, action: nil)
     }
 
     func showNoInternetConnectionAlert() {
         guard let viewController = viewController else { return }
-        Globals.showNoInternetCOnnection(controller: viewController)
+        self.showNoInternetCOnnection(controller: viewController)
     }
 }

@@ -6,7 +6,7 @@
 //
 import UIKit
 
-protocol CeuResetPasswordViewModelDelegate where Self: UIViewController {
+protocol CeuResetPasswordViewModelDelegate: AnyObject {
     func handleResetPasswordRequestSuccess()
     func handleResetPasswordRequestError()
     func validateForm() throws
@@ -22,9 +22,14 @@ protocol CeuResetPasswordViewModelProtocol {
 class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
     weak var delegate: CeuResetPasswordViewModelDelegate?
     private let resetPasswordService: CeuResetPasswordServiceProtocol
+    private let connectivityManager: ConnectivityManagerProxy
 
-    init(resetPasswordService: CeuResetPasswordServiceProtocol) {
+    init(
+        resetPasswordService: CeuResetPasswordServiceProtocol,
+        connectivityManager: ConnectivityManagerProxy = ConnectivityManager.shared
+    ) {
         self.resetPasswordService = resetPasswordService
+        self.connectivityManager = connectivityManager
     }
 
     func startRecoverPasswordWith(email: String?) {
@@ -44,7 +49,7 @@ class CeuResetPasswordViewModel: CeuResetPasswordViewModelProtocol {
 private extension CeuResetPasswordViewModel {
 
     func verifyInternetConnection() throws {
-        if !ConnectivityManager.shared.isConnected {
+        if !connectivityManager.isConnected {
             delegate?.showNoInternetConnectionAlert()
             throw CeuCommonsErrors.networkError
         }

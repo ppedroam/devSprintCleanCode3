@@ -52,7 +52,7 @@ final class RumContactUsViewController: LoadingInheritageController {
     func fetchData() {
         showLoadingView()
         Task {
-            self.model = await contactUsService.fetchContactUsData()
+            self.model = try await contactUsService.fetchContactUsData()
             removeLoadingView()
         }
     }
@@ -79,7 +79,7 @@ final class RumContactUsViewController: LoadingInheritageController {
     private func sendMessage(parameters: [String: String]) {
         showLoadingView()
         Task {
-            await contactUsService.sendMessage(parameters: parameters)
+            try await contactUsService.sendMessage(parameters: parameters)
             removeLoadingView()
         }
     }

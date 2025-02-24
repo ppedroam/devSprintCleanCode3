@@ -10,13 +10,36 @@ import Foundation
 enum RumContactUsError: Error {
     case networkError
     case decodingError
+    case invalidResponse
+    
+    var localizedDescription: String {
+        switch self {
+        case .networkError:
+            return "Erro de rede."
+        case .decodingError:
+            return "Falha ao decodificar os dados."
+        case .invalidResponse:
+            return "Resposta inválida."
+        }
+    }
+    
+    var shouldDismiss: Bool {
+        switch self {
+        case .networkError, .decodingError:
+            return false
+        case .invalidResponse:
+            return true
+        }
+    }
     
     var logMessage: String {
         switch self {
         case .networkError:
-            return "Network error: unable to reach the server."
+            return "Network error."
         case .decodingError:
-            return "Decoding error: failed to parse the response data."
+            return "Decoding error: Failed to decode data."
+        case .invalidResponse:
+            return "Invalid response from server."
         }
     }
 }

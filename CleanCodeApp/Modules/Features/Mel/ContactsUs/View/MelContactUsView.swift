@@ -1,5 +1,5 @@
 //
-//  MelContactUsScreen.swift
+//  MelContactUsView.swift
 //  CleanCode
 //
 //  Created by Bruno Moura on 11/02/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol MelContactUsScreenDelegate: AnyObject {
+protocol MelContactUsViewDelegate: AnyObject {
     func didTapPhoneCallButton()
     func didTapEmailButton()
     func didTapChatButton()
@@ -15,9 +15,8 @@ protocol MelContactUsScreenDelegate: AnyObject {
     func didTapCloseButton()
 }
 
-class MelContactUsScreen: UIView {
-    
-    private weak var delegate: MelContactUsScreenDelegate?
+class MelContactUsView: UIView {
+    private weak var delegate: MelContactUsViewDelegate?
     
     private lazy var messageTextView: UITextView = {
         let textView = UITextView()
@@ -113,7 +112,7 @@ class MelContactUsScreen: UIView {
 }
 
 // MARK: - Button actions
-extension MelContactUsScreen {
+extension MelContactUsView {
     @objc
     private func didTapPhoneCallButton() {
         delegate?.didTapPhoneCallButton()
@@ -142,22 +141,22 @@ extension MelContactUsScreen {
 }
 
 // MARK: - Functions
-extension MelContactUsScreen {
-    public func setDelegate(delegate: MelContactUsScreenDelegate?) {
+extension MelContactUsView {
+    public func setDelegate(delegate: MelContactUsViewDelegate?) {
         self.delegate = delegate
     }
     
     private func configureButtonSymbols() {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 36)
         setButtonImage(phoneCallButton,
-                             with: MelSystemImage.phone.rawValue,
-                             buttonSymbolConfiguration: symbolConfig)
+                       with: MelSystemImage.phone.rawValue,
+                       buttonSymbolConfiguration: symbolConfig)
         setButtonImage(emailButton,
-                             with: MelSystemImage.envelope.rawValue,
-                             buttonSymbolConfiguration: symbolConfig)
+                       with: MelSystemImage.envelope.rawValue,
+                       buttonSymbolConfiguration: symbolConfig)
         setButtonImage(chatButton,
-                             with: MelSystemImage.message.rawValue,
-                             buttonSymbolConfiguration: symbolConfig)
+                       with: MelSystemImage.message.rawValue,
+                       buttonSymbolConfiguration: symbolConfig)
     }
     
     private func setButtonImage(_ button: UIButton, with systemNameImage: String, buttonSymbolConfiguration: UIImage.SymbolConfiguration) {
@@ -167,7 +166,7 @@ extension MelContactUsScreen {
 }
 
 // MARK: - ViewCode Protocol Conformance
-extension MelContactUsScreen: MelViewCode {
+extension MelContactUsView: MelViewCode {
     func addSubviews() {
         addSubview(channelTitleLabel)
         addSubview(phoneCallButton)

@@ -7,18 +7,23 @@
 
 import Foundation
 
-final class MelContactUsService {
-    public func fetchContactData(completion: @escaping (Result<ContactUsModel, Error>) -> Void) {
+protocol MelContactUsServiceProtocol: AnyObject {
+    func fetchContactData() async throws -> ContactUsModel
+    func sendContactUsMessage(_ parameters: [String: String]) async throws -> Data
+}
+
+final class MelContactUsService: MelContactUsServiceProtocol {
+    private let networking: MelNetworking
+    
+    init(networking: MelNetworking) {
+        self.networking = networking
+    }
+    
+    public func fetchContactData() async throws -> ContactUsModel {
         let url = Endpoints.contactUs
-        AF.shared.request(url, method: .get, parameters: nil, headers: nil) { result in
-            do {
-                let data = try result.get()
-                let contactModel = try self.decodeContactData(data)
-                completion(.success(contactModel))
-            } catch {
-                completion(.failure(error))
-            }
-        }
+        let data = try await networking.request(url, method: .get, parameters: nil, headers: nil)
+        let contactData = try decodeContactData(data)
+        return contactData
     }
     
     private func decodeContactData(_ data: Data) throws -> ContactUsModel {
@@ -26,10 +31,9 @@ final class MelContactUsService {
         return try decoder.decode(ContactUsModel.self, from: data)
     }
     
-    public func sendContactUsMessage(_ parameters: [String : String], completion: @escaping (Result<Data, Error>) -> Void) {
+    public func sendContactUsMessage(_ parameters: [String : String]) async throws -> Data {
         let url = Endpoints.sendMessage
-        AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { result in
-            completion(result)
-        }
+        let data = try await networking.request(url, method: .post, parameters: parameters, headers: nil)
+        return data
     }
 }

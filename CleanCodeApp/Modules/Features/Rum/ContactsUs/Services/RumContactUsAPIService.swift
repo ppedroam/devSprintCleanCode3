@@ -12,28 +12,33 @@ protocol RumContactUsAPIServiceDelegate: AnyObject {
 }
 
 protocol RumContactAPIServicing {
-    func fetchContactUsData() async -> ContactUsModel
-    func sendMessage(parameters: [String: String]) async
+    func fetchContactUsData() async throws -> ContactUsModel
+    func sendMessage(parameters: [String: String]) async throws
 }
 
 final class RumContactUsAPIService: RumContactAPIServicing {
     weak var delegate: RumContactUsAPIServiceDelegate?
+    private let network: Networking
     
-    func fetchContactUsData() async -> ContactUsModel {
+    init(delegate: RumContactUsAPIServiceDelegate? = nil, network: Networking = AF.shared) {
+        self.delegate = delegate
+        self.network = network
+    }
+    
+    func fetchContactUsData() async throws -> ContactUsModel {
         let url = Endpoints.contactUs
         return await withCheckedContinuation { continuation in
-            AF.shared.request(url, method: .get, parameters: nil, headers: nil) { [weak self] response in
+            network.request(url, method: .get, parameters: nil, headers: nil) { [weak self] response in
                 guard let self = self else { return }
                 switch response {
                 case .success(let data):
-                    guard let contactUsModel = self.decodeContactUsData(data) else { return }
-                    continuation.resume(returning: contactUsModel)
+                    if let contactUsModel = self.decodeContactUsData(data) {
+                        continuation.resume(returning: contactUsModel)
+                    } else {
+                        self.handleError(.decodingError)
+                    }
                 case .failure(_):
-                    self.logError(error: .networkError)
-                    self.delegate?.showAlertMessage(
-                        title: "Ops..",
-                        message: "Ocorreu algum erro",
-                        shouldDismiss: true)
+                    handleError(.networkError)
                 }
             }
         }
@@ -50,26 +55,45 @@ final class RumContactUsAPIService: RumContactAPIServicing {
         }
     }
     
-    func sendMessage(parameters: [String: String]) async {
+    func sendMessage(parameters: [String: String]) async throws {
         let url = Endpoints.sendMessage
         return await withCheckedContinuation { continuation in
-            AF.shared.request(url, method: .post, parameters: parameters, headers: nil) { response in
+            network.request(url, method: .post, parameters: parameters, headers: nil) { [weak self] response in
+                guard let self = self else { return }
                 switch response {
                 case .success:
-                    self.delegate?.showAlertMessage(
-                        title: "Sucesso..",
-                        message: "Sua mensagem foi enviada",
-                        shouldDismiss: true
-                    )
+                    self.handleSuccess()
                 case .failure(_):
-                    self.logError(error: .networkError)
-                    self.delegate?.showAlertMessage(
-                        title: "Ops..",
-                        message: "Ocorreu algum erro",
-                        shouldDismiss: false)
+                    self.handleError(.networkError)
                 }
             }
         }
+    }
+    
+    private func handleError(_ error: RumContactUsError) {
+        logError(error: error)
+        
+        let alertTitle = "Ops..."
+        let alertMessage = error.localizedDescription
+        let shouldDismiss = error.shouldDismiss
+        
+        delegate?.showAlertMessage(
+            title: alertTitle,
+            message: alertMessage,
+            shouldDismiss: shouldDismiss
+        )
+    }
+    
+    private func handleSuccess() {
+        let alertTitle = "Sucesso..."
+        let alertMessage = "Sua mensagem foi enviada"
+        let shouldDismiss = true
+        
+        delegate?.showAlertMessage(
+            title: alertTitle,
+            message: alertMessage,
+            shouldDismiss: shouldDismiss
+        )
     }
     
     private func logError(error: RumContactUsError) {
